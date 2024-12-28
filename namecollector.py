@@ -55,6 +55,8 @@ for index, name in enumerate(name_list):
     except:
         pass
 
+data = sorted(data, key=lambda x: x[0])
+
 columns = ["kor", "eng"]
 # 데이터프레임 생성
 df = pd.DataFrame(data, columns=columns)
