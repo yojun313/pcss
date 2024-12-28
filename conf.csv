@@ -1,0 +1,91 @@
+conference,param,kind
+CoNEXT,conext,Networks
+IMC,imc,Networks
+INFOCOM,infocom,Networks
+MobiHoc,mobihoc,Networks
+NSDI,nsdi,Networks
+SIGCOMM,sigcomm,Networks
+SIGMETRICS,sigmetrics,Networks
+CCS,ccs,Security & Cryptography
+CRYPTO,crypto,Security & Cryptography
+EuroCrypt,eurocrypt,Security & Cryptography
+IEEE S&P,sp,Security & Cryptography
+NDSS,ndss,Security & Cryptography
+PETS,pet,Security & Cryptography
+USENIX Security,uss,Security & Cryptography
+BMVC,bmvc,Computer Vision & Graphics
+CVPR,cvpr,Computer Vision & Graphics
+ECCV,eccv,Computer Vision & Graphics
+ICCV,iccv,Computer Vision & Graphics
+SIGGRAPH Asia,siggrapha,Computer Vision & Graphics
+SIGGRAPH,siggraph,Computer Vision & Graphics
+CIKM,cikm,Data Mining & Information Retrieval
+ICDM,icdm,Data Mining & Information Retrieval
+KDD,kdd,Data Mining & Information Retrieval
+SIGIR,sigir,Data Mining & Information Retrieval
+WSDM,wsdm,Data Mining & Information Retrieval
+WWW,www,Data Mining & Information Retrieval
+AISTATS,aistats,Machine Learning
+COLT,colt,Machine Learning
+ICLR,iclr,Machine Learning
+ICML,icml,Machine Learning
+NeurIPS,nips,Machine Learning
+UAI,uai,Machine Learning
+CAV,cav,Theory
+FOCS,focs,Theory
+ICALP,icalp,Theory
+LICS,lics,Theory
+SODA,soda,Theory
+STOC,stoc,Theory
+CHI,chi,Human-Computer Interaction
+CSCW,cscw,Human-Computer Interaction
+HRI,hri,Human-Computer Interaction
+UIST,uist,Human-Computer Interaction
+ACL,acl,Linguistics & Speech
+EMNLP,emnlp,Linguistics & Speech
+ICASSP,icassp,Linguistics & Speech
+INTERSPEECH,interspeech,Linguistics & Speech
+NAACL,naacl,Linguistics & Speech
+EuroSys,eurosys,Operating Systems
+FAST,fast,Operating Systems
+OSDI,osdi,Operating Systems
+SOSP,sosp,Operating Systems
+USENIX ATC,usenix,Operating Systems
+ASPLOS,asplos,Computer Architecture
+HPCA,hpca,Computer Architecture
+ISCA,isca,Computer Architecture
+MICRO,micro,Computer Architecture
+ICDE,icde,Databases
+PODS,pods,Databases
+SIGMOD,sigmod,Databases
+VLDB,vldb,Databases
+ICFP,icfp,Programming Languages
+OOPSLA,oopsla,Programming Languages
+PLDI,pldi,Programming Languages
+POPL,popl,Programming Languages
+ASE,kbse,Software Engineering
+FSE,fse,Software Engineering
+ICSE,icse,Software Engineering
+ISSTA,issta,Software Engineering
+EMSOFT,emsoft,Embedded & Real-Time Systems
+RTAS,rtas,Embedded & Real-Time Systems
+RTSS,rtss,Embedded & Real-Time Systems
+HPDC,hpdc,High-Performance Computing
+ICS,ics,High-Performance Computing
+SC,sc,High-Performance Computing
+MobiCom,mobicom,Mobile Computing
+MobiSys,mobisys,Mobile Computing
+SenSys,sensys,Mobile Computing
+ICRA,icra,Robotics
+IROS,iros,Robotics
+RSS,rss,Robotics
+AAAI,aaai,Artificial Intelligence
+IJCAI,ijcai,Artificial Intelligence
+ISMB,ismb,Computational Biology
+RECOMB,recomb,Computational Biology
+EC,ec,Computational Economics
+WINE,wine,Computational Economics
+DAC,dac,Design Automation
+ICCAD,iccad,Design Automation
+VIS,vis,Visualization
+VR,vr,Visualization
