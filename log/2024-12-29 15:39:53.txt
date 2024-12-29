@@ -1,0 +1,6 @@
+[2024-12-29 15:40:14] Traceback (most recent call last):
+  File "/Users/yojunsmacbookprp/Documents/GitHub/PCSS/PCSSEARCH.py", line 110, in paper_crawl
+    if self.koreanChecker(authors[0]):
+                          ~~~~~~~^^^
+IndexError: list index out of range
+
