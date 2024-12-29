@@ -19,12 +19,15 @@ class PCSSEARCH:
         self.proxy_option = False
         self.proxy_list = []
 
-        name_df = pd.read_csv('name_origin.csv', sep=';')
-        self.name_list = list(
-            name_df[['eng_1', 'eng_2', 'eng_3']]
+        last_name_df = pd.read_csv('last_name.csv', sep=';')
+        self.last_name_list = list(
+            last_name_df[['eng_1', 'eng_2', 'eng_3']]
             .stack()  # 모든 열을 행 방향으로 쌓음 (NaN 제거 포함)
             .astype(str)  # 모든 값을 문자열로 변환
         )
+        first_name_df = pd.read_csv('first_name.csv')
+        self.first_name_list = list(first_name_df['eng'])
+
         pass
 
     def conf_crawl(self, conf, startyear, endyear):
@@ -85,30 +88,40 @@ class PCSSEARCH:
 
             # 1저자가 한국인
             if option == 1:
-                if authors[0].split()[-1] in self.name_list:
+                if self.koreanChecker(authors[0], possible):
                     returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': authors[0], 'conference': conf})
 
             # 1저자 또는 2저자가 한국인
             elif option == 2:
-                if authors[0].split()[-1] in self.name_list and authors[1].split()[-1] in self.name_list:
+                if self.koreanChecker(authors[0], possible) and self.koreanChecker(authors[1], possible):
                     returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': ', '.join([authors[0], authors[1]]),  'conference': conf})
                 else:
-                    if authors[1].split()[-1] in self.name_list:
+                    if self.koreanChecker(authors[1], possible):
                         returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': authors[1],  'conference': conf})
 
             # 마지막 저자가 한국인
             elif option == 3:
-                if authors[-1].split()[-1] in self.name_list:
+                if self.koreanChecker(authors[-1], possible):
                     returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': authors[-1], 'conference': conf})
 
             # 저자 중 한 명 이상이 한국인
             else:
-                target_list = [author for author in authors if author.split()[-1] in self.name_list]
+                target_list = [author for author in authors if self.koreanChecker(author, possible)]
                 if len(target_list) > 0:
                     returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': ', '.join(target_list), 'conference': conf})
 
         for data in returnData:
             print(data['target_author'])
+
+    def koreanChecker(self, name, possible):
+        if possible == True:
+            if name.split()[-1] in self.last_name_list:
+                return True
+        else:
+            if name.split()[-1] in self.last_name_list and name.split()[0] in self.first_name_list:
+                return True
+        return False
+
 
 
 
@@ -194,4 +207,4 @@ pcssearch_obj = PCSSEARCH()
 #conf_df = pd.read_csv('conf.csv')
 #conf_list = conf_df['param'].tolist()
 
-pcssearch_obj.paper_crawl("HPCA", "https://dblp.uni-trier.de/db/conf/hpca/hpca2024.html", 1)
+pcssearch_obj.paper_crawl("HPCA", "https://dblp.uni-trier.de/db/conf/hpca/hpca2024.html", 1, True)

@@ -2,7 +2,7 @@ import pandas as pd
 
 # CSV 파일 경로 설정
 input_file = "name_origin.csv"  # 기존 CSV 파일 경로
-output_file = "name.csv"  # 저장할 CSV 파일 경로
+output_file = "first_name.csv"  # 저장할 CSV 파일 경로
 
 # CSV 파일 불러오기
 df = pd.read_csv(input_file)
