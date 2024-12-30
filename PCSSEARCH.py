@@ -35,8 +35,15 @@ class PCSSEARCH:
             .stack()  # 모든 열을 행 방향으로 쌓음 (NaN 제거 포함)
             .astype(str)  # 모든 값을 문자열로 변환
         )
+        self.last_name_list = [item.strip() for sublist in self.last_name_list for item in sublist.split(",")]
+
         first_name_df = pd.read_csv('first_name.csv')
-        self.first_name_list = list(first_name_df['eng'])
+        self.first_name_list = list(
+            first_name_df[['eng']]
+            .stack()  # 모든 열을 행 방향으로 쌓음 (NaN 제거 포함)
+            .astype(str)  # 모든 값을 문자열로 변환
+        )
+        self.first_name_list = [item.strip() for sublist in self.first_name_list for item in sublist.split(",")]
 
         self.conf_df = pd.read_csv('conf.csv')
         self.CrawlData = []

@@ -76,7 +76,7 @@ columns = ["kor", "eng"]
 df = pd.DataFrame(result, columns=columns)
 
 # CSV 파일 저장
-output_file = "korengname.csv"
+output_file = "first_name.csv"
 df.to_csv(output_file, index=False)
 
 
