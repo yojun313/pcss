@@ -8,6 +8,7 @@ import warnings
 import pandas as pd
 import re
 import aiohttp
+import copy
 from datetime import datetime
 import asyncio
 
@@ -125,26 +126,26 @@ class PCSSEARCH:
                     # 1저자가 한국인
                     if self.option == 1:
                         if self.koreanChecker(authors[0]):
-                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': authors[0], 'conference': conf, 'year': year})
+                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[0]], 'conference': conf, 'year': year})
 
                     # 1저자 또는 2저자가 한국인
                     elif self.option == 2:
                         if self.koreanChecker(authors[0]) and self.koreanChecker(authors[1]):
-                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': ', '.join([authors[0], authors[1]]),  'conference': conf, 'year': year})
+                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[0], authors[1]],  'conference': conf, 'year': year})
                         else:
                             if self.koreanChecker(authors[1]):
-                                returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': authors[1],  'conference': conf, 'year': year})
+                                returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[1]],  'conference': conf, 'year': year})
 
                     # 마지막 저자가 한국인
                     elif self.option == 3:
                         if self.koreanChecker(authors[-1]):
-                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': authors[-1], 'conference': conf, 'year': year})
+                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[-1]], 'conference': conf, 'year': year})
 
                     # 저자 중 한 명 이상이 한국인
                     else:
                         target_list = [author for author in authors if self.koreanChecker(author)]
                         if len(target_list) > 0:
-                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': ', '.join(target_list), 'conference': conf, 'year': year})
+                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': target_list, 'conference': conf, 'year': year})
                 except:
                     self.write_log(traceback.format_exc())
 
@@ -186,10 +187,21 @@ class PCSSEARCH:
             await asyncio.gather(*tasks)
             await session.close()
 
-            # 크롤링 결과 출력
-            print()
+            self.CrawlData = sorted(self.CrawlData, key=lambda x: (x["conference"], -x["year"]))
+            self.FinalData = []
             for data in self.CrawlData:
-                print(data)
+                data_copy = copy.deepcopy(data)
+                for author in data_copy["target_author"]:
+                    stats = self.authorNumChecker(self.CrawlData, author)
+                    data_copy['target_author'] = [item + stats if item == author else item for item in data_copy['target_author']]
+                    data_copy['author_name'] = [item + stats if item == author else item for item in data_copy['author_name']]
+                    self.FinalData.append(data_copy)
+
+            # 크롤링 결과 출력
+            for data in self.FinalData:
+                print(data['conference'], data['year'], data['author_name'], data['target_author'])
+
+
         except:
             self.write_log(traceback.format_exc())
 
@@ -208,6 +220,30 @@ class PCSSEARCH:
             if name.split()[-1] in self.last_name_list and name.split()[0] in self.first_name_list:
                 return True
         return False
+
+    def authorNumChecker(self, papers, target_author):
+        stats = {
+            "first_author": 0,
+            "first_or_second_author": 0,
+            "last_author": 0,
+            "co_author": 0,
+        }
+
+        for paper in papers:
+            authors = paper["author_name"]
+            if target_author in authors:
+                if authors[0] == target_author:
+                    stats["first_author"] += 1
+                    stats["first_or_second_author"] += 1  # 1저자도 2저자 조건에 포함됨
+                elif len(authors) > 1 and authors[1] == target_author:
+                    stats["first_or_second_author"] += 1
+                elif authors[-1] == target_author:
+                    stats["last_author"] += 1
+                else:
+                    stats["co_author"] += 1
+
+        return f"({stats['first_author']},{stats['first_or_second_author']},{stats['last_author']},{stats['co_author']})"
+
 
     def printStatus(self, msg=''):
         print(f'\r{msg} | paper: {len(self.CrawlData)}', end='')
@@ -368,7 +404,7 @@ class PCSSEARCH:
 
 
 
-pcssearch_obj = PCSSEARCH(1, False, 2010, 2024)
+pcssearch_obj = PCSSEARCH(1, False, 2024, 2024)
 
 conf_list = ['ccs']
 
