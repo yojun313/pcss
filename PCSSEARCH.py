@@ -51,8 +51,10 @@ class PCSSEARCH:
 
         self.log_file_path = f"log/{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.txt"  # 로그 파일 이름
 
+    # 한 Conference에 대한 연도별 url 크롤링 함수
     async def conf_crawl(self, conf, session):
         try:
+            self.printStatus("Conference URL Crawling...")
             conf_name = self.conf_df.loc[self.conf_df['param'] == conf, 'conference'].values[0]
 
             response = await self.asyncRequester(f"https://dblp.org/db/conf/{conf}/index.html", session=session)
@@ -80,6 +82,7 @@ class PCSSEARCH:
         except:
             self.write_log(traceback.format_exc())
 
+    # 한 개의 Paper에 대한 크롤링 함수
     async def paper_crawl(self, conf, url, year, session):
         try:
             returnData = []
@@ -155,6 +158,7 @@ class PCSSEARCH:
         except:
             self.write_log(traceback.format_exc())
 
+    # 한 Conference에 대한 병렬 Paper 크롤링 함수
     async def MultiPaperCollector(self, conf_urls, conf_name, session):
         try:
             tasks = []
@@ -166,6 +170,7 @@ class PCSSEARCH:
         except:
             self.write_log(traceback.format_exc())
 
+    # 여러 Conference에 대한 병렬 크롤링 함수
     async def MultiConfCollector(self, conf_list):
         try:
             # 비동기 세션 생성
@@ -191,15 +196,22 @@ class PCSSEARCH:
             self.FinalData = []
             for data in self.CrawlData:
                 data_copy = copy.deepcopy(data)
-                for author in data_copy["target_author"]:
-                    stats = self.authorNumChecker(self.CrawlData, author)
-                    data_copy['target_author'] = [item + stats if item == author else item for item in data_copy['target_author']]
-                    data_copy['author_name'] = [item + stats if item == author else item for item in data_copy['author_name']]
-                    self.FinalData.append(data_copy)
+                for author in data_copy["author_name"]:
+                    if self.koreanChecker(author) == True:
+                        stats = self.authorNumChecker(self.CrawlData, author)
+                        data_copy['target_author'] = [item + stats if item == author else item for item in data_copy['target_author']]
+                        data_copy['author_name'] = [item + stats if item == author else item for item in data_copy['author_name']]
+                self.FinalData.append(data_copy)
+
 
             # 크롤링 결과 출력
             for data in self.FinalData:
-                print(data['conference'], data['year'], data['author_name'], data['target_author'])
+                print(f"Conference: {data['conference']}")
+                print(f"Year: {data['year']}")
+                print(f"Title: {data['title']}")
+                print(f"Authors: {data['author_name']}")
+                print(f"Target Author: {data['target_author']}")
+                print("")
 
 
         except:
@@ -404,8 +416,8 @@ class PCSSEARCH:
 
 
 
-pcssearch_obj = PCSSEARCH(1, False, 2024, 2024)
+pcssearch_obj = PCSSEARCH(1, False, 2020, 2024)
 
-conf_list = ['ccs']
+conf_list = ['ccs', 'conext']
 
 pcssearch_obj.search_main(conf_list)
