@@ -101,17 +101,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 데이터 제출
-        console.log('Submitted Data:', filters);
-
-        // 서버로 데이터 전송 (예시)
+        // 서버로 데이터 전송
         fetch('/submit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(filters),
         })
-            .then(response => response.json())
-            .then(data => console.log('Server Response:', data))
+            .then(() => {
+                // 로딩 화면으로 리다이렉트
+                window.location.href = '/loading';
+            })
             .catch(err => console.error('Error:', err));
     });
 });

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f9f9f9;
+        }
+
+        #loading {
+            text-align: center;
+            color: #C80150; /* POSTECH Red */
+            margin-bottom: 20px; /* 로딩과 출력 사이 여백 추가 */
+        }
+
+        #loading h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        #loading p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #C80150;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #output-container {
+            width: 80%;
+            max-width: 800px;
+            margin-top: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            max-height: 50vh;
+        }
+
+        pre {
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #333;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <h1>Loading...</h1>
+        <p>Python script is running. Please wait...</p>
+        <div class="spinner"></div>
+    </div>
+
+    <div id="output-container">
+        <h2>Output:</h2>
+        <pre id="output"></pre>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const eventSource = new EventSource('/stream-python'); // Connect to SSE
+        const output = document.getElementById('output');
+        const loading = document.getElementById('loading');
+
+        // SSE 연결이 열렸을 때
+        eventSource.onopen = () => {
+            console.log('SSE connection opened.');
+        };
+
+        // 일반 메시지 출력 핸들러
+        eventSource.onmessage = (event) => {
+            try {
+                // JSON 데이터인지 확인 후 파싱
+                const parsedData = JSON.parse(event.data);
+
+                if (parsedData.result) {
+                    // JSON 데이터 처리
+                    const newLine = document.createElement('div');
+                    newLine.textContent = `JSON Data: ${event.data}`;
+                    output.appendChild(newLine);
+                }
+            } catch (e) {
+                // JSON 파싱 실패 시 일반 텍스트로 처리
+                const newLine = document.createElement('div');
+                newLine.textContent = event.data; // 일반 출력
+                output.appendChild(newLine);
+            }
+        };
+
+        // 완료 이벤트 핸들러
+        eventSource.addEventListener('complete', (event) => {
+            try {
+                const parsedData = JSON.parse(event.data);
+                localStorage.setItem('pythonResult', JSON.stringify(parsedData.finalOutput)); // Store result in localStorage
+                window.location.href = '/results'; // Redirect to results page
+            } catch (err) {
+                console.error('Error parsing complete event data:', err);
+            }
+        });
+
+        // 오류 핸들러
+        eventSource.onerror = (error) => {
+            console.error('Error in SSE connection:', error);
+            const errorLine = document.createElement('div');
+            errorLine.textContent = 'Error occurred during SSE connection.';
+            output.appendChild(errorLine);
+            eventSource.close();
+        };
+    });
+</script>
+
+    
+    
+    
+    
+</body>
+</html>
