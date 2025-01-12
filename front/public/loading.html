@@ -20,7 +20,7 @@
         #loading {
             text-align: center;
             color: #C80150; /* POSTECH Red */
-            margin-bottom: 20px; /* 로딩과 출력 사이 여백 추가 */
+            margin-bottom: 20px;
         }
 
         #loading h1 {
@@ -88,62 +88,45 @@
         <pre id="output"></pre>
     </div>
 
+    <script src="/socket.io/socket.io.js"></script>
     <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const eventSource = new EventSource('/stream-python'); // Connect to SSE
-        const output = document.getElementById('output');
-        const loading = document.getElementById('loading');
+        document.addEventListener("DOMContentLoaded", () => {
+            const socket = io(); // Socket.IO 클라이언트 생성
+            const output = document.getElementById('output');
+            const loading = document.getElementById('loading');
 
-        // SSE 연결이 열렸을 때
-        eventSource.onopen = () => {
-            console.log('SSE connection opened.');
-        };
+            // Python 실행 요청
+            socket.emit('start-python');
 
-        // 일반 메시지 출력 핸들러
-        eventSource.onmessage = (event) => {
-            try {
-                // JSON 데이터인지 확인 후 파싱
-                const parsedData = JSON.parse(event.data);
-
-                if (parsedData.result) {
-                    // JSON 데이터 처리
-                    const newLine = document.createElement('div');
-                    newLine.textContent = `JSON Data: ${event.data}`;
-                    output.appendChild(newLine);
-                }
-            } catch (e) {
-                // JSON 파싱 실패 시 일반 텍스트로 처리
+            // Python stdout 출력 받기
+            socket.on('python_output', (data) => {
                 const newLine = document.createElement('div');
-                newLine.textContent = event.data; // 일반 출력
+                newLine.textContent = data; // Python에서 전송된 데이터 추가
                 output.appendChild(newLine);
-            }
-        };
+            });
 
-        // 완료 이벤트 핸들러
-        eventSource.addEventListener('complete', (event) => {
-            try {
-                const parsedData = JSON.parse(event.data);
-                localStorage.setItem('pythonResult', JSON.stringify(parsedData.finalOutput)); // Store result in localStorage
-                window.location.href = '/results'; // Redirect to results page
-            } catch (err) {
-                console.error('Error parsing complete event data:', err);
-            }
+            // Python stderr 출력 받기
+            socket.on('python_error', (data) => {
+                const errorLine = document.createElement('div');
+                errorLine.style.color = 'red';
+                errorLine.textContent = `Error: ${data}`;
+                output.appendChild(errorLine);
+            });
+
+            // Python 실행 완료 이벤트 처리
+            socket.on('python_complete', (data) => {
+                localStorage.setItem('pythonResult', JSON.stringify(data.finalOutput)); // 결과 저장
+                loading.style.display = 'none'; // 로딩 숨기기
+                const completeLine = document.createElement('div');
+                completeLine.style.color = 'blue';
+                completeLine.textContent = 'Python execution complete. Redirecting to results...';
+                output.appendChild(completeLine);
+
+                setTimeout(() => {
+                    window.location.href = '/results'; // 결과 페이지로 이동
+                }, 2000);
+            });
         });
-
-        // 오류 핸들러
-        eventSource.onerror = (error) => {
-            console.error('Error in SSE connection:', error);
-            const errorLine = document.createElement('div');
-            errorLine.textContent = 'Error occurred during SSE connection.';
-            output.appendChild(errorLine);
-            eventSource.close();
-        };
-    });
-</script>
-
-    
-    
-    
-    
+    </script>
 </body>
 </html>

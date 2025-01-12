@@ -74,8 +74,6 @@ app.get('/stream-python', (req, res) => {
     });
 });
 
-
-
 // 로딩 화면 HTML 반환
 app.get('/loading', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'loading.html'));
