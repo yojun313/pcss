@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Execution Result</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            padding: 20px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        pre {
+            font-family: Consolas, monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Python Execution Result</h1>
+        <% if (pythonResult.error) { %>
+            <p style="color: red;">Error: <%= pythonResult.error %></p>
+            <pre><%= pythonResult.output %></pre>
+        <% } else { %>
+            <pre><%= JSON.stringify(pythonResult, null, 2) %></pre>
+        <% } %>
+    </div>
+</body>
+</html>

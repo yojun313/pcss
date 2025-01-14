@@ -7,6 +7,7 @@ import urllib3
 import warnings
 import pandas as pd
 import re
+import os
 import aiohttp
 import copy
 from datetime import datetime
@@ -30,7 +31,7 @@ class PCSSEARCH:
         self.proxy_list = []
         self.speed = 10
 
-        last_name_df = pd.read_csv('last_name.csv', sep=';')
+        last_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'last_name.csv'), sep=';')
         self.last_name_list = list(
             last_name_df[['eng_1', 'eng_2', 'eng_3']]
             .stack()  # 모든 열을 행 방향으로 쌓음 (NaN 제거 포함)
@@ -38,7 +39,7 @@ class PCSSEARCH:
         )
         self.last_name_list = [item.strip() for sublist in self.last_name_list for item in sublist.split(",")]
 
-        first_name_df = pd.read_csv('first_name.csv')
+        first_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'first_name.csv'))
         self.first_name_list = list(
             first_name_df[['eng']]
             .stack()  # 모든 열을 행 방향으로 쌓음 (NaN 제거 포함)
@@ -46,10 +47,10 @@ class PCSSEARCH:
         )
         self.first_name_list = [item.strip() for sublist in self.first_name_list for item in sublist.split(",")]
 
-        self.conf_df = pd.read_csv('conf.csv')
+        self.conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'conf.csv'))
         self.CrawlData = []
 
-        self.log_file_path = f"log/{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.txt"  # 로그 파일 이름
+        self.log_file_path = os.path.join(os.path.dirname(__file__), f"log/{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.txt")  # 로그 파일 이름
 
     # 한 Conference에 대한 연도별 url 크롤링 함수
     async def conf_crawl(self, conf, session):
@@ -416,8 +417,8 @@ class PCSSEARCH:
 
 
 if __name__ == "__main__":
-    pcssearch_obj = PCSSEARCH(1, False, 2020, 2024)
+    pcssearch_obj = PCSSEARCH(1, False, 2023, 2024)
 
-    conf_list = ['ccs', 'conext']
+    conf_list = ['ccs']
 
     pcssearch_obj.search_main(conf_list)

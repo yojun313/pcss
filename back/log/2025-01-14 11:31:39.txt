@@ -1,0 +1,8 @@
+[2025-01-14 11:31:39] Traceback (most recent call last):
+  File "/Users/yojunsmacbookprp/Documents/GitHub/PCSS/back/PCSS.py", line 193, in MultiConfCollector
+    await asyncio.gather(*tasks)
+  File "/Users/yojunsmacbookprp/Documents/GitHub/PCSS/back/PCSS.py", line 182, in process_conference
+    conf_name = self.conf_df.loc[self.conf_df['param'] == conf, 'conference'].values[0]
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+IndexError: index 0 is out of bounds for axis 0 with size 0
+

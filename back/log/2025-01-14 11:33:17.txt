@@ -1,0 +1,44 @@
+[2025-01-14 11:33:36] Traceback (most recent call last):
+  File "/Users/yojunsmacbookprp/Documents/GitHub/PCSS/back/PCSS.py", line 61, in conf_crawl
+    response = await self.asyncRequester(f"https://dblp.org/db/conf/{conf}/index.html", session=session)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yojunsmacbookprp/Documents/GitHub/PCSS/back/PCSS.py", line 409, in asyncRequester
+    async with session.get(url, headers=headers, params=params, proxy=proxies, cookies=cookies,
+  File "/Users/yojunsmacbookprp/Documents/GitHub/BIGMACLAB/venv/lib/python3.12/site-packages/aiohttp/client.py", line 1197, in __aenter__
+    self._resp = await self._coro
+                 ^^^^^^^^^^^^^^^^
+  File "/Users/yojunsmacbookprp/Documents/GitHub/BIGMACLAB/venv/lib/python3.12/site-packages/aiohttp/client.py", line 581, in _request
+    conn = await self._connector.connect(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yojunsmacbookprp/Documents/GitHub/BIGMACLAB/venv/lib/python3.12/site-packages/aiohttp/connector.py", line 544, in connect
+    proto = await self._create_connection(req, traces, timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yojunsmacbookprp/Documents/GitHub/BIGMACLAB/venv/lib/python3.12/site-packages/aiohttp/connector.py", line 944, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yojunsmacbookprp/Documents/GitHub/BIGMACLAB/venv/lib/python3.12/site-packages/aiohttp/connector.py", line 1226, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yojunsmacbookprp/Documents/GitHub/BIGMACLAB/venv/lib/python3.12/site-packages/aiohttp/connector.py", line 1025, in _wrap_create_connection
+    return await self._loop.create_connection(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/base_events.py", line 1104, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/base_events.py", line 1007, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/selector_events.py", line 651, in sock_connect
+    return await fut
+           ^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+[2025-01-14 11:33:36] Traceback (most recent call last):
+  File "/Users/yojunsmacbookprp/Documents/GitHub/PCSS/back/PCSS.py", line 166, in MultiPaperCollector
+    for conf_url in conf_urls:
+TypeError: 'NoneType' object is not iterable
+
+[2025-01-14 11:33:36] Traceback (most recent call last):
+  File "/Users/yojunsmacbookprp/Documents/GitHub/PCSS/back/PCSS.py", line 193, in MultiConfCollector
+    await asyncio.gather(*tasks)
+asyncio.exceptions.CancelledError
+

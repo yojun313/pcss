@@ -52,9 +52,18 @@
     </div>
 
     <script>
+        // 페이지 로드 시 캐시 비활성화
+        window.history.pushState(null, '', window.location.href);
+        window.onpopstate = () => {
+            // 뒤로 가기를 시도할 때 현재 페이지를 다시 로드
+            window.history.pushState(null, '', window.location.href);
+        };
+        window.history.replaceState(null, '', '/results');
+    
         document.addEventListener("DOMContentLoaded", () => {
             // 로컬 스토리지에서 데이터 가져오기
             const rawData = localStorage.getItem('pythonResult');
+            const resultContainer = document.getElementById('result');
     
             // JSON 데이터를 올바르게 파싱
             let resultData;
@@ -62,16 +71,28 @@
                 resultData = JSON.parse(rawData);
             } catch (error) {
                 console.error('Failed to parse result data:', error);
-                document.getElementById('result').innerText = 'Failed to load result data.';
+                // 오류가 발생하면 원본 데이터를 표시
+                resultContainer.innerHTML = `
+                    <div class="error">Failed to load JSON data. Raw data:</div>
+                    <div class="raw-data">${rawData}</div>
+                `;
                 return;
             }
     
-            // 데이터가 있을 경우 렌더링
+            // 데이터 렌더링
             if (resultData) {
-                const resultContainer = document.getElementById('result');
-                renderObject(resultContainer, resultData);
+                // 딕셔너리인지 확인하고 처리
+                if (typeof resultData === 'object' && !Array.isArray(resultData)) {
+                    renderObject(resultContainer, resultData); // 딕셔너리 렌더링
+                } else {
+                    // 딕셔너리가 아닌 경우 단순히 출력
+                    resultContainer.innerHTML = `
+                        <div class="info">Result is not a dictionary. Raw data:</div>
+                        <div class="raw-data">${rawData}</div>
+                    `;
+                }
             } else {
-                document.getElementById('result').innerText = 'No result data found.';
+                resultContainer.innerText = 'No result data found.' + rawData;
             }
     
             // JSON 데이터를 재귀적으로 렌더링하는 함수
@@ -102,6 +123,7 @@
             }
         });
     </script>
+    
     
 </body>
 </html>

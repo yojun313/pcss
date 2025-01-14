@@ -91,42 +91,53 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const socket = io(); // Socket.IO 클라이언트 생성
+            const socket = io(); // Socket.IO 연결
             const output = document.getElementById('output');
             const loading = document.getElementById('loading');
-
+    
             // Python 실행 요청
             socket.emit('start-python');
-
+    
             // Python stdout 출력 받기
             socket.on('python_output', (data) => {
-                const newLine = document.createElement('div');
-                newLine.textContent = data; // Python에서 전송된 데이터 추가
-                output.appendChild(newLine);
+                // 이전 출력을 지우고 새로운 내용 덮어쓰기
+                output.innerHTML = `<div>${data}</div>`;
             });
-
+    
             // Python stderr 출력 받기
             socket.on('python_error', (data) => {
-                const errorLine = document.createElement('div');
-                errorLine.style.color = 'red';
-                errorLine.textContent = `Error: ${data}`;
-                output.appendChild(errorLine);
+                // 이전 출력을 지우고 에러 내용 덮어쓰기
+                output.innerHTML = `<div style="color: red;">Error: ${data}</div>`;
             });
-
-            // Python 실행 완료 이벤트 처리
-            socket.on('python_complete', (data) => {
-                localStorage.setItem('pythonResult', JSON.stringify(data.finalOutput)); // 결과 저장
-                loading.style.display = 'none'; // 로딩 숨기기
-                const completeLine = document.createElement('div');
-                completeLine.style.color = 'blue';
-                completeLine.textContent = 'Python execution complete. Redirecting to results...';
-                output.appendChild(completeLine);
-
-                setTimeout(() => {
-                    window.location.href = '/results'; // 결과 페이지로 이동
-                }, 2000);
+    
+            // Python 실행 완료 시 서버에서 데이터 수신
+            socket.on('redirect_to_results', (response) => {
+                // 클라이언트에서 /results로 POST 요청 전송
+                fetch('/results', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(response),
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            console.error('POST /results 실패:', response.statusText);
+                            return alert('Failed to load results.');
+                        }
+                        return response.text(); // 서버에서 렌더링된 HTML 반환
+                    })
+                    .then((html) => {
+                        // 렌더링된 HTML을 새 페이지로 표시
+                        document.open();
+                        document.write(html);
+                        document.close();
+                    })
+                    .catch((err) => {
+                        console.error('POST /results 요청 실패:', err);
+                    });
             });
         });
-    </script>
+    </script>    
 </body>
 </html>
