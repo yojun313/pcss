@@ -3,163 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Python Execution Result</title>
+    <title>PCSS Result</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 20px;
-            background-color: #f9f9f9;
+            background-color: #f4f4f9;
+            color: #333;
         }
-
+        
         .container {
-            padding: 20px;
-            border: 1px solid #ddd;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border: 1px solid #e6e6e6;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
             overflow-x: auto;
             max-width: 1000px;
             margin: 0 auto;
         }
-
+        
         h1 {
-            color: #333;
+            color: #4a4a4a;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            font-weight: 600;
         }
-
+        
         .year-section {
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #fefefe;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
         }
-
+        
         .year-header {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             color: #C80150; /* POSTECH Red */
-            background-color: #f3f3f3;
-            padding: 10px;
+            background-color: #f9f9f9;
+            padding: 15px 20px;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-weight: 600;
             user-select: none;
+            transition: background-color 0.3s ease;
         }
-
+        
         .year-header:hover {
-            background-color: #f0e0e6;
+            background-color: #f4e4ea;
         }
-
+        
         .year-content {
-            padding: 10px 20px;
+            padding: 20px;
+            background-color: #fafafa;
         }
-
+        
         .conference-section {
             margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            border: 1px solid #eaeaea;
+            border-radius: 10px;
             background-color: #ffffff;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
         }
-
+        
         .conference-header {
-            font-size: 1.1rem;
-            font-weight: bold;
+            font-size: 1.2rem;
+            font-weight: 600;
             color: #007bff;
-            background-color: #f9f9f9;
-            padding: 10px;
+            background-color: #f8f9fc;
+            padding: 15px 20px;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid #e6e6e6;
             user-select: none;
+            transition: background-color 0.3s ease;
         }
-
+        
         .conference-header:hover {
-            background-color: #e0f0ff;
+            background-color: #e9f3ff;
         }
-
+        
         .conference-header .conference-link {
-            font-size: 0.9rem;
-            color: #C80150;
+            font-size: 1rem;
+            color: #C80150; /* POSTECH Red */
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 500;
             margin-left: auto;
         }
-
+        
         .conference-header .conference-link:hover {
             text-decoration: underline;
         }
-
+        
         .conference-content {
             display: none;
-            padding: 10px 20px;
+            padding: 20px;
+            background-color: #fcfcfc;
         }
-
+        
         .card {
-            margin: 10px 0;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            margin: 15px 0;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
             background-color: #ffffff;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.3s ease;
         }
-
+        
+        .card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        
         .card-title {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: bold;
             color: #333;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
         }
-
+        
         .card p {
             margin: 5px 0;
-            color: #666;
-            font-size: 0.95rem;
-        }
-
-        .target-author {
+            color: #555;
             font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        .target-author {
+            font-size: 1.1rem;
             font-weight: bold;
-            color: #28a745;
+            color: #28a745; /* Success Green */
             margin-top: 10px;
         }
-
+        
         ul.authors {
             list-style: none;
             padding: 0;
             margin: 0;
             margin-bottom: 10px;
         }
-
+        
         ul.authors li {
             display: inline-block;
             margin-right: 10px;
         }
-
+        
         ul.authors li a {
             text-decoration: none;
             color: #007bff;
+            font-weight: 500;
         }
-
+        
         ul.authors li a:hover {
             text-decoration: underline;
         }
-
+        
         .toggle-icon {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             color: #666;
+            transition: transform 0.3s ease;
         }
-
+        
         .toggle-icon.open {
             transform: rotate(90deg);
-        }
+        }        
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Python Execution Result</h1>
+        <h1>PCSS Result</h1>
         <div id="papers-container"></div>
         <script>
             const papers = <%- JSON.stringify(pythonResult) %>;
