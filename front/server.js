@@ -51,12 +51,6 @@ app.post('/results', (req, res) => {
     });
 });
 
-
-
-app.get('/loading', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'loading.html'));
-});
-
 app.post('/submit', (req, res) => {
     globalInputData = req.body; // 사용자 데이터 저장
     res.sendFile(path.join(__dirname, 'public', 'loading.html'));
