@@ -1,9 +1,0 @@
-[2025-01-01 15:27:42] Traceback (most recent call last):
-  File "/Users/yojunsmacbookprp/Documents/GitHub/PCSS/PCSSEARCH.py", line 189, in MultiConfCollector
-    self.CrawlData = sorted(self.CrawlData, key=lambda x: (x["conference"], -ord(x["year"])))
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/yojunsmacbookprp/Documents/GitHub/PCSS/PCSSEARCH.py", line 189, in <lambda>
-    self.CrawlData = sorted(self.CrawlData, key=lambda x: (x["conference"], -ord(x["year"])))
-                                                                             ^^^^^^^^^^^^^^
-TypeError: ord() expected string of length 1, but int found
-
