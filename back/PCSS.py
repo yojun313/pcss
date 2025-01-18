@@ -51,7 +51,7 @@ class PCSSEARCH:
         self.conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'conf.csv'))
         self.CrawlData = []
 
-        self.log_file_path = os.path.join(os.path.dirname(__file__), f"log/{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.txt")  # 로그 파일 이름
+        self.log_file_path = os.path.join(os.path.dirname(__file__), f"log/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt")  # 로그 파일 이름
 
     # 한 Conference에 대한 연도별 url 크롤링 함수
     async def conf_crawl(self, conf, session, conf_name):
@@ -205,7 +205,7 @@ class PCSSEARCH:
                 self.FinalData.append(data_copy)
 
             self.FinalData = {index: element for index, element in enumerate(self.FinalData)}
-            json_path = os.path.join(os.path.dirname(__file__), f"res/{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}.json")
+            json_path = os.path.join(os.path.dirname(__file__), f"res/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json")
             # 딕셔너리를 JSON 파일로 저장
             with open(json_path, 'w', encoding='utf-8') as json_file:
                 json.dump(self.FinalData, json_file, ensure_ascii=False, indent=4)
