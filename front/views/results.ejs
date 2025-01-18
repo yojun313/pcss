@@ -8,7 +8,6 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
-            padding: 20px;
             background-color: #f9f9f9;
         }
 
@@ -18,10 +17,52 @@
             background: #fff;
             border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        .card {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fefefe;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.2em;
+            color: #555;
+        }
+
+        .card p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .card a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .card a:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
         }
 
         pre {
-            font-family: Consolas, monospace;
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
             white-space: pre-wrap;
             word-wrap: break-word;
         }
@@ -31,10 +72,26 @@
     <div class="container">
         <h1>Python Execution Result</h1>
         <% if (pythonResult.error) { %>
-            <p style="color: red;">Error: <%= pythonResult.error %></p>
+            <p class="error">Error: <%= pythonResult.error %></p>
             <pre><%= pythonResult.output %></pre>
         <% } else { %>
-            <pre><%= JSON.stringify(pythonResult, null, 2) %></pre>
+            <% Object.keys(pythonResult).forEach(function (key) { %>
+                <div class="card">
+                    <h2>Paper <%= key %></h2>
+                    <p><strong>Title:</strong> <%= pythonResult[key].title %></p>
+                    <p><strong>Authors:</strong> <%= pythonResult[key].author_name.join(', ') %></p>
+                    <p><strong>Author URLs:</strong></p>
+                    <ul>
+                        <% pythonResult[key].author_url.forEach(function (url) { %>
+                            <li><a href="<%= url %>" target="_blank"><%= url %></a></li>
+                        <% }); %>
+                    </ul>
+                    <p><strong>Target Author:</strong> <%= pythonResult[key].target_author.join(', ') %></p>
+                    <p><strong>Conference:</strong> <%= pythonResult[key].conference %></p>
+                    <p><strong>Year:</strong> <%= pythonResult[key].year %></p>
+                    <p><strong>Source:</strong> <a href="<%= pythonResult[key].source %>" target="_blank"><%= pythonResult[key].source %></a></p>
+                </div>
+            <% }); %>
         <% } %>
     </div>
 </body>

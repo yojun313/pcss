@@ -1,12 +1,14 @@
 const express = require('express');
+const app = express();
+app.use(express.json({ limit: '50mb' })); // JSON 요청 크기 제한
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 const http = require('http');
 const { Server } = require('socket.io');
 const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
 const { spawn } = require('child_process');
-const axios = require('axios'); // axios 모듈 필요
-const app = express();
+
 const server = http.createServer(app);
 const io = new Server(server);
 const port = 3000;
@@ -15,12 +17,11 @@ const port = 3000;
 const csvFilePath = path.join(__dirname, '..', 'back', 'conf.csv');
 let globalInputData = null; // 단일 사용자용 글로벌 데이터
 
-// JSON 파싱
-app.use(express.json());
 // 정적 파일 제공
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views')); // 템플릿 파일의 디렉토리 설정
+
 
 // 학회 데이터 API
 app.get('/conferences', (req, res) => {
@@ -37,7 +38,6 @@ app.get('/', (req, res) => {
 });
 
 app.post('/results', (req, res) => {
-    console.log('POST /results 요청 데이터:', req.body); // 요청 데이터 확인
     const { isDictionary, data } = req.body;
 
     if (!data) {
@@ -64,10 +64,7 @@ app.post('/submit', (req, res) => {
 
 // Socket.IO 연결
 io.on('connection', (socket) => {
-    console.log('클라이언트 연결됨.');
-
     socket.on('start-python', () => {
-        console.log('Python 스크립트 실행 시작.');
         let pythonOutput = ''; // Python 출력 데이터 저장
     
         // Python 프로세스 실행 (버퍼링 해제)
@@ -87,26 +84,47 @@ io.on('connection', (socket) => {
         });
     
         pythonProcess.on('close', (code) => {
-            console.log(`Python 종료. 코드: ${code}`);
-            console.log(pythonOutput);
-        
             try {
-                // 딕셔너리 추출
-                const dictStartIndex = pythonOutput.indexOf('{');
-                if (dictStartIndex !== -1) {
-                    const dictString = pythonOutput.slice(dictStartIndex).trim();
-                    const finalOutput = JSON.parse(dictString);
+                // Python 출력에서 "PATH="로 시작하는 경로 추출
+                const pathStartIndex = pythonOutput.indexOf('PATH=');
+                if (pathStartIndex !== -1) {
+                    const pathEndIndex = pythonOutput.indexOf('\n', pathStartIndex); // 줄바꿈으로 끝나는 경우
+                    const jsonPath = pythonOutput
+                        .slice(pathStartIndex + 5, pathEndIndex !== -1 ? pathEndIndex : undefined)
+                        .trim(); // "PATH=" 이후의 경로만 가져옴
         
-                    // 클라이언트로 딕셔너리 데이터를 전송
-                    socket.emit('redirect_to_results', { isDictionary: true, data: finalOutput });
+                    // JSON 파일 읽기
+                    const fs = require('fs');
+                    fs.readFile(jsonPath, 'utf-8', (err, fileData) => {
+                        if (err) {
+                            console.error('JSON 파일 읽기 오류:', err);
+                            socket.emit('redirect_to_results', { isDictionary: false, data: `JSON 파일 읽기 오류: ${err.message}` });
+                            return;
+                        }
+        
+                        try {
+                            // JSON 파일 데이터를 파싱하여 딕셔너리 생성
+                            const finalOutput = JSON.parse(fileData);
+        
+                            // 클라이언트로 딕셔너리 데이터를 전송
+                            socket.emit('redirect_to_results', { isDictionary: true, data: finalOutput });
+                            fs.unlink(jsonPath, (unlinkErr) => {
+                                if (unlinkErr) {
+                                    console.error('JSON 파일 삭제 오류:', unlinkErr);
+                                }
+                            });
+                        } catch (parseErr) {
+                            console.error('JSON 파싱 오류:', parseErr);
+                            socket.emit('redirect_to_results', { isDictionary: false, data: `JSON 파싱 오류: ${parseErr.message}` });
+                        }
+                    });
                 } else {
-                    console.error('딕셔너리를 찾지 못했습니다.');
-                    // 원본 문자열 데이터를 전송
-                    socket.emit('redirect_to_results', { isDictionary: false, data: pythonOutput });
+                    console.error('PATH를 포함하는 문자열을 찾을 수 없습니다.');
+                    socket.emit('redirect_to_results', { isDictionary: false, data: 'PATH를 포함하는 문자열을 찾을 수 없습니다.' });
                 }
             } catch (err) {
-                console.error('JSON 파싱 에러:', err);
-                // JSON 파싱 에러 발생 시 원본 데이터를 전송
+                console.log('Python 출력:', pythonOutput);
+                console.error('오류 발생:', err);
                 socket.emit('redirect_to_results', { isDictionary: false, data: pythonOutput.trim() });
             }
         });
@@ -114,7 +132,6 @@ io.on('connection', (socket) => {
             
         // 클라이언트가 연결 해제되면 Python 프로세스 종료
         socket.on('disconnect', () => {
-            console.log('클라이언트 연결 해제.');
             pythonProcess.kill();
         });
     });    

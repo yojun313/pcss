@@ -12,6 +12,7 @@ import aiohttp
 import copy
 from datetime import datetime
 import asyncio
+import json
 
 TIMEOUT = 10
 TRYNUM = 3
@@ -53,11 +54,9 @@ class PCSSEARCH:
         self.log_file_path = os.path.join(os.path.dirname(__file__), f"log/{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.txt")  # 로그 파일 이름
 
     # 한 Conference에 대한 연도별 url 크롤링 함수
-    async def conf_crawl(self, conf, session):
+    async def conf_crawl(self, conf, session, conf_name):
         try:
-            self.printStatus("Conference URL Crawling...")
-            conf_name = self.conf_df.loc[self.conf_df['param'] == conf, 'conference'].values[0]
-
+            self.printStatus(f"{conf_name} URL Crawling...")
             response = await self.asyncRequester(f"https://dblp.org/db/conf/{conf}/index.html", session=session)
             if isinstance(response, tuple) == True:
                 return response
@@ -130,26 +129,26 @@ class PCSSEARCH:
                     # 1저자가 한국인
                     if self.option == 1:
                         if self.koreanChecker(authors[0]):
-                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[0]], 'conference': conf, 'year': year})
+                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[0]], 'conference': conf, 'year': year, 'source': url})
 
                     # 1저자 또는 2저자가 한국인
                     elif self.option == 2:
                         if self.koreanChecker(authors[0]) and self.koreanChecker(authors[1]):
-                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[0], authors[1]],  'conference': conf, 'year': year})
+                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[0], authors[1]],  'conference': conf, 'year': year, 'source': url})
                         else:
                             if self.koreanChecker(authors[1]):
-                                returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[1]],  'conference': conf, 'year': year})
+                                returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[1]],  'conference': conf, 'year': year, 'source': url})
 
                     # 마지막 저자가 한국인
                     elif self.option == 3:
                         if self.koreanChecker(authors[-1]):
-                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[-1]], 'conference': conf, 'year': year})
+                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[-1]], 'conference': conf, 'year': year, 'source': url})
 
                     # 저자 중 한 명 이상이 한국인
                     else:
                         target_list = [author for author in authors if self.koreanChecker(author)]
                         if len(target_list) > 0:
-                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': target_list, 'conference': conf, 'year': year})
+                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': target_list, 'conference': conf, 'year': year, 'source': url})
                 except:
                     self.write_log(traceback.format_exc())
 
@@ -179,8 +178,9 @@ class PCSSEARCH:
 
             # 여러개의 Conference에 대해 동시 크롤링 수행
             async def process_conference(conf):
-                conf_name = self.conf_df.loc[self.conf_df['param'] == conf, 'conference'].values[0]
-                conf_urls = await self.conf_crawl(conf, session)
+                conf_name = conf
+                conf_param = self.conf_df.loc[self.conf_df['conference'] == conf, 'param'].values[0]
+                conf_urls = await self.conf_crawl(conf_param, session, conf_name)
                 if isinstance(conf_urls, tuple):  # 에러 처리
                     print(f"Error crawling {conf_name}: {conf_urls[0]}")
                     return
@@ -204,7 +204,14 @@ class PCSSEARCH:
                         data_copy['author_name'] = [item + stats if item == author else item for item in data_copy['author_name']]
                 self.FinalData.append(data_copy)
 
-
+            self.FinalData = {index: element for index, element in enumerate(self.FinalData)}
+            json_path = os.path.join(os.path.dirname(__file__), f"res/{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}.json")
+            # 딕셔너리를 JSON 파일로 저장
+            with open(json_path, 'w', encoding='utf-8') as json_file:
+                json.dump(self.FinalData, json_file, ensure_ascii=False, indent=4)
+            print(f"PATH={json_path}")
+            
+            '''
             # 크롤링 결과 출력
             for data in self.FinalData:
                 print(f"Conference: {data['conference']}")
@@ -213,6 +220,8 @@ class PCSSEARCH:
                 print(f"Authors: {data['author_name']}")
                 print(f"Target Author: {data['target_author']}")
                 print("")
+            '''
+            
 
 
         except:
@@ -419,6 +428,6 @@ class PCSSEARCH:
 if __name__ == "__main__":
     pcssearch_obj = PCSSEARCH(1, False, 2023, 2024)
 
-    conf_list = ['ccs']
+    conf_list = ['CCS']
 
     pcssearch_obj.search_main(conf_list)
