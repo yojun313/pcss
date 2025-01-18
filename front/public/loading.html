@@ -64,6 +64,9 @@
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
             overflow-y: auto;
             max-height: 50vh;
+            display: flex; /* Flexbox 사용 */
+            justify-content: center; /* 수평 가운데 정렬 */
+            align-items: center; /* 수직 가운데 정렬 */
         }
 
         pre {
@@ -73,6 +76,7 @@
             color: #333;
             white-space: pre-wrap;
             word-wrap: break-word;
+            text-align: center; /* 텍스트를 가운데 정렬 */
         }
     </style>
 </head>
@@ -84,7 +88,6 @@
     </div>
 
     <div id="output-container">
-        <h2>Process:</h2>
         <pre id="output"></pre>
     </div>
 

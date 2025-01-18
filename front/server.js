@@ -22,6 +22,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views')); // 템플릿 파일의 디렉토리 설정
 
+app.get('/loading', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'loading.html'));
+});
 
 // 학회 데이터 API
 app.get('/conferences', (req, res) => {
@@ -40,16 +43,24 @@ app.get('/', (req, res) => {
 app.post('/results', (req, res) => {
     const { isDictionary, data } = req.body;
 
+    // 데이터가 없는 경우 오류 처리
     if (!data) {
         console.error('결과 데이터가 비어 있습니다.');
         return res.status(400).send('No result data received.');
     }
 
-    // 딕셔너리인지 확인하고 EJS 템플릿 렌더링
-    res.render('results', {
-        pythonResult: isDictionary ? data : { error: "Not a dictionary", output: data },
-    });
+    // `data`가 딕셔너리인지 확인
+    let pythonResult;
+    if (isDictionary) {
+        pythonResult = data; // 딕셔너리로 정상 처리
+    } else {
+        pythonResult = { error: "Data is not in dictionary format", output: data };
+    }
+
+    // EJS 템플릿 렌더링
+    res.render('results', { pythonResult, error: null });
 });
+
 
 app.post('/submit', (req, res) => {
     globalInputData = req.body; // 사용자 데이터 저장

@@ -15,84 +15,254 @@
             padding: 20px;
             border: 1px solid #ddd;
             background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             overflow-x: auto;
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
         h1 {
             color: #333;
             text-align: center;
+            margin-bottom: 20px;
         }
 
-        .card {
-            margin: 20px 0;
-            padding: 15px;
+        .year-section {
+            margin-bottom: 40px;
             border: 1px solid #ddd;
             border-radius: 8px;
             background-color: #fefefe;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .year-header {
+            font-size: 1.2rem;
+            color: #C80150; /* POSTECH Red */
+            background-color: #f3f3f3;
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .year-header:hover {
+            background-color: #f0e0e6;
+        }
+
+        .year-content {
+            padding: 10px 20px;
+        }
+
+        .conference-section {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #ffffff;
+        }
+
+        .conference-header {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #007bff;
+            background-color: #f9f9f9;
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .conference-header:hover {
+            background-color: #e0f0ff;
+        }
+
+        .conference-header .conference-link {
+            font-size: 0.9rem;
+            color: #C80150;
+            text-decoration: none;
+            font-weight: bold;
+            margin-left: auto;
+        }
+
+        .conference-header .conference-link:hover {
+            text-decoration: underline;
+        }
+
+        .conference-content {
+            display: none;
+            padding: 10px 20px;
+        }
+
+        .card {
+            margin: 10px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #ffffff;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .card h2 {
-            margin-top: 0;
-            font-size: 1.2em;
-            color: #555;
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
         }
 
         .card p {
             margin: 5px 0;
             color: #666;
+            font-size: 0.95rem;
         }
 
-        .card a {
-            color: #007bff;
+        .target-author {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #28a745;
+            margin-top: 10px;
+        }
+
+        ul.authors {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            margin-bottom: 10px;
+        }
+
+        ul.authors li {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        ul.authors li a {
             text-decoration: none;
+            color: #007bff;
         }
 
-        .card a:hover {
+        ul.authors li a:hover {
             text-decoration: underline;
         }
 
-        .error {
-            color: red;
-            font-weight: bold;
+        .toggle-icon {
+            font-size: 1.2rem;
+            color: #666;
         }
 
-        pre {
-            background-color: #f4f4f4;
-            padding: 10px;
-            border-radius: 4px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
+        .toggle-icon.open {
+            transform: rotate(90deg);
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Python Execution Result</h1>
-        <% if (pythonResult.error) { %>
-            <p class="error">Error: <%= pythonResult.error %></p>
-            <pre><%= pythonResult.output %></pre>
-        <% } else { %>
-            <% Object.keys(pythonResult).forEach(function (key) { %>
-                <div class="card">
-                    <h2>Paper <%= key %></h2>
-                    <p><strong>Title:</strong> <%= pythonResult[key].title %></p>
-                    <p><strong>Authors:</strong> <%= pythonResult[key].author_name.join(', ') %></p>
-                    <p><strong>Author URLs:</strong></p>
-                    <ul>
-                        <% pythonResult[key].author_url.forEach(function (url) { %>
-                            <li><a href="<%= url %>" target="_blank"><%= url %></a></li>
-                        <% }); %>
-                    </ul>
-                    <p><strong>Target Author:</strong> <%= pythonResult[key].target_author.join(', ') %></p>
-                    <p><strong>Conference:</strong> <%= pythonResult[key].conference %></p>
-                    <p><strong>Year:</strong> <%= pythonResult[key].year %></p>
-                    <p><strong>Source:</strong> <a href="<%= pythonResult[key].source %>" target="_blank"><%= pythonResult[key].source %></a></p>
-                </div>
-            <% }); %>
-        <% } %>
+        <div id="papers-container"></div>
+        <script>
+            const papers = <%- JSON.stringify(pythonResult) %>;
+            const container = document.getElementById("papers-container");
+
+            const groupedPapers = {};
+
+            // Group papers by year and then by conference
+            for (const key in papers) {
+                const paper = papers[key];
+                if (!groupedPapers[paper.year]) {
+                    groupedPapers[paper.year] = {};
+                }
+                if (!groupedPapers[paper.year][paper.conference]) {
+                    groupedPapers[paper.year][paper.conference] = [];
+                }
+                groupedPapers[paper.year][paper.conference].push(paper);
+            }
+
+            // Generate HTML
+            for (const year in groupedPapers) {
+                const yearSection = document.createElement("div");
+                yearSection.className = "year-section";
+
+                const yearHeader = document.createElement("div");
+                yearHeader.className = "year-header";
+                yearHeader.innerHTML = `Year: ${year} <span class="toggle-icon">▶</span>`;
+                yearHeader.addEventListener("click", () => {
+                    const content = yearSection.querySelector(".year-content");
+                    const icon = yearHeader.querySelector(".toggle-icon");
+                    content.style.display = content.style.display === "none" || content.style.display === "" ? "block" : "none";
+                    icon.classList.toggle("open");
+                });
+
+                const yearContent = document.createElement("div");
+                yearContent.className = "year-content";
+
+                for (const conference in groupedPapers[year]) {
+                    const conferenceSection = document.createElement("div");
+                    conferenceSection.className = "conference-section";
+
+                    const conferenceHeader = document.createElement("div");
+                    conferenceHeader.className = "conference-header";
+                    conferenceHeader.innerHTML = `
+                        Conference: ${conference}
+                        <a class="conference-link" href="${groupedPapers[year][conference][0].source}" target="_blank">
+                            View Conference Details
+                        </a>
+                        <span class="toggle-icon">▶</span>
+                    `;
+                    conferenceHeader.addEventListener("click", (e) => {
+                        const content = conferenceSection.querySelector(".conference-content");
+                        const icon = conferenceHeader.querySelector(".toggle-icon");
+                        content.style.display = content.style.display === "none" || content.style.display === "" ? "block" : "none";
+                        icon.classList.toggle("open");
+                        e.stopPropagation();
+                    });
+
+                    const conferenceContent = document.createElement("div");
+                    conferenceContent.className = "conference-content";
+
+                    groupedPapers[year][conference].forEach(paper => {
+                        const card = document.createElement("div");
+                        card.className = "card";
+
+                        const title = document.createElement("div");
+                        title.className = "card-title";
+                        title.textContent = `Title: ${paper.title}`;
+                        card.appendChild(title);
+
+                        const authorsList = document.createElement("ul");
+                        authorsList.className = "authors";
+
+                        paper.author_name.forEach((author, index) => {
+                            const listItem = document.createElement("li");
+                            const authorLink = document.createElement("a");
+                            authorLink.href = paper.author_url[index] || "#";
+                            authorLink.textContent = author;
+                            authorLink.target = "_blank";
+                            listItem.appendChild(authorLink);
+                            authorsList.appendChild(listItem);
+                        });
+
+                        card.appendChild(authorsList);
+
+                        const targetAuthor = document.createElement("div");
+                        targetAuthor.className = "target-author";
+                        targetAuthor.textContent = `Target Author: ${paper.target_author.join(", ")}`;
+                        card.appendChild(targetAuthor);
+
+                        conferenceContent.appendChild(card);
+                    });
+
+                    conferenceSection.appendChild(conferenceHeader);
+                    conferenceSection.appendChild(conferenceContent);
+                    yearContent.appendChild(conferenceSection);
+                }
+
+                yearSection.appendChild(yearHeader);
+                yearSection.appendChild(yearContent);
+                container.appendChild(yearSection);
+            }
+        </script>
     </div>
 </body>
 </html>
