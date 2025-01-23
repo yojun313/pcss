@@ -15667,3 +15667,4 @@ front/node_modules/proxy-from-env/package.json
 front/node_modules/proxy-from-env/README.md
 front/node_modules/proxy-from-env/test.js
 .DS_Store
+*.pyc
