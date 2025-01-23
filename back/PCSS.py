@@ -266,7 +266,6 @@ class PCSSEARCH:
 
         return f"({stats['first_author']},{stats['first_or_second_author']},{stats['last_author']},{stats['co_author']})"
 
-
     def printStatus(self, msg=''):
         print(f'\r{msg} | paper: {len(self.CrawlData)}', end='')
 
