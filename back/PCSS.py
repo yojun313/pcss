@@ -444,7 +444,7 @@ class PCSSEARCH:
 
 
 if __name__ == "__main__":
-    pcssearch_obj = PCSSEARCH(1, True, 2023, 2024)
+    pcssearch_obj = PCSSEARCH(1, False, 2024, 2024)
 
     conf_list = ['CCS']
 
