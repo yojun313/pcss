@@ -136,33 +136,31 @@ class PCSSEARCH:
                     # 1저자가 한국인
                     if self.option == 1:
                         if self.koreanChecker(authors[0]):
-                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[0]+f'({self.name_dict[authors[0]]})'], 'conference': conf, 'year': year, 'source': url})
+                            self.CrawlData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[0]+f'({self.name_dict[authors[0]]})'], 'conference': conf, 'year': year, 'source': url})
                             self.printStatus(f"{year} {conf} Crawling", url=url)
                     # 1저자 또는 2저자가 한국인
                     elif self.option == 2:
                         if self.koreanChecker(authors[0]) and self.koreanChecker(authors[1]):
-                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[0]+f'({self.name_dict[authors[0]]})', authors[1]+f'({self.name_dict[authors[1]]})'],  'conference': conf, 'year': year, 'source': url})
+                            self.CrawlData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[0]+f'({self.name_dict[authors[0]]})', authors[1]+f'({self.name_dict[authors[1]]})'],  'conference': conf, 'year': year, 'source': url})
                             self.printStatus(f"{year} {conf} Crawling", url=url)
                         else:
                             if self.koreanChecker(authors[1]):
-                                returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[1]+f'({self.name_dict[authors[1]]})'],  'conference': conf, 'year': year, 'source': url})
+                                self.CrawlData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[1]+f'({self.name_dict[authors[1]]})'],  'conference': conf, 'year': year, 'source': url})
                                 self.printStatus(f"{year} {conf} Crawling", url=url)
                     # 마지막 저자가 한국인
                     elif self.option == 3:
                         if self.koreanChecker(authors[-1]):
-                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[-1]+f'({self.name_dict[authors[-1]]})'], 'conference': conf, 'year': year, 'source': url})
+                            self.CrawlData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[-1]+f'({self.name_dict[authors[-1]]})'], 'conference': conf, 'year': year, 'source': url})
                             self.printStatus(f"{year} {conf} Crawling", url=url)
                     # 저자 중 한 명 이상이 한국인
                     else:
                         target_list = [author+f'({self.name_dict[author]})' for author in authors if self.koreanChecker(author)]
                         if len(target_list) > 0:
-                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': target_list, 'conference': conf, 'year': year, 'source': url})
+                            self.CrawlData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': target_list, 'conference': conf, 'year': year, 'source': url})
                             self.printStatus(f"{year} {conf} Crawling", url=url)
 
                 except:
                     self.write_log(traceback.format_exc())
-
-            self.CrawlData.extend(returnData)
         except:
             self.write_log(traceback.format_exc())
 
