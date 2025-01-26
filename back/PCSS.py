@@ -1,3 +1,6 @@
+from langchain.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_ollama import OllamaLLM
 from bs4 import BeautifulSoup
 from user_agent import generate_navigator
 import requests
@@ -25,12 +28,15 @@ class PCSSEARCH:
 
         self.option = option
         self.possible = possible
+        self.possible_stat = 0
         self.startyear = int(startyear)
         self.endyear = int(endyear)
 
         self.proxy_option = False
         self.proxy_list = []
         self.speed = 10
+        self.name_dict = {}
+        self.llm = OllamaLLM(model="llama3.1-instruct-8b")
 
         last_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'last_name.csv'), sep=';')
         self.last_name_list = list(
@@ -130,24 +136,24 @@ class PCSSEARCH:
                     # 1저자가 한국인
                     if self.option == 1:
                         if self.koreanChecker(authors[0]):
-                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[0]], 'conference': conf, 'year': year, 'source': url})
+                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[0]+f'({self.name_dict[authors[0]]})'], 'conference': conf, 'year': year, 'source': url})
 
                     # 1저자 또는 2저자가 한국인
                     elif self.option == 2:
                         if self.koreanChecker(authors[0]) and self.koreanChecker(authors[1]):
-                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[0], authors[1]],  'conference': conf, 'year': year, 'source': url})
+                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[0]+f'({self.name_dict[authors[0]]})', authors[1]+f'({self.name_dict[authors[1]]})'],  'conference': conf, 'year': year, 'source': url})
                         else:
                             if self.koreanChecker(authors[1]):
-                                returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[1]],  'conference': conf, 'year': year, 'source': url})
+                                returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[1]+f'({self.name_dict[authors[1]]})'],  'conference': conf, 'year': year, 'source': url})
 
                     # 마지막 저자가 한국인
                     elif self.option == 3:
                         if self.koreanChecker(authors[-1]):
-                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[-1]], 'conference': conf, 'year': year, 'source': url})
+                            returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[-1]+f'({self.name_dict[authors[-1]]})'], 'conference': conf, 'year': year, 'source': url})
 
                     # 저자 중 한 명 이상이 한국인
                     else:
-                        target_list = [author for author in authors if self.koreanChecker(author)]
+                        target_list = [author+f'({self.name_dict[author]})' for author in authors if self.koreanChecker(author)]
                         if len(target_list) > 0:
                             returnData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': target_list, 'conference': conf, 'year': year, 'source': url})
                 except:
@@ -210,7 +216,7 @@ class PCSSEARCH:
             # 딕셔너리를 JSON 파일로 저장
             with open(json_path, 'w', encoding='utf-8') as json_file:
                 json.dump(self.FinalData, json_file, ensure_ascii=False, indent=4)
-            print(f"PATH={json_path}")
+            print(f" PATH={json_path}")
             
             '''
             # 크롤링 결과 출력
@@ -237,12 +243,24 @@ class PCSSEARCH:
 
     def koreanChecker(self, name):
         if self.possible == True:
-            if name.split()[-1] in self.last_name_list:
+            if name.split()[-1] in self.last_name_list and name.split()[0] in self.first_name_list and float(self.single_name_llm(name)) > self.possible_stat:
                 return True
         else:
-            if name.split()[-1] in self.last_name_list and name.split()[0] in self.first_name_list:
+            if name.split()[-1] in self.last_name_list and name.split()[0] in self.first_name_list and float(self.single_name_llm(name)) > 0.5:
                 return True
         return False
+
+    def single_name_llm(self, name):
+        template = "Express the likelihood of this {name} being Korean using only a number. You need to say number only"
+
+        prompt = PromptTemplate.from_template(template=template)
+        chain = prompt | self.llm | StrOutputParser()
+
+        result = chain.invoke({"name", name})
+
+        self.name_dict[name] = result[:3]
+
+        return result
 
     def authorNumChecker(self, papers, target_author):
         stats = {
@@ -426,8 +444,8 @@ class PCSSEARCH:
 
 
 if __name__ == "__main__":
-    pcssearch_obj = PCSSEARCH(1, False, 2023, 2024)
+    pcssearch_obj = PCSSEARCH(1, True, 2023, 2024)
 
-    conf_list = ['ICRA']
+    conf_list = ['CCS']
 
     pcssearch_obj.search_main(conf_list)
