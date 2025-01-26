@@ -56,7 +56,7 @@ class PCSSEARCH:
     # 한 Conference에 대한 연도별 url 크롤링 함수
     async def conf_crawl(self, conf, session, conf_name):
         try:
-            self.printStatus(f"{conf_name} URL Crawling...")
+            self.printStatus(f"{conf_name} URL Crawling...", url=f"https://dblp.org/db/conf/{conf}/index.html")
             response = await self.asyncRequester(f"https://dblp.org/db/conf/{conf}/index.html", session=session)
             if isinstance(response, tuple) == True:
                 return response
@@ -86,10 +86,11 @@ class PCSSEARCH:
     async def paper_crawl(self, conf, url, year, session):
         try:
             returnData = []
-
+            
+            self.printStatus(f"{year} {conf} Crawling...", url=url)
             response = await self.asyncRequester(url, session=session)
             if isinstance(response, tuple) == True:
-                return response
+                return response         
 
             soup = BeautifulSoup(response, "html.parser")
             papers = soup.find_all('li', class_='entry inproceedings')
@@ -153,7 +154,7 @@ class PCSSEARCH:
                     self.write_log(traceback.format_exc())
 
             self.CrawlData.extend(returnData)
-            self.printStatus(f"{year} {conf} Crawling")
+            self.printStatus(f"{year} {conf} Crawling", url=url)
 
         except:
             self.write_log(traceback.format_exc())
@@ -266,8 +267,8 @@ class PCSSEARCH:
 
         return f"({stats['first_author']},{stats['first_or_second_author']},{stats['last_author']},{stats['co_author']})"
 
-    def printStatus(self, msg=''):
-        print(f'\r{msg} | paper: {len(self.CrawlData)}', end='')
+    def printStatus(self, msg='', url=None):
+        print(f'\r{msg} | {url} | paper: {len(self.CrawlData)}', end='')
 
     def kornametoeng(self, name, option=1):
         if option == 1:
@@ -427,6 +428,6 @@ class PCSSEARCH:
 if __name__ == "__main__":
     pcssearch_obj = PCSSEARCH(1, False, 2023, 2024)
 
-    conf_list = ['CCS']
+    conf_list = ['ICRA']
 
     pcssearch_obj.search_main(conf_list)
