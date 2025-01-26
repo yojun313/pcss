@@ -15670,3 +15670,5 @@ front/node_modules/proxy-from-env/test.js
 *.pyc
 back/__pycache__/PCSS.cpython-313.pyc
 *.pyc
+*.pyc
+*.pyc
