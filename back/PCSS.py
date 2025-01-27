@@ -204,10 +204,9 @@ class PCSSEARCH:
             for data in self.CrawlData:
                 data_copy = copy.deepcopy(data)
                 for author in data_copy["author_name"]:
-                    if self.koreanChecker(author) == True:
-                        stats = self.authorNumChecker(self.CrawlData, author)
-                        data_copy['target_author'] = [item + stats if item == author else item for item in data_copy['target_author']]
-                        data_copy['author_name'] = [item + stats if item == author else item for item in data_copy['author_name']]
+                    stats = self.authorNumChecker(self.CrawlData, author)
+                    data_copy['target_author'] = [item + stats if item == author else item for item in data_copy['target_author']]
+                    data_copy['author_name'] = [item + stats if item == author else item for item in data_copy['author_name']]
                 self.FinalData.append(data_copy)
 
             self.FinalData = {index: element for index, element in enumerate(self.FinalData)}
