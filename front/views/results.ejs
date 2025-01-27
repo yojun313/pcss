@@ -182,105 +182,116 @@
         <div id="papers-container"></div>
         <script>
             const papers = <%- JSON.stringify(pythonResult) %>;
-            const container = document.getElementById("papers-container");
 
-            const groupedPapers = {};
+            if (!papers || Object.keys(papers).length === 0) {
+                // 웹페이지에도 메시지 표시
+                const container = document.getElementById("papers-container");
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px; background-color: #fff4f4; border: 1px solid #f5c2c2; border-radius: 8px; color: #c71d1d;">
+                        검색 조건을 만족하는 논문이 존재하지 않습니다.
+                    </div>`;
+            } else {
+                const container = document.getElementById("papers-container");
 
-            // Group papers by year and then by conference
-            for (const key in papers) {
-                const paper = papers[key];
-                if (!groupedPapers[paper.year]) {
-                    groupedPapers[paper.year] = {};
+                const groupedPapers = {};
+
+                // Group papers by year and then by conference
+                for (const key in papers) {
+                    const paper = papers[key];
+                    if (!groupedPapers[paper.year]) {
+                        groupedPapers[paper.year] = {};
+                    }
+                    if (!groupedPapers[paper.year][paper.conference]) {
+                        groupedPapers[paper.year][paper.conference] = [];
+                    }
+                    groupedPapers[paper.year][paper.conference].push(paper);
                 }
-                if (!groupedPapers[paper.year][paper.conference]) {
-                    groupedPapers[paper.year][paper.conference] = [];
-                }
-                groupedPapers[paper.year][paper.conference].push(paper);
-            }
 
-            // Generate HTML
-            for (const year in groupedPapers) {
-                const yearSection = document.createElement("div");
-                yearSection.className = "year-section";
+                // Generate HTML
+                for (const year in groupedPapers) {
+                    const yearSection = document.createElement("div");
+                    yearSection.className = "year-section";
 
-                const yearHeader = document.createElement("div");
-                yearHeader.className = "year-header";
-                yearHeader.innerHTML = `Year: ${year} <span class="toggle-icon">▶</span>`;
-                yearHeader.addEventListener("click", () => {
-                    const content = yearSection.querySelector(".year-content");
-                    const icon = yearHeader.querySelector(".toggle-icon");
-                    content.style.display = content.style.display === "none" || content.style.display === "" ? "block" : "none";
-                    icon.classList.toggle("open");
-                });
-
-                const yearContent = document.createElement("div");
-                yearContent.className = "year-content";
-
-                for (const conference in groupedPapers[year]) {
-                    const conferenceSection = document.createElement("div");
-                    conferenceSection.className = "conference-section";
-
-                    const conferenceHeader = document.createElement("div");
-                    conferenceHeader.className = "conference-header";
-                    conferenceHeader.innerHTML = `
-                        Conference: ${conference}
-                        <a class="conference-link" href="${groupedPapers[year][conference][0].source}" target="_blank">
-                            View Conference Details
-                        </a>
-                        <span class="toggle-icon">▶</span>
-                    `;
-                    conferenceHeader.addEventListener("click", (e) => {
-                        const content = conferenceSection.querySelector(".conference-content");
-                        const icon = conferenceHeader.querySelector(".toggle-icon");
+                    const yearHeader = document.createElement("div");
+                    yearHeader.className = "year-header";
+                    yearHeader.innerHTML = `Year: ${year} <span class="toggle-icon">▶</span>`;
+                    yearHeader.addEventListener("click", () => {
+                        const content = yearSection.querySelector(".year-content");
+                        const icon = yearHeader.querySelector(".toggle-icon");
                         content.style.display = content.style.display === "none" || content.style.display === "" ? "block" : "none";
                         icon.classList.toggle("open");
-                        e.stopPropagation();
                     });
 
-                    const conferenceContent = document.createElement("div");
-                    conferenceContent.className = "conference-content";
+                    const yearContent = document.createElement("div");
+                    yearContent.className = "year-content";
 
-                    groupedPapers[year][conference].forEach(paper => {
-                        const card = document.createElement("div");
-                        card.className = "card";
+                    for (const conference in groupedPapers[year]) {
+                        const conferenceSection = document.createElement("div");
+                        conferenceSection.className = "conference-section";
 
-                        const title = document.createElement("div");
-                        title.className = "card-title";
-                        title.textContent = `Title: ${paper.title}`;
-                        card.appendChild(title);
-
-                        const authorsList = document.createElement("ul");
-                        authorsList.className = "authors";
-
-                        paper.author_name.forEach((author, index) => {
-                            const listItem = document.createElement("li");
-                            const authorLink = document.createElement("a");
-                            authorLink.href = paper.author_url[index] || "#";
-                            authorLink.textContent = author;
-                            authorLink.target = "_blank";
-                            listItem.appendChild(authorLink);
-                            authorsList.appendChild(listItem);
+                        const conferenceHeader = document.createElement("div");
+                        conferenceHeader.className = "conference-header";
+                        conferenceHeader.innerHTML = `
+                            Conference: ${conference}
+                            <a class="conference-link" href="${groupedPapers[year][conference][0].source}" target="_blank">
+                                View Conference Details
+                            </a>
+                            <span class="toggle-icon">▶</span>
+                        `;
+                        conferenceHeader.addEventListener("click", (e) => {
+                            const content = conferenceSection.querySelector(".conference-content");
+                            const icon = conferenceHeader.querySelector(".toggle-icon");
+                            content.style.display = content.style.display === "none" || content.style.display === "" ? "block" : "none";
+                            icon.classList.toggle("open");
+                            e.stopPropagation();
                         });
 
-                        card.appendChild(authorsList);
+                        const conferenceContent = document.createElement("div");
+                        conferenceContent.className = "conference-content";
 
-                        const targetAuthor = document.createElement("div");
-                        targetAuthor.className = "target-author";
-                        targetAuthor.textContent = `Target Author: ${paper.target_author.join(", ")}`;
-                        card.appendChild(targetAuthor);
+                        groupedPapers[year][conference].forEach(paper => {
+                            const card = document.createElement("div");
+                            card.className = "card";
 
-                        conferenceContent.appendChild(card);
-                    });
+                            const title = document.createElement("div");
+                            title.className = "card-title";
+                            title.textContent = `Title: ${paper.title}`;
+                            card.appendChild(title);
 
-                    conferenceSection.appendChild(conferenceHeader);
-                    conferenceSection.appendChild(conferenceContent);
-                    yearContent.appendChild(conferenceSection);
+                            const authorsList = document.createElement("ul");
+                            authorsList.className = "authors";
+
+                            paper.author_name.forEach((author, index) => {
+                                const listItem = document.createElement("li");
+                                const authorLink = document.createElement("a");
+                                authorLink.href = paper.author_url[index] || "#";
+                                authorLink.textContent = author;
+                                authorLink.target = "_blank";
+                                listItem.appendChild(authorLink);
+                                authorsList.appendChild(listItem);
+                            });
+
+                            card.appendChild(authorsList);
+
+                            const targetAuthor = document.createElement("div");
+                            targetAuthor.className = "target-author";
+                            targetAuthor.textContent = `Target Author: ${paper.target_author.join(", ")}`;
+                            card.appendChild(targetAuthor);
+
+                            conferenceContent.appendChild(card);
+                        });
+
+                        conferenceSection.appendChild(conferenceHeader);
+                        conferenceSection.appendChild(conferenceContent);
+                        yearContent.appendChild(conferenceSection);
+                    }
+
+                    yearSection.appendChild(yearHeader);
+                    yearSection.appendChild(yearContent);
+                    container.appendChild(yearSection);
                 }
-
-                yearSection.appendChild(yearHeader);
-                yearSection.appendChild(yearContent);
-                container.appendChild(yearSection);
             }
+            
         </script>
     </div>
 </body>

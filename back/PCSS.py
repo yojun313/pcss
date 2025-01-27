@@ -445,6 +445,7 @@ class PCSSEARCH:
 if __name__ == "__main__":
     pcssearch_obj = PCSSEARCH(1, False, 2024, 2024)
 
-    conf_list = ['CCS']
+    conf_list = ['MobiHoc']
 
     pcssearch_obj.search_main(conf_list)
+    
