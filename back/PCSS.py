@@ -256,19 +256,32 @@ class PCSSEARCH:
 
             # 비동기 작업 병렬 실행
             await asyncio.gather(*tasks)
-            await session.close()
 
-            self.CrawlData = sorted(self.CrawlData, key=lambda x: (x["conference"], -x["year"]))
             self.FinalData = []
-            for data in self.CrawlData:
+
+            async def authorCounter(data, session):
                 data_copy = copy.deepcopy(data)
-                for author in data_copy["author_name"]:
-                    stats = self.authorNumChecker(self.CrawlData, author)
-                    data_copy['target_author'] = [item + stats if item == author else item for item in data_copy['target_author']]
-                    data_copy['author_name'] = [item + stats if item == author else item for item in data_copy['author_name']]
+                new_authors = []
+
+                for index, author in enumerate(data_copy["author_name"]):
+                    if self.koreanChecker(author) == False:
+                        new_authors.append(author)
+                        continue
+                    stats = await self.authorNumChecker(author, data['author_url'][index], session)
+                    new_authors.append(author+stats)
+
+                data_copy["author_name"] = new_authors
                 self.FinalData.append(data_copy)
 
+            tasks = [authorCounter(data, session) for data in self.CrawlData]
+
+            # 비동기 작업 병렬 실행
+            await asyncio.gather(*tasks)
+            await session.close()
+
+            self.FinalData = sorted(self.FinalData, key=lambda x: (x["conference"], -x["year"]))
             self.FinalData = {index: element for index, element in enumerate(self.FinalData)}
+
             json_path = os.path.join(os.path.dirname(__file__), 'res', f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json")
             # 딕셔너리를 JSON 파일로 저장
             with open(json_path, 'w', encoding='utf-8') as json_file:
@@ -358,9 +371,38 @@ class PCSSEARCH:
             with open(self.json_filename, "r", encoding="utf-8") as file:
                 return json.load(file)
         return {}  # 파일이 없으면 빈 딕셔너리 반환
-    
 
-    def authorNumChecker(self, papers, target_author):
+    async def authorNumChecker(self, target_author, url, session):
+        self.printStatus(f"{target_author} Paper Counting", url)
+        res = await self.asyncRequester(url, session=session)
+        soup = BeautifulSoup(res, "html.parser")
+
+        publ_list = soup.find('ul', class_='publ-list')
+
+        papers = []
+        for paper in publ_list:
+            title = paper.find('span', 'title')
+            if title is not None:
+                title = title.text
+                middle = paper.find('cite', 'data tts-content')
+                authors = middle.select('span[itemprop="name"]:not(.title)')
+                author_list = [author.get_text(strip=True) for author in authors]
+                author_list.pop()
+
+                authors = []
+                for name in author_list:
+                    parts = name.split()
+                    if len(parts) >= 3:
+                        full_name = parts[0] + parts[1].lower()
+                        authors.append(full_name)
+                    else:
+                        authors.append(name)
+
+                papers.append({
+                    'title': title,
+                    'authors': authors
+                })
+
         stats = {
             "first_author": 0,
             "first_or_second_author": 0,
@@ -369,7 +411,7 @@ class PCSSEARCH:
         }
 
         for paper in papers:
-            authors = paper["author_name"]
+            authors = paper["authors"]
             if target_author in authors:
                 if authors[0] == target_author:
                     stats["first_author"] += 1
@@ -382,7 +424,6 @@ class PCSSEARCH:
                     stats["co_author"] += 1
 
         return f"({stats['first_author']},{stats['first_or_second_author']},{stats['last_author']},{stats['co_author']})"
-
 
     def printStatus(self, msg='', url=None):
         print(f'\r{msg} | {url} | paper: {len(self.CrawlData)}', end='')
