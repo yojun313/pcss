@@ -1,6 +1,8 @@
 from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_ollama import OllamaLLM
+from google.oauth2.service_account import Credentials
+import gspread
 from bs4 import BeautifulSoup
 from user_agent import generate_navigator
 import requests
@@ -35,10 +37,11 @@ class PCSSEARCH:
         self.proxy_option = False
         self.proxy_list = []
         self.speed = 10
-        self.name_dict = {}
+        self.json_filename = os.path.join(os.path.dirname(__file__), 'data', "llm_name.json")
+        self.name_dict = self.load_name_dict()
         self.llm = OllamaLLM(model="llama3.1-instruct-8b")
 
-        last_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'last_name.csv'), sep=';')
+        last_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'last_name.csv'), sep=';')
         self.last_name_list = list(
             last_name_df[['eng_1', 'eng_2', 'eng_3']]
             .stack()  # 모든 열을 행 방향으로 쌓음 (NaN 제거 포함)
@@ -46,7 +49,7 @@ class PCSSEARCH:
         )
         self.last_name_list = [item.strip() for sublist in self.last_name_list for item in sublist.split(",")]
 
-        first_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'first_name.csv'))
+        first_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'first_name.csv'))
         self.first_name_list = list(
             first_name_df[['eng']]
             .stack()  # 모든 열을 행 방향으로 쌓음 (NaN 제거 포함)
@@ -54,7 +57,7 @@ class PCSSEARCH:
         )
         self.first_name_list = [item.strip() for sublist in self.first_name_list for item in sublist.split(",")]
 
-        self.conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'conf.csv'))
+        self.conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))
         self.CrawlData = []
 
         self.log_file_path = os.path.join(os.path.dirname(__file__), f"log/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt")  # 로그 파일 이름
@@ -136,27 +139,81 @@ class PCSSEARCH:
                     # 1저자가 한국인
                     if self.option == 1:
                         if self.koreanChecker(authors[0]):
-                            self.CrawlData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[0]+f'({self.name_dict[authors[0]]})'], 'conference': conf, 'year': year, 'source': url})
+                            self.CrawlData.append({
+                                'title': title, 
+                                'author_name': authors, 
+                                'author_url': authors_url, 
+                                'target_author': [authors[0]+f'({self.name_dict[authors[0]]})'], 
+                                'conference': conf, 
+                                'year': year, 
+                                'source': url
+                            })
                             self.printStatus(f"{year} {conf} Crawling", url=url)
+                            
                     # 1저자 또는 2저자가 한국인
                     elif self.option == 2:
-                        if self.koreanChecker(authors[0]) and self.koreanChecker(authors[1]):
-                            self.CrawlData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[0]+f'({self.name_dict[authors[0]]})', authors[1]+f'({self.name_dict[authors[1]]})'],  'conference': conf, 'year': year, 'source': url})
+                        target_authors = [
+                            author + f'({self.name_dict[author]})' 
+                            for author in authors[:2] if self.koreanChecker(author)
+                        ]
+
+                        if target_authors:
+                            self.CrawlData.append({
+                                'title': title,
+                                'author_name': authors,
+                                'author_url': authors_url,
+                                'target_author': target_authors,
+                                'conference': conf,
+                                'year': year,
+                                'source': url
+                            })
                             self.printStatus(f"{year} {conf} Crawling", url=url)
-                        else:
-                            if self.koreanChecker(authors[1]):
-                                self.CrawlData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[1]+f'({self.name_dict[authors[1]]})'],  'conference': conf, 'year': year, 'source': url})
-                                self.printStatus(f"{year} {conf} Crawling", url=url)
+                            
                     # 마지막 저자가 한국인
                     elif self.option == 3:
                         if self.koreanChecker(authors[-1]):
-                            self.CrawlData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': [authors[-1]+f'({self.name_dict[authors[-1]]})'], 'conference': conf, 'year': year, 'source': url})
+                            self.CrawlData.append({
+                                'title': title, 
+                                'author_name': authors, 
+                                'author_url': authors_url, 
+                                'target_author': [authors[-1]+f'({self.name_dict[authors[-1]]})'], 
+                                'conference': conf, 'year': year, 
+                                'source': url
+                            })
                             self.printStatus(f"{year} {conf} Crawling", url=url)
+                            
+                    # 1저자 또는 마지막 저자가 한국인
+                    elif self.option == 4:
+                        target_authors = [
+                            author + f'({self.name_dict[author]})' 
+                            for author in [authors[0], authors[-1]] if self.koreanChecker(author)
+                        ]
+
+                        if target_authors:
+                            self.CrawlData.append({
+                                'title': title,
+                                'author_name': authors,
+                                'author_url': authors_url,
+                                'target_author': target_authors,
+                                'conference': conf,
+                                'year': year,
+                                'source': url
+                            })
+                            self.printStatus(f"{year} {conf} Crawling", url=url)
+                    
                     # 저자 중 한 명 이상이 한국인
                     else:
                         target_list = [author+f'({self.name_dict[author]})' for author in authors if self.koreanChecker(author)]
                         if len(target_list) > 0:
-                            self.CrawlData.append({'title': title, 'author_name': authors, 'author_url': authors_url, 'target_author': target_list, 'conference': conf, 'year': year, 'source': url})
+                            self.CrawlData.append({
+                                'title': title, 
+                                'author_name': authors, 
+                                'author_url': authors_url, 
+                                'target_author': target_list, 
+                                'conference': conf, 
+                                'year': year, 
+                                'source': url
+                            })
                             self.printStatus(f"{year} {conf} Crawling", url=url)
 
                 except:
@@ -210,7 +267,7 @@ class PCSSEARCH:
                 self.FinalData.append(data_copy)
 
             self.FinalData = {index: element for index, element in enumerate(self.FinalData)}
-            json_path = os.path.join(os.path.dirname(__file__), f"res/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json")
+            json_path = os.path.join(os.path.dirname(__file__), 'res', f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json")
             # 딕셔너리를 JSON 파일로 저장
             with open(json_path, 'w', encoding='utf-8') as json_file:
                 json.dump(self.FinalData, json_file, ensure_ascii=False, indent=4)
@@ -227,8 +284,6 @@ class PCSSEARCH:
                 print("")
             '''
             
-
-
         except:
             self.write_log(traceback.format_exc())
 
@@ -239,6 +294,7 @@ class PCSSEARCH:
         except:
             self.write_log(traceback.format_exc())
 
+
     def koreanChecker(self, name):
         if self.possible == True:
             if name.split()[-1] in self.last_name_list and name.split()[0] in self.first_name_list and float(self.single_name_llm(name)) > self.possible_stat:
@@ -248,7 +304,11 @@ class PCSSEARCH:
                 return True
         return False
 
+
     def single_name_llm(self, name):
+        if name in self.name_dict:
+            return self.name_dict[name]
+        
         template = "Express the likelihood of this {name} being Korean using only a number. You need to say number only"
 
         prompt = PromptTemplate.from_template(template=template)
@@ -257,8 +317,46 @@ class PCSSEARCH:
         result = chain.invoke({"name", name})
 
         self.name_dict[name] = result[:3]
+        self.save_name_dict()
 
         return result
+    
+    def multiname_judge(self):
+        from langchain.prompts import PromptTemplate
+        from langchain_core.output_parsers import StrOutputParser
+        from langchain_ollama import OllamaLLM
+
+        # Initialize the LLM
+        llm = OllamaLLM(model="llama3.1-instruct-8b")
+
+        # List of names to evaluate
+        namelist = ['Yojun Moon', 'Dohyeon Kim', 'Bokang Zhang', 'Seojun Moon', 'Junxu Liu', 'Jiahe Zhang', 'Zidong Zhang']
+
+        # Create a prompt that passes all names at once
+        names_string = ', '.join(namelist)
+        template = (
+            "Here is a list of names: {names}. For each name, express the likelihood of it being Korean using only a number. "
+            "Return the result only as a list of numbers, in the same order as the names."
+        )
+
+        prompt = PromptTemplate.from_template(template=template)
+        chain = prompt | llm | StrOutputParser()
+
+        result = chain.invoke({"name", names_string})
+        print(result)
+
+    def save_name_dict(self):
+        """ name_dict를 JSON 파일로 저장 """
+        with open(self.json_filename, "w", encoding="utf-8") as file:
+            json.dump(self.name_dict, file, ensure_ascii=False, indent=4) 
+
+    def load_name_dict(self):
+        """ JSON 파일에서 name_dict 불러오기 """
+        if os.path.exists(self.json_filename):
+            with open(self.json_filename, "r", encoding="utf-8") as file:
+                return json.load(file)
+        return {}  # 파일이 없으면 빈 딕셔너리 반환
+    
 
     def authorNumChecker(self, papers, target_author):
         stats = {
@@ -283,8 +381,10 @@ class PCSSEARCH:
 
         return f"({stats['first_author']},{stats['first_or_second_author']},{stats['last_author']},{stats['co_author']})"
 
+
     def printStatus(self, msg='', url=None):
         print(f'\r{msg} | {url} | paper: {len(self.CrawlData)}', end='')
+
 
     def kornametoeng(self, name, option=1):
         if option == 1:
@@ -382,10 +482,12 @@ class PCSSEARCH:
             except Exception as e:
                 print("에러 발생:", str(e))
 
+
     def random_heador(self):
         navigator = generate_navigator()
         navigator = navigator['user_agent']
         return {"User-Agent": navigator}
+
 
     def random_proxy(self):
         proxy_server = random.choice(self.proxy_list)
@@ -393,6 +495,7 @@ class PCSSEARCH:
             return {"http": 'http://' + proxy_server, 'https': 'http://' + proxy_server}
         else:
             return None
+
 
     def write_log(self, message):
         # 현재 시간 추가
@@ -402,6 +505,7 @@ class PCSSEARCH:
         # 로그 파일에 메시지 추가
         with open(self.log_file_path, 'a') as file:
             file.write(log_message)
+
 
     def Requester(self, url, headers={}, params={}, proxies={}, cookies={}):
         try:
@@ -425,6 +529,29 @@ class PCSSEARCH:
 
         except Exception as e:
              return ("ERROR", traceback.format_exc())
+    
+    
+    def get_spreadsheet_data(self, url="https://docs.google.com/spreadsheets/d/1SsGBT17nzA9ItG8QG73lyHGeIab2C6x616zYwEATQHc/edit?gid=0#gid=0", sheet="Sheet1"):
+        
+        # Google Spreadsheet API 인증
+        json_file_path = os.path.join(os.path.dirname(__file__), 'data', "lock.json")
+        scopes = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+
+        credentials = Credentials.from_service_account_file(json_file_path, scopes=scopes)
+        gc = gspread.authorize(credentials)
+
+        # Google Spreadsheet 열기
+        spreadsheet_url = url
+        doc = gc.open_by_url(spreadsheet_url)
+
+        # 특정 워크시트 선택
+        worksheet = doc.worksheet(sheet)
+
+        # 데이터를 가져와 DataFrame으로 변환
+        data = worksheet.get_all_values()
+        df = pd.DataFrame(data[1:], columns=data[0])  # 첫 번째 행을 컬럼으로 설정
+        return df
+
 
     async def asyncRequester(self, url, headers={}, params={}, proxies='', cookies={}, session=None):
         timeout = aiohttp.ClientTimeout(total=TIMEOUT)
@@ -432,7 +559,7 @@ class PCSSEARCH:
         while True:
             try:
                 async with session.get(url, headers=headers, params=params, proxy=proxies, cookies=cookies,
-                                       ssl=False, timeout=TIMEOUT) as response:
+                                       ssl=False, timeout=timeout) as response:
                     return await response.text()
             except (aiohttp.ClientError, asyncio.TimeoutError, Exception) as e:
                 if trynum >= TRYNUM:
@@ -444,7 +571,7 @@ class PCSSEARCH:
 if __name__ == "__main__":
     pcssearch_obj = PCSSEARCH(1, False, 2024, 2024)
 
-    conf_list = ['MobiHoc']
+    conf_list = ['CCS']
 
     pcssearch_obj.search_main(conf_list)
     

@@ -14,7 +14,7 @@ const io = new Server(server);
 const port = 3000;
 
 // CSV 파일 경로
-const csvFilePath = path.join(__dirname, '..', 'back', 'conf.csv');
+const csvFilePath = path.join(__dirname, '..', 'back', 'data', 'conf.csv');
 let globalInputData = null; // 단일 사용자용 글로벌 데이터
 
 // 정적 파일 제공
