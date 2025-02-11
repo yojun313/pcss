@@ -28,18 +28,20 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 class PCSSEARCH:
     def __init__(self, option, possible, startyear, endyear):
 
-        self.option = option
-        self.possible = possible
-        self.possible_stat = 0
-        self.startyear = int(startyear)
-        self.endyear = int(endyear)
+        self.option         = option
+        self.possible       = possible
+        self.possible_stat  = 0               # possible 허용 범위
+        self.startyear      = int(startyear)
+        self.endyear        = int(endyear)
 
-        self.proxy_option = False
-        self.proxy_list = []
-        self.speed = 10
-        self.json_filename = os.path.join(os.path.dirname(__file__), 'data', "llm_name.json")
-        self.name_dict = self.load_name_dict()
-        self.llm = OllamaLLM(model="llama3.1-instruct-8b")
+        self.proxy_option   = False
+        self.proxy_list     = []
+        self.speed          = 10
+        
+        
+        self.json_filename  = os.path.join(os.path.dirname(__file__), 'data', "llm_name.json")
+        self.name_dict      = self.load_name_dict()
+        self.llm = OllamaLLM(model='llama3.1:8b')
 
         last_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'last_name.csv'), sep=';')
         self.last_name_list = list(
@@ -60,7 +62,7 @@ class PCSSEARCH:
         self.conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))
         self.CrawlData = []
 
-        self.log_file_path = os.path.join(os.path.dirname(__file__), f"log/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt")  # 로그 파일 이름
+        self.log_file_path = os.path.join(os.path.dirname(__file__), 'log', f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt")  # 로그 파일 이름
 
     # 한 Conference에 대한 연도별 url 크롤링 함수
     async def conf_crawl(self, conf, session, conf_name):
