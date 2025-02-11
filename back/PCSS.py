@@ -288,17 +288,6 @@ class PCSSEARCH:
                 json.dump(self.FinalData, json_file, ensure_ascii=False, indent=4)
             print(f" PATH={json_path}")
             
-            '''
-            # 크롤링 결과 출력
-            for data in self.FinalData:
-                print(f"Conference: {data['conference']}")
-                print(f"Year: {data['year']}")
-                print(f"Title: {data['title']}")
-                print(f"Authors: {data['author_name']}")
-                print(f"Target Author: {data['target_author']}")
-                print("")
-            '''
-            
         except:
             self.write_log(traceback.format_exc())
 
