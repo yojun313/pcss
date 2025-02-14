@@ -41,7 +41,7 @@ class PCSSEARCH:
         
         self.json_filename  = os.path.join(os.path.dirname(__file__), 'data', "llm_name.json")
         self.name_dict      = self.load_name_dict()
-        self.llm = OllamaLLM(model='llama3.1:8b')
+        self.llm = OllamaLLM(model='llama3.3:70b')
 
         last_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'last_name.csv'), sep=';')
         self.last_name_list = list(
