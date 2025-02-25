@@ -19,4 +19,4 @@ conf_list = InputData['selectedConferences']
 
 
 pcssearch_obj = PCSSEARCH(int(option), possible, int(startyear), int(endyear))
-pcssearch_obj.search_main(conf_list)
+pcssearch_obj.main(conf_list)
