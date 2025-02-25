@@ -3,12 +3,14 @@
 *.pyc
 *.pyc
 *.pyc
+mail_lock.json
 lock.json
 llm_name.json
 node_modules/
 front/node_modules/
 res/
 log/
+user_history/
 # PyCharm 관련 파일 및 폴더 무시
 .idea/
 *.iml

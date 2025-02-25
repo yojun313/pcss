@@ -1,8 +1,7 @@
 from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_ollama import OllamaLLM
-from google.oauth2.service_account import Credentials
-import gspread
+
 from bs4 import BeautifulSoup
 from user_agent import generate_navigator
 import requests
@@ -21,6 +20,7 @@ import json
 #
 TIMEOUT = 10
 TRYNUM = 3
+LLM_SERVER = '121.152.225.232'
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -32,35 +32,30 @@ class PCSSEARCH:
         self.possible       = possible
         self.possible_stat  = 0               # possible 허용 범위
         self.startyear      = int(startyear)
-        self.endyear        = int(endyear)
+        self.endyear        = int(endyear)                    
 
         self.proxy_option   = False
         self.proxy_list     = []
         self.speed          = 10
         
-        
         self.json_filename  = os.path.join(os.path.dirname(__file__), 'data', "llm_name.json")
         self.name_dict      = self.load_name_dict()
-        self.llm = OllamaLLM(model='llama3.3:70b')
+        
+        self.llm_model = 'llama3.1:8b'
+        self.llm = OllamaLLM(model=self.llm_model)
+        self.api_url = f"http://{LLM_SERVER}:3333/api/process"
 
         last_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'last_name.csv'), sep=';')
-        self.last_name_list = list(
-            last_name_df[['eng_1', 'eng_2', 'eng_3']]
-            .stack()  # 모든 열을 행 방향으로 쌓음 (NaN 제거 포함)
-            .astype(str)  # 모든 값을 문자열로 변환
-        )
+        self.last_name_list = list(last_name_df[['eng_1', 'eng_2', 'eng_3']].stack() .astype(str))
         self.last_name_list = [item.strip() for sublist in self.last_name_list for item in sublist.split(",")]
 
         first_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'first_name.csv'))
-        self.first_name_list = list(
-            first_name_df[['eng']]
-            .stack()  # 모든 열을 행 방향으로 쌓음 (NaN 제거 포함)
-            .astype(str)  # 모든 값을 문자열로 변환
-        )
+        self.first_name_list = list(first_name_df[['eng']].stack()) # 모든 열을 행 방향으로 쌓음 (NaN 제거 포함).astype(str)  # 모든 값을 문자열로 변환
         self.first_name_list = [item.strip() for sublist in self.first_name_list for item in sublist.split(",")]
 
         self.conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))
         self.CrawlData = []
+        self.FinalData = {}
 
         self.log_file_path = os.path.join(os.path.dirname(__file__), 'log', f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt")  # 로그 파일 이름
 
@@ -287,14 +282,16 @@ class PCSSEARCH:
             with open(json_path, 'w', encoding='utf-8') as json_file:
                 json.dump(self.FinalData, json_file, ensure_ascii=False, indent=4)
             print(f" PATH={json_path}")
+            self.result_json_path = json_path
             
         except:
             self.write_log(traceback.format_exc())
 
     # 메인 함수
-    def search_main(self, conf_list):
+    def main(self, conf_list):
         try:
             asyncio.run(self.MultiConfCollector(conf_list))
+            return self.result_json_path
         except:
             self.write_log(traceback.format_exc())
 
@@ -309,50 +306,40 @@ class PCSSEARCH:
         return False
 
 
-    def single_name_llm(self, name):
-        if name in self.name_dict:
-            return self.name_dict[name]
+    def single_name_llm(self, name, api=False):
         
-        template = "Express the likelihood of this {name} being Korean using only a number. You need to say number only"
+        if api == False:
+            if name in self.name_dict:
+                return self.name_dict[name]
+            
+            template = "Express the likelihood of this {name} being Korean using only a number. You need to say number only"
 
-        prompt = PromptTemplate.from_template(template=template)
-        chain = prompt | self.llm | StrOutputParser()
+            prompt = PromptTemplate.from_template(template=template)
+            chain = prompt | self.llm | StrOutputParser()
 
-        result = chain.invoke({"name", name})
+            result = chain.invoke({"name", name})
+        else:
+            if name in self.name_dict:
+                return self.name_dict[name]
+
+            result = self.llm_api_answer(
+                query = f"Express the likelihood of this {name} being Korean using only a number. You need to say number only",
+                model = self.llm_model
+            )
+
+        result = re.findall(r"\d+\.\d+|\d+", result)[0]
 
         self.name_dict[name] = result[:3]
         self.save_name_dict()
 
         return result
-    
-    def multiname_judge(self):
-        from langchain.prompts import PromptTemplate
-        from langchain_core.output_parsers import StrOutputParser
-        from langchain_ollama import OllamaLLM
 
-        # Initialize the LLM
-        llm = OllamaLLM(model="llama3.1-instruct-8b")
-
-        # List of names to evaluate
-        namelist = ['Yojun Moon', 'Dohyeon Kim', 'Bokang Zhang', 'Seojun Moon', 'Junxu Liu', 'Jiahe Zhang', 'Zidong Zhang']
-
-        # Create a prompt that passes all names at once
-        names_string = ', '.join(namelist)
-        template = (
-            "Here is a list of names: {names}. For each name, express the likelihood of it being Korean using only a number. "
-            "Return the result only as a list of numbers, in the same order as the names."
-        )
-
-        prompt = PromptTemplate.from_template(template=template)
-        chain = prompt | llm | StrOutputParser()
-
-        result = chain.invoke({"name", names_string})
-        print(result)
 
     def save_name_dict(self):
         """ name_dict를 JSON 파일로 저장 """
         with open(self.json_filename, "w", encoding="utf-8") as file:
             json.dump(self.name_dict, file, ensure_ascii=False, indent=4) 
+
 
     def load_name_dict(self):
         """ JSON 파일에서 name_dict 불러오기 """
@@ -360,6 +347,7 @@ class PCSSEARCH:
             with open(self.json_filename, "r", encoding="utf-8") as file:
                 return json.load(file)
         return {}  # 파일이 없으면 빈 딕셔너리 반환
+
 
     async def authorNumChecker(self, target_author, url, session):
         self.printStatus(f"{target_author} Paper Counting", url)
@@ -413,6 +401,7 @@ class PCSSEARCH:
                     stats["co_author"] += 1
 
         return f"({stats['first_author']},{stats['first_or_second_author']},{stats['last_author']},{stats['co_author']})"
+
 
     def printStatus(self, msg='', url=None):
         print(f'\r{msg} | {url} | paper: {len(self.CrawlData)}', end='')
@@ -563,26 +552,29 @@ class PCSSEARCH:
              return ("ERROR", traceback.format_exc())
     
     
-    def get_spreadsheet_data(self, url="https://docs.google.com/spreadsheets/d/1SsGBT17nzA9ItG8QG73lyHGeIab2C6x616zYwEATQHc/edit?gid=0#gid=0", sheet="Sheet1"):
-        
-        # Google Spreadsheet API 인증
-        json_file_path = os.path.join(os.path.dirname(__file__), 'data', "lock.json")
-        scopes = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    
+    
+    def llm_api_answer(self, query, model):
+        # 전송할 데이터
+        data = {
+            "model_name": model,
+            "question": query
+        }
 
-        credentials = Credentials.from_service_account_file(json_file_path, scopes=scopes)
-        gc = gspread.authorize(credentials)
+        try:
+            # POST 요청 보내기
+            response = requests.post(self.api_url, json=data)
 
-        # Google Spreadsheet 열기
-        spreadsheet_url = url
-        doc = gc.open_by_url(spreadsheet_url)
+            # 응답 확인
+            if response.status_code == 200:
+                result = response.json()['result']
+                result = result.replace('<think>', '').replace('</think>', '').replace('\n\n', '')
+                return result
+            else:
+                return f"Failed to get a valid response: {response.status_code} {response.text}"
 
-        # 특정 워크시트 선택
-        worksheet = doc.worksheet(sheet)
-
-        # 데이터를 가져와 DataFrame으로 변환
-        data = worksheet.get_all_values()
-        df = pd.DataFrame(data[1:], columns=data[0])  # 첫 번째 행을 컬럼으로 설정
-        return df
+        except requests.exceptions.RequestException as e:
+            return "Error communicating with the server: {e}"
 
 
     async def asyncRequester(self, url, headers={}, params={}, proxies='', cookies={}, session=None):
@@ -604,6 +596,5 @@ if __name__ == "__main__":
     pcssearch_obj = PCSSEARCH(1, False, 2024, 2024)
 
     conf_list = ['CCS']
-
-    pcssearch_obj.search_main(conf_list)
-    
+    pcssearch_obj.main(conf_list)
+    print("hello")
