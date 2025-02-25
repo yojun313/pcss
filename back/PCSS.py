@@ -40,10 +40,14 @@ class PCSSEARCH:
         
         self.json_filename  = os.path.join(os.path.dirname(__file__), 'data', "llm_name.json")
         self.name_dict      = self.load_name_dict()
-        
-        self.llm_model = 'llama3.1:8b'
-        self.llm = OllamaLLM(model=self.llm_model)
+
+        self.llm_api_option = True
         self.api_url = f"http://{LLM_SERVER}:3333/api/process"
+
+        self.llm_model = 'llama3.1:8b'
+        if self.llm_api_option == False:
+            self.llm = OllamaLLM(model=self.llm_model)
+
 
         last_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'last_name.csv'), sep=';')
         self.last_name_list = list(last_name_df[['eng_1', 'eng_2', 'eng_3']].stack() .astype(str))
@@ -306,13 +310,13 @@ class PCSSEARCH:
         return False
 
 
-    def single_name_llm(self, name, api=False):
+    def single_name_llm(self, name):
         
-        if api == False:
+        if self.llm_api_option == False:
             if name in self.name_dict:
                 return self.name_dict[name]
             
-            template = "Express the likelihood of this {name} being Korean using only a number. You need to say number only"
+            template = "Express the likelihood of this {name} being Korean using only a number between 0~1. You need to say number only"
 
             prompt = PromptTemplate.from_template(template=template)
             chain = prompt | self.llm | StrOutputParser()
@@ -323,16 +327,27 @@ class PCSSEARCH:
                 return self.name_dict[name]
 
             result = self.llm_api_answer(
-                query = f"Express the likelihood of this {name} being Korean using only a number. You need to say number only",
+                query = f"Express the likelihood of this {name} being Korean using only a number between 0~1. You need to say number only",
                 model = self.llm_model
             )
 
-        result = re.findall(r"\d+\.\d+|\d+", result)[0]
+        # 🔹 숫자만 추출 (지수 표기법 방지)
+        match = re.findall(r"\d+\.\d+|\d+", result)
+        if not match:
+            return "0.0"  # 예외 처리: 결과가 없을 경우 기본값
 
-        self.name_dict[name] = result[:3]
+        value = float(match[0])  # 🔹 문자열을 float으로 변환
+
+        # 🔹 숫자 범위 고정 (0.0 ~ 1.0)
+        value = max(0.0, min(1.0, value))
+
+        # 🔹 소수점 1자리까지 포맷팅
+        formatted_value = "{:.1f}".format(value)
+
+        self.name_dict[name] = formatted_value
         self.save_name_dict()
 
-        return result
+        return formatted_value  # 🔹 결과 반환 (0.0 ~ 1.0)
 
 
     def save_name_dict(self):
@@ -597,4 +612,3 @@ if __name__ == "__main__":
 
     conf_list = ['CCS']
     pcssearch_obj.main(conf_list)
-    print("hello")
