@@ -97,7 +97,14 @@ io.on('connection', (socket) => {
                     const jsonPath = pythonOutput
                         .slice(pathStartIndex + 5, pathEndIndex !== -1 ? pathEndIndex : undefined)
                         .trim(); // "PATH=" 이후의 경로만 가져옴
-        
+                    
+                    // ✅ "ERROR"이면 에러 메시지를 웹페이지에 전달
+                    if (extractedPath === "ERROR") {
+                        console.error('Python 실행 중 오류 발생');
+                        socket.emit('redirect_to_results', { isDictionary: false, data: 'Python 실행 중 오류 발생' });
+                        return;
+                    }
+                            
                     // JSON 파일 읽기
                     const fs = require('fs');
                     fs.readFile(jsonPath, 'utf-8', (err, fileData) => {

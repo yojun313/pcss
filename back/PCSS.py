@@ -91,6 +91,7 @@ class PCSSEARCH:
             return filtered_urls
         except:
             self.write_log(traceback.format_exc())
+            return []
 
     # 한 개의 Paper에 대한 크롤링 함수
     async def paper_crawl(self, conf, url, year, session):
@@ -217,6 +218,7 @@ class PCSSEARCH:
                             })
                             self.printStatus(f"{year} {conf} Crawling", url=url)
 
+
                 except:
                     self.write_log(traceback.format_exc())
         except:
@@ -245,9 +247,6 @@ class PCSSEARCH:
                 conf_name = conf
                 conf_param = self.conf_df.loc[self.conf_df['conference'] == conf, 'param'].values[0]
                 conf_urls = await self.conf_crawl(conf_param, session, conf_name)
-                if isinstance(conf_urls, tuple):  # 에러 처리
-                    print(f"Error crawling {conf_name}: {conf_urls[0]}")
-                    return
                 await self.MultiPaperCollector(conf_urls, conf_name, session)
 
             # 각 컨퍼런스에 대해 비동기 작업 생성
@@ -291,6 +290,7 @@ class PCSSEARCH:
             self.result_json_path = json_path
             
         except:
+            print(f" PATH=ERROR")
             self.write_log(traceback.format_exc())
 
     # 메인 함수
@@ -367,58 +367,63 @@ class PCSSEARCH:
 
 
     async def authorNumChecker(self, target_author, url, session):
-        self.printStatus(f"{target_author} Paper Counting", url)
-        res = await self.asyncRequester(url, session=session)
-        soup = BeautifulSoup(res, "html.parser")
+        try:
+            stats = {
+                "first_author": 0,
+                "first_or_second_author": 0,
+                "last_author": 0,
+                "co_author": 0,
+            }
 
-        publ_list = soup.find('ul', class_='publ-list')
+            self.printStatus(f"{target_author} Paper Counting", url)
+            res = await self.asyncRequester(url, session=session)
+            soup = BeautifulSoup(res, "html.parser")
 
-        papers = []
-        for paper in publ_list:
-            title = paper.find('span', 'title')
-            if title is not None:
-                title = title.text
-                middle = paper.find('cite', 'data tts-content')
-                authors = middle.select('span[itemprop="name"]:not(.title)')
-                author_list = [author.get_text(strip=True) for author in authors]
-                author_list.pop()
+            publ_list = soup.find('ul', class_='publ-list')
+            if publ_list is None:
+                return stats
 
-                authors = []
-                for name in author_list:
-                    parts = name.split()
-                    if len(parts) >= 3:
-                        full_name = parts[0] + parts[1].lower()
-                        authors.append(full_name)
+            papers = []
+            for paper in publ_list:
+                title = paper.find('span', 'title')
+                if title is not None:
+                    title = title.text
+                    middle = paper.find('cite', 'data tts-content')
+                    authors = middle.select('span[itemprop="name"]:not(.title)')
+                    author_list = [author.get_text(strip=True) for author in authors]
+                    author_list.pop()
+
+                    authors = []
+                    for name in author_list:
+                        parts = name.split()
+                        if len(parts) >= 3:
+                            full_name = parts[0] + parts[1].lower()
+                            authors.append(full_name)
+                        else:
+                            authors.append(name)
+
+                    papers.append({
+                        'title': title,
+                        'authors': authors
+                    })
+
+            for paper in papers:
+                authors = paper["authors"]
+                if target_author in authors:
+                    if authors[0] == target_author:
+                        stats["first_author"] += 1
+                        stats["first_or_second_author"] += 1  # 1저자도 2저자 조건에 포함됨
+                    elif len(authors) > 1 and authors[1] == target_author:
+                        stats["first_or_second_author"] += 1
+                    elif authors[-1] == target_author:
+                        stats["last_author"] += 1
                     else:
-                        authors.append(name)
+                        stats["co_author"] += 1
 
-                papers.append({
-                    'title': title,
-                    'authors': authors
-                })
-
-        stats = {
-            "first_author": 0,
-            "first_or_second_author": 0,
-            "last_author": 0,
-            "co_author": 0,
-        }
-
-        for paper in papers:
-            authors = paper["authors"]
-            if target_author in authors:
-                if authors[0] == target_author:
-                    stats["first_author"] += 1
-                    stats["first_or_second_author"] += 1  # 1저자도 2저자 조건에 포함됨
-                elif len(authors) > 1 and authors[1] == target_author:
-                    stats["first_or_second_author"] += 1
-                elif authors[-1] == target_author:
-                    stats["last_author"] += 1
-                else:
-                    stats["co_author"] += 1
-
-        return f"({stats['first_author']},{stats['first_or_second_author']},{stats['last_author']},{stats['co_author']})"
-
+            return f"({stats['first_author']},{stats['first_or_second_author']},{stats['last_author']},{stats['co_author']})"
+        except Exception as e:
+            self.write_log(traceback.format_exc())
+            return stats
 
     def printStatus(self, msg='', url=None):
         print(f'\r{msg} | {url} | paper: {len(self.CrawlData)}', end='')
