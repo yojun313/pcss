@@ -8,8 +8,8 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 import smtplib
 from docx import Document
-from docx.shared import Pt
-from docx.oxml import OxmlElement
+from docx.oxml import parse_xml
+from docx.oxml.ns import nsdecls
 from datetime import datetime
 import json
 import re
@@ -266,11 +266,11 @@ class AutoSender:
                     row_cells[0].text = ", ".join(entry["target_author"]) if entry["target_author"] else "N/A"
                     row_cells[1].text = entry["title"]
 
-                    # 저자 이름과 URL을 매칭하여 추가
-                    author_with_url = [
-                        f"{name} ({url})" for name, url in zip(entry["author_name"], entry["author_url"])
-                    ]
-                    row_cells[2].text = "\n".join(author_with_url)
+                    # 저자 이름과 URL을 매칭하여 추가 (하이퍼링크 포함)
+                    p = row_cells[2].paragraphs[0]  # 셀에 새 문단 추가
+                    for name, url in zip(entry["author_name"], entry["author_url"]):
+                        self.add_hyperlink(p, name, url)
+                        p.add_run("\n")  # 줄바꿈 추가
 
                 # 테이블과 다음 내용 사이 간격 추가
                 doc.add_paragraph("\n")
@@ -279,6 +279,23 @@ class AutoSender:
         doc_path = os.path.join(folder_path, docx_filename)
         doc.save(doc_path)
         return doc_path
+
+    def add_hyperlink(self, paragraph, text, url):
+        """
+        주어진 문단(paragraph)에 하이퍼링크를 추가하는 함수
+        """
+        part = paragraph._parent.part
+        r_id = part.relate_to(url, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
+                              is_external=True)
+
+        # ✅ w 네임스페이스를 명확하게 추가
+        hyperlink = parse_xml(
+            f'<w:hyperlink r:id="{r_id}" {nsdecls("w", "r")}>'  # ✅ 네임스페이스 추가
+            f'<w:r><w:rPr><w:color w:val="0000FF"/><w:u w:val="single"/></w:rPr>'
+            f'<w:t>{text}</w:t></w:r></w:hyperlink>'
+        )
+
+        paragraph._element.append(hyperlink)
     
 if __name__ == '__main__':
     autoSender_obj = AutoSender()

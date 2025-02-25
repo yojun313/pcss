@@ -1,7 +1,7 @@
 from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_ollama import OllamaLLM
-
+import platform
 from bs4 import BeautifulSoup
 from user_agent import generate_navigator
 import requests
@@ -285,6 +285,8 @@ class PCSSEARCH:
             # 딕셔너리를 JSON 파일로 저장
             with open(json_path, 'w', encoding='utf-8') as json_file:
                 json.dump(self.FinalData, json_file, ensure_ascii=False, indent=4)
+
+            self.clear_console()
             print(f" PATH={json_path}")
             self.result_json_path = json_path
             
@@ -567,8 +569,6 @@ class PCSSEARCH:
              return ("ERROR", traceback.format_exc())
     
     
-    
-    
     def llm_api_answer(self, query, model):
         # 전송할 데이터
         data = {
@@ -605,6 +605,12 @@ class PCSSEARCH:
                     print(traceback.format_exc())
                     return ("ERROR", traceback.format_exc())
                 trynum += 1
+
+    def clear_console(self):
+        if platform.system() == "Windows":
+            os.system("cls")
+        else:
+            os.system("clear")
 
 
 if __name__ == "__main__":
