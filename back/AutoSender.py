@@ -8,8 +8,9 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 import smtplib
 from docx import Document
+from docx.shared import Pt, RGBColor
 from docx.oxml import parse_xml
-from docx.oxml.ns import nsdecls
+from docx.oxml.ns import nsdecls, qn
 from datetime import datetime
 import json
 import re
@@ -26,7 +27,6 @@ class AutoSender:
         self.period_second = 30
         
         self.CrawlOption = 1
-        
         
         self.spreadsheet_url = "https://docs.google.com/spreadsheets/d/1SsGBT17nzA9ItG8QG73lyHGeIab2C6x616zYwEATQHc/edit?gid=0#gid=0"
         self.user_history_path = os.path.join(os.path.dirname(__file__), 'user_history')
@@ -227,54 +227,8 @@ class AutoSender:
                 grouped_by_kind[kind][conf] = []
             grouped_by_kind[kind][conf].append(entry)
 
-        # Word 문서 생성
-        doc = Document()
-        font_name = "맑은 고딕"
 
-        styles = doc.styles
-        for style_name in ["Normal", "Heading1", "Heading2", "Heading3", "Table Grid"]:
-            if style_name in styles:
-                style = styles[style_name]
-                style.font.name = font_name
-
-        doc.add_heading(f"{datetime.now().strftime("%Y-%m-%d")} Conference Summary\n", level=1)
-
-        doc.add_paragraph(f"- 수신인: {UserData['Email']}")
-        doc.add_paragraph(f"- 구독 대상: {', '.join(UserData['kind_list'])}")
-        doc.add_paragraph(f"- 크롤링 대상 연도: {self.target_year}")
-
-        # Kind -> Conference 순서로 정리하여 문서 작성
-        for kind, conferences in grouped_by_kind.items():
-            doc.add_heading(f"📌 {kind}", level=1)
-
-            for conf, entries in conferences.items():
-                doc.add_heading(f"학회: {conf}", level=2)
-                doc.add_heading(f"출처: {entries[0]['source']}", level=3)
-
-                # 테이블 생성 (열: Target Author, Title, Authors)
-                table = doc.add_table(rows=1, cols=3)
-                table.style = "Table Grid"
-
-                # 테이블 헤더 설정
-                hdr_cells = table.rows[0].cells
-                hdr_cells[0].text = "1저자"
-                hdr_cells[1].text = "제목"
-                hdr_cells[2].text = "저자 목록"
-
-                for entry in entries:
-                    row_cells = table.add_row().cells
-                    row_cells[0].text = ", ".join(entry["target_author"]) if entry["target_author"] else "N/A"
-                    row_cells[1].text = entry["title"]
-
-                    # 저자 이름과 URL을 매칭하여 추가 (하이퍼링크 포함)
-                    p = row_cells[2].paragraphs[0]  # 셀에 새 문단 추가
-                    for name, url in zip(entry["author_name"], entry["author_url"]):
-                        self.add_hyperlink(p, name, url)
-                        p.add_run("\n")  # 줄바꿈 추가
-
-                # 테이블과 다음 내용 사이 간격 추가
-                doc.add_paragraph("\n")
-
+        doc = self.make_docx(grouped_by_kind, UserData)
         # Word 문서 저장
         doc_path = os.path.join(folder_path, docx_filename)
         doc.save(doc_path)
@@ -296,7 +250,95 @@ class AutoSender:
         )
 
         paragraph._element.append(hyperlink)
-    
+
+    def make_docx(self, grouped_by_kind, UserData):
+        doc = Document()
+        font_name = "맑은 고딕"
+
+        styles = doc.styles
+        for style_name in ["Normal", "Heading1", "Heading2", "Heading3", "Table Grid"]:
+            if style_name in styles:
+                style = styles[style_name]
+                # 한글이 올바르게 표시되도록 설정
+                style.font.name = font_name
+                style.font.element.rPr.rFonts.set(qn('w:eastAsia'), font_name)
+
+                if style_name == "Normal":
+                    style.font.size = Pt(11)
+                    style.font.color.rgb = RGBColor(0, 0, 0)
+                    style.paragraph_format.space_after = Pt(6)
+                elif style_name == "Heading1":
+                    style.font.size = Pt(22)
+                    style.font.bold = True
+                    style.font.color.rgb = RGBColor(0xC8, 0x01, 0x50)  # POSTECH Red
+                    style.paragraph_format.space_before = Pt(12)
+                    style.paragraph_format.space_after = Pt(6)
+                elif style_name == "Heading2":
+                    style.font.size = Pt(18)
+                    style.font.bold = True
+                    style.font.color.rgb = RGBColor(0x00, 0x4F, 0x99)  # 세련된 블루 톤
+                    style.paragraph_format.space_before = Pt(10)
+                    style.paragraph_format.space_after = Pt(4)
+                elif style_name == "Heading3":
+                    style.font.size = Pt(16)
+                    style.font.bold = True
+                    style.font.color.rgb = RGBColor(0x00, 0x80, 0x00)  # 세련된 그린 톤
+                    style.paragraph_format.space_before = Pt(8)
+                    style.paragraph_format.space_after = Pt(4)
+                elif style_name == "Table Grid":
+                    style.font.size = Pt(10)
+                    style.font.color.rgb = RGBColor(0, 0, 0)
+                    style.paragraph_format.space_after = Pt(4)
+
+        doc.add_heading(f"{datetime.now().strftime('%Y-%m-%d')} Conference Summary", level=1)
+
+        doc.add_paragraph(f"- 수신인: {UserData['Email']}")
+        doc.add_paragraph(f"- 구독 대상: {', '.join(UserData['kind_list'])}")
+        doc.add_paragraph(f"- 크롤링 대상 연도: {self.target_year}")
+
+        # Kind -> Conference 순서로 문서 작성
+        for kind, conferences in grouped_by_kind.items():
+            doc.add_heading(f"📌 {kind}", level=1)
+
+            for conf, entries in conferences.items():
+                doc.add_heading(f"학회: {conf}", level=2)
+                doc.add_heading(f"출처: {entries[0]['source']}", level=3)
+
+                # 테이블 생성 (열: Target Author, Title, Authors)
+                table = doc.add_table(rows=1, cols=3)
+                table.style = "Table Grid"
+
+                # 테이블 헤더 설정
+                hdr_cells = table.rows[0].cells
+                hdr_cells[0].text = "1저자"
+                hdr_cells[1].text = "제목"
+                hdr_cells[2].text = "저자 목록"
+
+                # 헤더 폰트 서식 개선 (예시: 흰색 볼드 글씨)
+                for cell in hdr_cells:
+                    for paragraph in cell.paragraphs:
+                        for run in paragraph.runs:
+                            run.font.bold = True
+                            run.font.color.rgb = RGBColor(255, 255, 255)
+                    # (테이블 셀 배경색 적용은 XML 조작이 필요하므로 생략)
+
+                for entry in entries:
+                    row_cells = table.add_row().cells
+                    row_cells[0].text = ", ".join(entry["target_author"]) if entry["target_author"] else "N/A"
+                    row_cells[1].text = entry["title"]
+
+                    # 저자 이름과 URL을 매칭하여 추가 (하이퍼링크 포함)
+                    p = row_cells[2].paragraphs[0]
+                    for name, url in zip(entry["author_name"], entry["author_url"]):
+                        self.add_hyperlink(p, name, url)
+                        p.add_run("\n")
+
+                # 테이블과 다음 내용 사이 간격 추가
+                doc.add_paragraph("\n")
+
+        return doc
+
+
 if __name__ == '__main__':
     autoSender_obj = AutoSender()
     autoSender_obj.main()
