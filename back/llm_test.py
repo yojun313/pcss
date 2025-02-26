@@ -1,19 +1,29 @@
 import requests
 
 info = {
-    'cluster': "141.223.16.196",
-    'z8':  '121.152.225.232'
+    'cluster': ("141.223.16.196", 8009),
+    'z8':  ('121.152.225.232', 3333)
 }
-
-SERVER_IP = info['z8']
-PORT = '3333'
-
 
 class Test:
     def __init__(self):
-        self.LLM_model = "llama3.1:8b"
-        self.api_url = f"http://{SERVER_IP}:{PORT}/api/process"
+        pass
+
     def main(self, query):
+        idx = 1
+        for key, value in info.items():
+            print(f"{idx}: {key}")
+            idx += 1
+        com = int(input("Enter number: "))
+        print("\n[Answer]\n")
+        if com == 1:
+            SERVER = info['cluster']
+        else:
+            SERVER = info['z8']
+
+        self.LLM_model = "llama3.1:8b"
+        self.api_url = f"http://{SERVER[0]}:{SERVER[1]}/api/process"
+
         self.api_model_answer(query)
 
     def api_model_answer(self, query):
@@ -32,10 +42,10 @@ class Test:
                 result = result.replace('<think>', '').replace('</think>', '').replace('\n\n', '')
                 print(result)
             else:
-                return print(f"Failed to get a valid response: {response.status_code} {response.text}")
+                print(f"Failed to get a valid response: {response.status_code} {response.text}")
 
         except requests.exceptions.RequestException as e:
-            return print(f"Error communicating with the server: {e}")
+            print(f"Error communicating with the server: {e}")
 
 if __name__ == "__main__":
     test = Test()
