@@ -21,15 +21,15 @@ class Test:
         print("1. API\n2. Socket")
         num = int(input("Which one? "))
         if num == 1:
-            asyncio.run(self.api_model_answer(query))
+            self.api_model_answer(query)
         else:
-            self.socket_model_answer(query)
+            asyncio.run(self.socket_model_answer(query))
 
     def api_model_answer(self, query):
         # 전송할 데이터
         data = {
-            "model_name": self.LLM_model,
-            "question": query
+            "model": self.LLM_model,
+            "prompt": query
         }
 
         try:
@@ -50,8 +50,8 @@ class Test:
     async def socket_model_answer(self, query):
         async with websockets.connect(self.socket_url) as websocket:
             request_data = {
-                "model": "llama3.1:8b",
-                "prompt": "Hello, how are you?",
+                "model": self.LLM_model,
+                "prompt": query,
                 "stream": False
             }
 
@@ -60,7 +60,7 @@ class Test:
 
             # Ollama의 응답을 WebSocket을 통해 수신
             response = await websocket.recv()
-            print(response)
+            print(response['result'])
 
 
 

@@ -601,8 +601,8 @@ class PCSSEARCH:
     def llm_api_answer(self, query, model):
         # 전송할 데이터
         data = {
-            "model_name": model,
-            "question": query
+            "model": model,
+            "prompt": query
         }
 
         try:
