@@ -1,25 +1,35 @@
-from langchain.prompts import PromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_ollama import OllamaLLM
-
-def generator(model, text):
-    llm =  OllamaLLM(model=model)
-    prompt = PromptTemplate.from_template(template=text)
-    chain = prompt | llm | StrOutputParser()
-
-    result = chain.invoke({})
-    print(result)
-
-#generator("llama3:8b", "Hi Who are you?")
+import requests
+SERVER_IP = "141.223.16.196"
 
 
-import json
+class Test:
+    def __init__(self):
+        self.LLM_model = "llama3.1:8b"
+        self.api_url = f"http://{SERVER_IP}:3333/api/process"
+    
+    def model_answer(self, query):
+        # 전송할 데이터
+        data = {
+            "model_name": self.LLM_model,
+            "question": query
+        }
 
-# JSON 파일 로드
-json_path = "/Users/yojunsmacbookprp/Documents/GitHub/PCSS/back/res/2025-02-11_16-37-09.json"
-with open(json_path, "r", encoding="utf-8") as file:
-    data = json.load(file)
+        try:
+            # POST 요청 보내기
+            response = requests.post(self.api_url, json=data)
 
-# 모든 논문의 제목(title)만 추출
-titles = [entry["title"] for entry in data.values() if "title" in entry]
-print(titles)
+            # 응답 확인
+            if response.status_code == 200:
+                result = response.json()['result']
+                result = result.replace('<think>', '').replace('</think>', '').replace('\n\n', '')
+                return result
+            else:
+                return f"Failed to get a valid response: {response.status_code} {response.text}"
+
+        except requests.exceptions.RequestException as e:
+            return "Error communicating with the server: {e}"
+
+if __name__ == "__main__":
+    test = Test()
+    query = "What is the capital of Korea?"
+    print(test.model_answer(query))
