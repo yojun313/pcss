@@ -5,7 +5,7 @@ SERVER_IP = "141.223.16.196"
 class Test:
     def __init__(self):
         self.LLM_model = "llama3.1:8b"
-        self.api_url = f"http://{SERVER_IP}:3333/api/process"
+        self.api_url = f"http://{SERVER_IP}:8009/api/process"
     
     def model_answer(self, query):
         # 전송할 데이터
@@ -27,7 +27,7 @@ class Test:
                 return f"Failed to get a valid response: {response.status_code} {response.text}"
 
         except requests.exceptions.RequestException as e:
-            return "Error communicating with the server: {e}"
+            return f"Error communicating with the server: {e}"
 
 if __name__ == "__main__":
     test = Test()
