@@ -17,10 +17,6 @@ import copy
 from datetime import datetime
 import asyncio
 import json
-import websockets
-
-
-
 
 TIMEOUT = 10
 TRYNUM = 3
@@ -46,7 +42,7 @@ class PCSSEARCH:
         self.json_filename  = os.path.join(os.path.dirname(__file__), 'data', "llm_name.json")
         self.name_dict      = self.load_name_dict()
 
-        self.llm_api_option = False
+        self.llm_api_option = True
         self.api_url = f"http://{LLM_SERVER}:{PORT}/api/process"
 
         self.llm_model = 'llama3.1:8b'
@@ -309,12 +305,12 @@ class PCSSEARCH:
 
 
     def koreanChecker(self, name):
-        self.single_name_llm(name)
+        
         if self.possible == True:
-            if name.split()[-1] in self.last_name_list and name.split()[0] in self.first_name_list and float(self.name_dict(name)) > self.possible_stat:
+            if name.split()[-1] in self.last_name_list and name.split()[0] in self.first_name_list and float(self.single_name_llm(name)) > self.possible_stat:
                 return True
         else:
-            if name.split()[-1] in self.last_name_list and name.split()[0] in self.first_name_list and float(self.name_dict(name)) > 0.5:
+            if name.split()[-1] in self.last_name_list and name.split()[0] in self.first_name_list and float(self.single_name_llm(name)) > 0.5:
                 return True
         return False
 

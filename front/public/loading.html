@@ -1,146 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loading...</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: #f9f9f9;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Loading...</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f9f9f9;
+    }
 
-        #loading {
-            text-align: center;
-            color: #C80150; /* POSTECH Red */
-            margin-bottom: 20px;
-        }
+    #loading {
+      text-align: center;
+      color: #C80150; /* POSTECH Red */
+      margin-bottom: 20px;
+    }
 
-        #loading h1 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
+    #loading h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
 
-        #loading p {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-            color: #555;
-        }
+    #loading p {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: #555;
+    }
 
-        .spinner {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #C80150;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
+    .spinner {
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #C80150;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
 
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
 
-        #output-container {
-            width: 80%;
-            max-width: 800px;
-            margin-top: 20px;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-            overflow-y: auto;
-            max-height: 50vh;
-            display: flex; /* Flexbox 사용 */
-            justify-content: center; /* 수평 가운데 정렬 */
-            align-items: center; /* 수직 가운데 정렬 */
-        }
+    /* 출력 영역: 네모박스 스타일 제거 */
+    pre {
+      margin-top: 20px;
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #333;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      text-align: center;
+      /* 배경, 테두리, 패딩 없음 */
+    }
 
-        pre {
-            margin: 0;
-            font-size: 1rem;
-            line-height: 1.5;
-            color: #333;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            text-align: center; /* 텍스트를 가운데 정렬 */
-        }
-    </style>
+    .footer {
+      text-align: center;
+      font-size: 12px;  /* 글자 작게 */
+      color: #666;
+      margin-top: 20px;
+      padding: 10px 0;
+      display: flex;
+      justify-content: center; /* 가운데 정렬 */
+      align-items: center; /* 세로 정렬 */
+      gap: 5px; /* 요소 간 간격 */
+    }
+          
+    .footer-link {
+      color: #007bff;
+      text-decoration: none;
+      display: flex;
+      align-items: center; /* 글자와 로고 수직 정렬 */
+      gap: 5px; /* 글자와 로고 간격 */
+    }
+          
+    .footer-link:hover {
+      text-decoration: underline;
+    }
+          
+    .github-logo {
+      width: 14px;  /* 텍스트와 비슷한 크기 */
+      height: 14px;
+      vertical-align: middle;
+    }
+  </style>
 </head>
 <body>
-    <div id="loading">
-        <h1>Collecting Data...</h1>
-        <p>DBLP CRAWLER is working...</p>
-        <div class="spinner"></div>
-    </div>
+  <div id="loading">
+    <h1>Collecting Data...</h1>
+    <p>DBLP CRAWLER is working...</p>
+    <div class="spinner"></div>
+  </div>
 
-    <div id="output-container">
-        <pre id="output"></pre>
-    </div>
+  <!-- 출력 영역: 네모박스 없이 바로 텍스트로 표시 -->
+  <pre id="output"></pre>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const socket = io(); // Socket.IO 연결
-            const output = document.getElementById('output');
-            const loading = document.getElementById('loading');
-    
-            // Python 실행 요청
-            socket.emit('start-python');
-    
-            // Python stdout 출력 받기
-            socket.on('python_output', (data) => {
-                // 이전 출력을 지우고 새로운 내용 덮어쓰기
-                output.innerHTML = `<div>${data}</div>`;
-            });
-    
-            // Python stderr 출력 받기
-            socket.on('python_error', (data) => {
-                // 이전 출력을 지우고 에러 내용 덮어쓰기
-                output.innerHTML = `<div style="color: red;">Error: ${data}</div>`;
-            });
-    
-            // Python 실행 완료 시 서버에서 데이터 수신
-            socket.on('redirect_to_results', (response) => {
-                // 클라이언트에서 /results로 POST 요청 전송
-                fetch('/results', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(response),
-                })
-                    .then((response) => {
-                        if (!response.ok) {
-                            console.error('POST /results 실패:', response.statusText);
-                            return alert('Failed to load results.');
-                        }
-                        return response.text(); // 서버에서 렌더링된 HTML 반환
-                    })
-                    .then((html) => {
-                        // 렌더링된 HTML을 새 페이지로 표시
-                        document.open();
-                        document.write(html);
-                        document.close();
-                    })
-                    .catch((err) => {
-                        console.error('POST /results 요청 실패:', err);
-                    });
-            });
-        });
-    </script>    
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const socket = io(); // Socket.IO 연결
+      const output = document.getElementById('output');
+      const loading = document.getElementById('loading');
+
+      // Python 실행 요청
+      socket.emit('start-python');
+
+      // Python stdout 출력 받기
+      socket.on('python_output', (data) => {
+        // 이전 출력을 지우고 새로운 내용 덮어쓰기
+        output.innerHTML = `<div>${data}</div>`;
+      });
+
+      // Python stderr 출력 받기
+      socket.on('python_error', (data) => {
+        // 이전 출력을 지우고 에러 내용 덮어쓰기
+        output.innerHTML = `<div style="color: red;">Error: ${data}</div>`;
+      });
+
+      // Python 실행 완료 시 서버에서 데이터 수신
+      socket.on('redirect_to_results', (response) => {
+        // 클라이언트에서 /results로 POST 요청 전송
+        fetch('/results', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(response),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              console.error('POST /results 실패:', response.statusText);
+              return alert('Failed to load results.');
+            }
+            return response.text(); // 서버에서 렌더링된 HTML 반환
+          })
+          .then((html) => {
+            // 렌더링된 HTML을 새 페이지로 표시
+            document.open();
+            document.write(html);
+            window.history.pushState({}, '', '/results');
+            document.close();
+          })
+          .catch((err) => {
+            console.error('POST /results 요청 실패:', err);
+          });
+      });
+    });
+  </script>    
+
 </body>
 </html>

@@ -1,325 +1,425 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PCSS Result</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f9;
-            color: #333;
-        }
-        
-        .container {
-            padding: 30px;
-            border: 1px solid #e6e6e6;
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-            overflow-x: auto;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        
-        h1 {
-            color: #4a4a4a;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 2rem;
-            font-weight: 600;
-        }
-        
-        .year-section {
-            margin-bottom: 30px;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            background-color: #ffffff;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-        }
-        
-        .year-header {
-            font-size: 1.3rem;
-            color: #C80150; /* POSTECH Red */
-            background-color: #f9f9f9;
-            padding: 15px 20px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-            user-select: none;
-            transition: background-color 0.3s ease;
-        }
-        
-        .year-header:hover {
-            background-color: #f4e4ea;
-        }
-        
-        .year-content {
-            padding: 20px;
-            background-color: #fafafa;
-        }
-        
-        .conference-section {
-            margin-bottom: 20px;
-            border: 1px solid #eaeaea;
-            border-radius: 10px;
-            background-color: #ffffff;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-        }
-        
-        .conference-header {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #007bff;
-            background-color: #f8f9fc;
-            padding: 15px 20px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #e6e6e6;
-            user-select: none;
-            transition: background-color 0.3s ease;
-        }
-        
-        .conference-header:hover {
-            background-color: #e9f3ff;
-        }
-        
-        .conference-header .conference-link {
-            font-size: 1rem;
-            color: #C80150; /* POSTECH Red */
-            text-decoration: none;
-            font-weight: 500;
-            margin-left: auto;
-        }
-        
-        .conference-header .conference-link:hover {
-            text-decoration: underline;
-        }
-        
-        .conference-content {
-            display: none;
-            padding: 20px;
-            background-color: #fcfcfc;
-        }
-        
-        .card {
-            margin: 15px 0;
-            padding: 20px;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            background-color: #ffffff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            transition: box-shadow 0.3s ease;
-        }
-        
-        .card:hover {
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-        }
-        
-        .card-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .card p {
-            margin: 5px 0;
-            color: #555;
-            font-size: 1rem;
-            line-height: 1.6;
-        }
-        
-        .target-author {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #28a745; /* Success Green */
-            margin-top: 10px;
-        }
-        
-        ul.authors {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            margin-bottom: 10px;
-        }
-        
-        ul.authors li {
-            display: inline-block;
-            margin-right: 10px;
-        }
-        
-        ul.authors li a {
-            text-decoration: none;
-            color: #007bff;
-            font-weight: 500;
-        }
-        
-        ul.authors li a:hover {
-            text-decoration: underline;
-        }
-        
-        .toggle-icon {
-            font-size: 1.3rem;
-            color: #666;
-            transition: transform 0.3s ease;
-        }
-        
-        .toggle-icon.open {
-            transform: rotate(90deg);
-        }        
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PCSS Result</title>
+  <style>
+    /* 기본 스타일 */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 10px;
+      background-color: #f8f9fa;
+      color: #333;
+      font-size: 14px;
+    }
+    .container {
+      padding: 15px;
+      background: #ffffff;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      overflow-x: auto;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      font-size: 35px;
+      font-weight: bold;
+      margin-bottom: 30px;
+      color: #C80150;
+    }
+    /* 테이블 스타일 (검색 옵션 영역) */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+    }
+    th {
+      background-color: #f2f2f2;
+      color: #C80150;
+      font-size: 18px;
+      text-align: left;
+    }
+    th[colspan] {
+      text-align: center;
+    }
+    /* 섹션 스타일 */
+    .year-section, .conference-section {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background-color: #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      margin-bottom: 10px;
+      padding: 10px;
+    }
+    .year-header, .conference-header {
+      font-size: 14px;
+      color: #C80150;
+      font-weight: bold;
+      padding: 5px 10px;
+      background-color: #f2f2f2;
+      cursor: pointer;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    .year-content, .conference-content {
+      padding: 5px 10px;
+      display: block;
+    }
+    .card {
+      margin: 5px 0;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+    }
+    .authors {
+      list-style: none;
+      padding: 0;
+      margin: 3px 0;
+      font-size: 13px;
+    }
+    .authors li {
+      display: inline;
+      margin-right: 5px;
+    }
+    .authors li a,
+    a.conference-link,
+    a.author-link {
+      text-decoration: none;
+      color: #C80150;
+    }
+    a.conference-link:hover,
+    a.author-link:hover,
+    .authors li a:hover {
+      text-decoration: underline;
+    }
+    .source-link {
+      font-size: 13px;
+      color: #007bff;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 3px;
+    }
+    .source-link:hover {
+      text-decoration: underline;
+    }
+    /* 반응형 디자인 */
+    @media (max-width: 768px) {
+      body {
+        font-size: 12px;
+      }
+      .container {
+        padding: 10px;
+        max-width: 100%;
+      }
+      h1 {
+        font-size: 24px;
+      }
+      .year-header, .conference-header {
+        font-size: 12px;
+        padding: 8px 10px;
+      }
+      .card-title {
+        font-size: 13px;
+      }
+      .authors {
+        font-size: 12px;
+      }
+      table th, table td {
+        padding: 8px;
+      }
+    }
+    .footer {
+      text-align: center;
+      font-size: 12px;  /* 글자 작게 */
+      color: #666;
+      margin-top: 20px;
+      padding: 10px 0;
+      display: flex;
+      justify-content: center; /* 가운데 정렬 */
+      align-items: center; /* 세로 정렬 */
+      gap: 5px; /* 요소 간 간격 */
+    }
+    
+    .footer-link {
+        color: #007bff;
+        text-decoration: none;
+        display: flex;
+        align-items: center; /* 글자와 로고 수직 정렬 */
+        gap: 5px; /* 글자와 로고 간격 */
+    }
+    
+    .footer-link:hover {
+        text-decoration: underline;
+    }
+    
+    .github-logo {
+        width: 14px;  /* 로고 크기 작게 */
+        height: 14px;
+        vertical-align: middle;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>PCSS Result</h1>
-        <div id="papers-container"></div>
-        <script>
-            const papers = <%- JSON.stringify(pythonResult) %>;
-
-            if (!papers || Object.keys(papers).length === 0) {
-                // 데이터가 없을 경우 알림 및 메시지 표시
-                alert("검색 조건을 만족하는 논문이 존재하지 않습니다.");
-                const container = document.getElementById("papers-container");
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 20px; background-color: #fff4f4; border: 1px solid #f5c2c2; border-radius: 8px; color: #c71d1d;">
-                        검색 조건을 만족하는 논문이 존재하지 않습니다.
-                    </div>`;
-            } else {
-                const container = document.getElementById("papers-container");
-                const groupedPapers = {};
-
-                // Group papers by Target Author > Year > Conference
-                for (const key in papers) {
-                    const paper = papers[key];
-                    paper.target_author.forEach(author => {
-                        if (!groupedPapers[author]) {
-                            groupedPapers[author] = {};
+  <div class="container">
+    <h1>PCSS Result</h1>
+    
+    <% 
+      // 옵션 번호를 설명 텍스트로 변환하는 함수
+      function getOptionText(optionValue) {
+        switch(optionValue) {
+          case "1": return "1저자가 한국인";
+          case "2": return "1저자 또는 2저자가 한국인";
+          case "3": return "마지막 저자가 한국인";
+          case "4": return "1저자 또는 마지막 저자가 한국인";
+          case "5": return "저자 중 한 명 이상이 한국인";
+          default: return "옵션 미선택";
+        }
+      }
+    %>
+    
+    <!-- 검색 옵션을 테이블로 표시 -->
+    <table>
+      <thead>
+        <tr>
+          <th colspan="2">검색 옵션</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="background-color:#fafafa; font-weight:bold;">선택 옵션</td>
+          <td><%= getOptionText(options.option) %></td>
+        </tr>
+        <tr>
+          <td style="background-color:#fafafa; font-weight:bold;">연도 범위</td>
+          <td><%= options.startyear %> ~ <%= options.endyear %></td>
+        </tr>
+        <tr>
+          <td style="background-color:#fafafa; font-weight:bold;">불확실 포함 여부</td>
+          <td><%= options.Possible === 'True' ? "포함" : "미포함" %></td>
+        </tr>
+        <tr>
+          <td style="background-color:#fafafa; font-weight:bold;">선택 학회</td>
+          <td><%= options.selectedConferences.join(', ') %></td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div id="papers-container"></div>
+    
+    <script>
+      // 헬퍼 함수: 토글 가능한 헤더 생성
+      function createToggleHeader(text, headerClass) {
+        const header = document.createElement("div");
+        header.className = headerClass;
+        header.innerHTML = text + '<span class="toggle-icon" style="margin-left:auto";>▼</span>';
+        header.addEventListener("click", function() {
+          const content = header.nextElementSibling;
+          const icon = header.querySelector(".toggle-icon");
+          if (!content.style.display || content.style.display === "none") {
+            content.style.display = "block";
+            icon.textContent = "▼";
+          } else {
+            content.style.display = "none";
+            icon.textContent = "▶";
+          }
+        });
+        return header;
+      }
+      
+      // papers 변수는 서버에서 전달된 데이터
+      const papers = <%- JSON.stringify(pythonResult) %>;
+      const container = document.getElementById("papers-container");
+      
+      if (!papers || Object.keys(papers).length === 0) {
+          alert("검색 조건을 만족하는 논문이 존재하지 않습니다.");
+          container.innerHTML = `
+              <div style="text-align:center; padding:20px; background:#fff4f4; border:1px solid #f5c2c2; border-radius:8px; color:#c71d1d;">
+                  검색 조건을 만족하는 논문이 존재하지 않습니다.
+              </div>`;
+      } else {
+          // 그룹화: target_author > year > conference
+          const groupedPapers = {};
+          for (const key in papers) {
+              const paper = papers[key];
+              paper.target_author.forEach(author => {
+                  if (!groupedPapers[author]) groupedPapers[author] = {};
+                  if (!groupedPapers[author][paper.year]) groupedPapers[author][paper.year] = {};
+                  if (!groupedPapers[author][paper.year][paper.conference]) groupedPapers[author][paper.year][paper.conference] = [];
+                  groupedPapers[author][paper.year][paper.conference].push(paper);
+              });
+          }
+          
+          // 각 저자별 섹션 생성
+          for (const author in groupedPapers) {
+              const authorSection = document.createElement("div");
+              authorSection.className = "year-section";
+              
+              // 저자 헤더 생성
+              const authorHeader = document.createElement("div");
+              authorHeader.className = "year-header";
+              
+              // 저자 문자열에서 이름과 괄호 부분 분리
+              const bracketIndex = author.indexOf('(');
+              let nameOnly = author, bracketPart = '';
+              if (bracketIndex !== -1) {
+                  nameOnly = author.substring(0, bracketIndex).trim();
+                  bracketPart = author.substring(bracketIndex);
+              }
+              
+              // 첫 번째 논문 데이터를 참조하여 저자 URL 결정
+              const firstYear = Object.keys(groupedPapers[author])[0];
+              const firstConference = Object.keys(groupedPapers[author][firstYear])[0];
+              const referencePaper = groupedPapers[author][firstYear][firstConference][0];
+              let targetAuthorUrl = '#';
+              if (referencePaper.author_name && referencePaper.author_url) {
+                  const matchedIndex = referencePaper.author_name.findIndex(n => n.includes(nameOnly));
+                  if (matchedIndex !== -1) {
+                      targetAuthorUrl = referencePaper.author_url[matchedIndex];
+                  }
+              }
+              
+              // 저자 이름을 링크로 변환 (콤마 구분된 경우 처리)
+              const authorsArray = author.split(',').map(a => a.trim());
+              const linkHtmls = authorsArray.map(authorStr => {
+                  const idx = authorStr.indexOf('(');
+                  let nameOnlyInner = authorStr, bracketPartInner = '';
+                  if (idx !== -1) {
+                      nameOnlyInner = authorStr.substring(0, idx).trim();
+                      bracketPartInner = authorStr.substring(idx);
+                  }
+                  let authorUrl = '#';
+                  if (referencePaper.author_name && referencePaper.author_url) {
+                      const i = referencePaper.author_name.findIndex(n => n.includes(nameOnlyInner));
+                      if (i !== -1) authorUrl = referencePaper.author_url[i];
+                  }
+                  return `<a href="${authorUrl}" class="author-link" target="_blank">${nameOnlyInner}</a>${bracketPartInner}`;
+              });
+              
+              authorHeader.innerHTML = `${linkHtmls.join(', ')}<span class="toggle-icon" style="margin-left:auto;">▼</span>`;
+              // 토글 아이콘는 createToggleHeader 함수를 쓸 수도 있으나 여기서는 이벤트 핸들러 직접 추가
+              authorHeader.addEventListener("click", () => {
+                  const content = authorSection.querySelector(".year-content");
+                  const icon = authorHeader.querySelector(".toggle-icon");
+                  if (!content.style.display || content.style.display === "none") {
+                      content.style.display = "block";
+                      icon.textContent = "▼";
+                  } else {
+                      content.style.display = "none";
+                      icon.textContent = "▶";
+                  }
+              });
+              
+              const authorContent = document.createElement("div");
+              authorContent.className = "year-content";
+              
+              // 연도별 섹션 생성
+              for (const year in groupedPapers[author]) {
+                  const yearSection = document.createElement("div");
+                  yearSection.className = "conference-section";
+                  
+                  // 연도 헤더: toggle 기능 추가
+                  const yearHeaderEl = createToggleHeader(`Year: ${year}`, "conference-header");
+                  yearSection.appendChild(yearHeaderEl);
+                  
+                  const yearContent = document.createElement("div");
+                  yearContent.className = "conference-content";
+                  
+                  // 학회별 섹션 생성
+                  for (const conference in groupedPapers[author][year]) {
+                      const conferenceSection = document.createElement("div");
+                      conferenceSection.className = "conference-section";
+                      
+                      const confPaper = groupedPapers[author][year][conference][0];
+                      const conferenceLink = confPaper.source || "#";
+                      const conferenceHeader = document.createElement("div");
+                      conferenceHeader.className = "conference-header";
+                      conferenceHeader.innerHTML = `<a href="${conferenceLink}" target="_blank" class="conference-link">Conference: ${conference}</a>`;
+                      // 토글 아이콘 추가
+                      const confToggleIcon = document.createElement("span");
+                      confToggleIcon.className = "toggle-icon";
+                      confToggleIcon.style.marginLeft = "auto";
+                      confToggleIcon.textContent = "▼";
+                      conferenceHeader.appendChild(confToggleIcon);
+                      // remove event listener from conferenceHeader and add it to confToggleIcon:
+                      confToggleIcon.addEventListener("click", (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const content = conferenceSection.querySelector(".conference-content");
+                        if (!content.style.display || content.style.display === "none") {
+                            content.style.display = "block";
+                            confToggleIcon.textContent = "▼";
+                        } else {
+                            content.style.display = "none";
+                            confToggleIcon.textContent = "▶";
                         }
-                        if (!groupedPapers[author][paper.year]) {
-                            groupedPapers[author][paper.year] = {};
-                        }
-                        if (!groupedPapers[author][paper.year][paper.conference]) {
-                            groupedPapers[author][paper.year][paper.conference] = [];
-                        }
-                        groupedPapers[author][paper.year][paper.conference].push(paper);
-                    });
-                }
+                      });
 
-                // Generate HTML
-                for (const author in groupedPapers) {
-                    const authorSection = document.createElement("div");
-                    authorSection.className = "year-section";
+                      
+                      const conferenceContent = document.createElement("div");
+                      conferenceContent.className = "conference-content";
+                      
+                      // 논문 카드 생성
+                      groupedPapers[author][year][conference].forEach(paper => {
+                          const card = document.createElement("div");
+                          card.className = "card";
+                          
+                          const titleEl = document.createElement("div");
+                          titleEl.className = "card-title";
+                          titleEl.textContent = `Title: ${paper.title}`;
+                          card.appendChild(titleEl);
+                          
+                          const authorsList = document.createElement("ul");
+                          authorsList.className = "authors";
+                          paper.author_name.forEach((a, index) => {
+                              const li = document.createElement("li");
+                              const link = document.createElement("a");
+                              link.href = paper.author_url[index] || "#";
+                              link.textContent = a;
+                              link.target = "_blank";
+                              li.appendChild(link);
+                              authorsList.appendChild(li);
+                          });
+                          card.appendChild(authorsList);
+                          conferenceContent.appendChild(card);
+                      });
+                      
+                      conferenceSection.appendChild(conferenceHeader);
+                      conferenceSection.appendChild(conferenceContent);
+                      yearContent.appendChild(conferenceSection);
+                  }
+                  
+                  yearSection.appendChild(yearContent);
+                  authorContent.appendChild(yearSection);
+              }
+              
+              authorSection.appendChild(authorHeader);
+              authorSection.appendChild(authorContent);
+              container.appendChild(authorSection);
+          }
+      }
+    </script>
+  </div>
+  <footer class="footer">
+    Created By 
+    <a href="https://github.com/yojun313" target="_blank" class="footer-link">
+      <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="github-logo" alt="GitHub">Yojun Moon </a> 
+    | Contact: <a href="mailto:yojun313@postech.ac.kr" class="footer-link">yojun313@postech.ac.kr</a>
+  </footer>
 
-                    const authorHeader = document.createElement("div");
-                    authorHeader.className = "year-header";
-                    authorHeader.innerHTML = `Target Author: ${author} <span class="toggle-icon">▶</span>`;
-                    authorHeader.addEventListener("click", () => {
-                        const content = authorSection.querySelector(".year-content");
-                        const icon = authorHeader.querySelector(".toggle-icon");
-                        content.style.display = content.style.display === "none" || content.style.display === "" ? "block" : "none";
-                        icon.classList.toggle("open");
-                    });
 
-                    const authorContent = document.createElement("div");
-                    authorContent.className = "year-content";
-
-                    for (const year in groupedPapers[author]) {
-                        const yearSection = document.createElement("div");
-                        yearSection.className = "conference-section";
-
-                        const yearHeader = document.createElement("div");
-                        yearHeader.className = "conference-header";
-                        yearHeader.innerHTML = `Year: ${year} <span class="toggle-icon">▶</span>`;
-                        yearHeader.addEventListener("click", () => {
-                            const content = yearSection.querySelector(".conference-content");
-                            const icon = yearHeader.querySelector(".toggle-icon");
-                            content.style.display = content.style.display === "none" || content.style.display === "" ? "block" : "none";
-                            icon.classList.toggle("open");
-                        });
-
-                        const yearContent = document.createElement("div");
-                        yearContent.className = "conference-content";
-
-                        for (const conference in groupedPapers[author][year]) {
-                            const conferenceSection = document.createElement("div");
-                            conferenceSection.className = "conference-section";
-
-                            const conferenceHeader = document.createElement("div");
-                            conferenceHeader.className = "conference-header";
-                            conferenceHeader.innerHTML = `
-                                Conference: ${conference}
-                                <span class="toggle-icon">▶</span>
-                            `;
-                            conferenceHeader.addEventListener("click", () => {
-                                const content = conferenceSection.querySelector(".conference-content");
-                                const icon = conferenceHeader.querySelector(".toggle-icon");
-                                content.style.display = content.style.display === "none" || content.style.display === "" ? "block" : "none";
-                                icon.classList.toggle("open");
-                            });
-
-                            const conferenceContent = document.createElement("div");
-                            conferenceContent.className = "conference-content";
-
-                            groupedPapers[author][year][conference].forEach(paper => {
-                                const card = document.createElement("div");
-                                card.className = "card";
-
-                                const title = document.createElement("div");
-                                title.className = "card-title";
-                                title.textContent = `Title: ${paper.title}`;
-                                card.appendChild(title);
-
-                                const authorsList = document.createElement("ul");
-                                authorsList.className = "authors";
-
-                                paper.author_name.forEach((author, index) => {
-                                    const listItem = document.createElement("li");
-                                    const authorLink = document.createElement("a");
-                                    authorLink.href = paper.author_url[index] || "#";
-                                    authorLink.textContent = author;
-                                    authorLink.target = "_blank";
-                                    listItem.appendChild(authorLink);
-                                    authorsList.appendChild(listItem);
-                                });
-
-                                card.appendChild(authorsList);
-
-                                const sourceLink = document.createElement("a");
-                                sourceLink.href = paper.source;
-                                sourceLink.target = "_blank";
-                                sourceLink.textContent = "View Paper Source";
-                                sourceLink.style.color = "#007bff";
-                                sourceLink.style.textDecoration = "none";
-                                sourceLink.style.display = "block";
-                                sourceLink.style.marginTop = "10px";
-                                card.appendChild(sourceLink);
-
-                                conferenceContent.appendChild(card);
-                            });
-
-                            conferenceSection.appendChild(conferenceHeader);
-                            conferenceSection.appendChild(conferenceContent);
-                            yearContent.appendChild(conferenceSection);
-                        }
-
-                        yearSection.appendChild(yearHeader);
-                        yearSection.appendChild(yearContent);
-                        authorContent.appendChild(yearSection);
-                    }
-
-                    authorSection.appendChild(authorHeader);
-                    authorSection.appendChild(authorContent);
-                    container.appendChild(authorSection);
-                }
-            }
-        </script>
-    </div>
 </body>
 </html>

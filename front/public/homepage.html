@@ -111,6 +111,35 @@
             display: block;
             margin-bottom: 5px;
         }
+        .footer {
+            text-align: center;
+            font-size: 12px;  /* 글자 작게 */
+            color: #666;
+            margin-top: 20px;
+            padding: 10px 0;
+            display: flex;
+            justify-content: center; /* 가운데 정렬 */
+            align-items: center; /* 세로 정렬 */
+            gap: 5px; /* 요소 간 간격 */
+        }
+        
+        .footer-link {
+            color: #007bff;
+            text-decoration: none;
+            display: flex;
+            align-items: center; /* 글자와 로고 수직 정렬 */
+            gap: 5px; /* 글자와 로고 간격 */
+        }
+        
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+        
+        .github-logo {
+            width: 14px;  /* 로고 크기 작게 */
+            height: 14px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -168,5 +197,11 @@
     </div>
 
     <script src="script.js"></script>
+    <footer class="footer">
+        Created By 
+        <a href="https://github.com/yojun313" target="_blank" class="footer-link">
+          <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="github-logo" alt="GitHub">Yojun Moon </a> 
+        | Contact: <a href="mailto:yojun313@postech.ac.kr" class="footer-link">yojun313@postech.ac.kr</a>
+    </footer>
 </body>
 </html>
