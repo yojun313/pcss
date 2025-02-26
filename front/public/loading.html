@@ -116,9 +116,11 @@
       // Python 실행 요청
       socket.emit('start-python');
 
-      // Python stdout 출력 받기
       socket.on('python_output', (data) => {
-        // 이전 출력을 지우고 새로운 내용 덮어쓰기
+        const trimmed = data.trim();
+        if (trimmed.startsWith('PATH=') && trimmed.endsWith('.json')) {
+          return; // 이 경우 출력하지 않음
+        }
         output.innerHTML = `<div>${data}</div>`;
       });
 
