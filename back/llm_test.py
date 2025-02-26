@@ -20,6 +20,7 @@ class Test:
     def main(self, query):
         print("1. API\n2. Socket")
         num = int(input("Which one? "))
+        print('\n\n')
         if num == 1:
             self.api_model_answer(query)
         else:
@@ -59,7 +60,7 @@ class Test:
             await websocket.send(json.dumps(request_data))
 
             # Ollama의 응답을 WebSocket을 통해 수신
-            response = await websocket.recv()
+            response = json.loads(await websocket.recv())
             print(response['result'])
 
 
