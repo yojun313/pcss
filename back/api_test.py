@@ -1,13 +1,31 @@
 import requests
-SERVER_IP = "141.223.16.196"
+import asyncio
+import websockets
+import json
+
+info = {
+    'cluster': "141.223.16.196",
+    'z8':  '121.152.225.232'
+}
+
+SERVER_IP = info['z8']
+PORT = '3333'
 
 
 class Test:
     def __init__(self):
         self.LLM_model = "llama3.1:8b"
-        self.api_url = f"http://{SERVER_IP}:8009/api/process"
-    
-    def model_answer(self, query):
+        self.api_url = f"http://{SERVER_IP}:{PORT}/api/process"
+        self.socket_url = f"ws://{SERVER_IP}:{PORT}/ws"
+    def main(self, query):
+        print("1. API\n2. Socket")
+        num = int(input("Which one? "))
+        if num == 1:
+            asyncio.run(self.api_model_answer(query))
+        else:
+            self.socket_model_answer(query)
+
+    def api_model_answer(self, query):
         # 전송할 데이터
         data = {
             "model_name": self.LLM_model,
@@ -22,14 +40,31 @@ class Test:
             if response.status_code == 200:
                 result = response.json()['result']
                 result = result.replace('<think>', '').replace('</think>', '').replace('\n\n', '')
-                return result
+                print(result)
             else:
-                return f"Failed to get a valid response: {response.status_code} {response.text}"
+                return print(f"Failed to get a valid response: {response.status_code} {response.text}")
 
         except requests.exceptions.RequestException as e:
-            return f"Error communicating with the server: {e}"
+            return print(f"Error communicating with the server: {e}")
+
+    async def socket_model_answer(self, query):
+        async with websockets.connect(self.socket_url) as websocket:
+            request_data = {
+                "model": "llama3.1:8b",
+                "prompt": "Hello, how are you?",
+                "stream": False
+            }
+
+            # JSON 데이터를 WebSocket으로 전송
+            await websocket.send(json.dumps(request_data))
+
+            # Ollama의 응답을 WebSocket을 통해 수신
+            response = await websocket.recv()
+            print(response)
+
+
 
 if __name__ == "__main__":
     test = Test()
     query = "What is the capital of Korea?"
-    print(test.model_answer(query))
+    test.main(query)

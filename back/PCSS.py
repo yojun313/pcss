@@ -17,10 +17,15 @@ import copy
 from datetime import datetime
 import asyncio
 import json
-#
+import websockets
+
+
+
+
 TIMEOUT = 10
 TRYNUM = 3
 LLM_SERVER = '121.152.225.232'
+PORT = "3333"
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -42,7 +47,14 @@ class PCSSEARCH:
         self.name_dict      = self.load_name_dict()
 
         self.llm_api_option = True
-        self.api_url = f"http://{LLM_SERVER}:3333/api/process"
+        self.api_url = f"http://{LLM_SERVER}:{PORT}/api/process"
+
+
+        self.llm_socket_option = True
+        self.socket_url = f"ws://{LLM_SERVER}:{PORT}/ws"
+        if self.llm_api_option:
+            self.ws_client = WebSocketClient(self.socket_url)
+
 
         self.llm_model = 'llama3.1:8b'
         if self.llm_api_option == False:
@@ -297,26 +309,31 @@ class PCSSEARCH:
     def main(self, conf_list):
         try:
             asyncio.run(self.MultiConfCollector(conf_list))
+            if self.llm_socket_option:
+                asyncio.run(self.ws_client.close())
+
             return self.result_json_path
         except:
             self.write_log(traceback.format_exc())
 
 
     def koreanChecker(self, name):
+        self.single_name_llm(name)
         if self.possible == True:
-            if name.split()[-1] in self.last_name_list and name.split()[0] in self.first_name_list and float(self.single_name_llm(name)) > self.possible_stat:
+            if name.split()[-1] in self.last_name_list and name.split()[0] in self.first_name_list and float(self.name_dict(name)) > self.possible_stat:
                 return True
         else:
-            if name.split()[-1] in self.last_name_list and name.split()[0] in self.first_name_list and float(self.single_name_llm(name)) > 0.5:
+            if name.split()[-1] in self.last_name_list and name.split()[0] in self.first_name_list and float(self.name_dict(name)) > 0.5:
                 return True
         return False
 
 
     def single_name_llm(self, name):
-        
-        if self.llm_api_option == False:
-            if name in self.name_dict:
-                return self.name_dict[name]
+        if name in self.name_dict:
+            return self.name_dict[name]
+
+        if self.llm_api_option == False and self.llm_socket_option == False:
+
             
             template = "Express the likelihood of this {name} being Korean using only a number between 0~1. You need to say number only"
 
@@ -324,9 +341,16 @@ class PCSSEARCH:
             chain = prompt | self.llm | StrOutputParser()
 
             result = chain.invoke({"name", name})
-        else:
-            if name in self.name_dict:
-                return self.name_dict[name]
+
+        elif self.llm_socket_option:
+            asyncio.run(self.llm_socket_answer(
+                query=f"Express the likelihood of this {name} being Korean using only a number between 0~1. You need to say number only",
+                name=name,
+                model=self.llm_model
+            ))
+            return
+
+        elif self.llm_api_option:
 
             result = self.llm_api_answer(
                 query = f"Express the likelihood of this {name} being Korean using only a number between 0~1. You need to say number only",
@@ -596,6 +620,32 @@ class PCSSEARCH:
         except requests.exceptions.RequestException as e:
             return "Error communicating with the server: {e}"
 
+    async def llm_socket_answer(self, query, name, model):
+        request_data = {
+            "model": model,
+            "prompt": query,
+            "stream": False
+        }
+        response = await self.ws_client.send_request(request_data)
+
+        # 🔹 숫자만 추출 (지수 표기법 방지)
+        match = re.findall(r"\d+\.\d+|\d+", response)
+        if not match:
+            return "0.0"  # 예외 처리: 결과가 없을 경우 기본값
+
+        value = float(match[0])  # 🔹 문자열을 float으로 변환
+
+        # 🔹 숫자 범위 고정 (0.0 ~ 1.0)
+        value = max(0.0, min(1.0, value))
+
+        # 🔹 소수점 1자리까지 포맷팅
+        formatted_value = "{:.1f}".format(value)
+
+        self.name_dict[name] = formatted_value
+        self.save_name_dict()
+
+        return formatted_value  # 🔹 결과 반환 (0.0 ~ 1.0)
+
 
     async def asyncRequester(self, url, headers={}, params={}, proxies='', cookies={}, session=None):
         timeout = aiohttp.ClientTimeout(total=TIMEOUT)
@@ -617,6 +667,27 @@ class PCSSEARCH:
         else:
             os.system("clear")
 
+class WebSocketClient:
+    def __init__(self, uri):
+        self.uri = uri
+        self.websocket = None  # WebSocket 연결 객체
+
+    async def connect(self):
+        """WebSocket 연결 생성"""
+        if self.websocket is None or self.websocket.closed:
+            self.websocket = await websockets.connect(self.uri)
+
+    async def send_request(self, request_data):
+        """WebSocket을 통해 요청 전송 및 응답 받기"""
+        await self.connect()  # 연결 유지 확인
+        await self.websocket.send(json.dumps(request_data))
+        response = await self.websocket.recv()
+        return response
+
+    async def close(self):
+        """WebSocket 연결 종료"""
+        if self.websocket:
+            await self.websocket.close()
 
 if __name__ == "__main__":
     pcssearch_obj = PCSSEARCH(1, False, 2024, 2024)
