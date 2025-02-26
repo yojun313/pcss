@@ -12,6 +12,8 @@ res/
 log/
 user_history/
 __pycache__/
+
+
 # PyCharm 관련 파일 및 폴더 무시
 .idea/
 *.iml
