@@ -6,32 +6,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Loading...</title>
   <style>
-    /* 뷰포트 전체를 사용하여 중앙 정렬 */
-    html, body {
-      height: 100%;
+    /* 수정된 body 스타일: 수직 전체 채움, 컬럼 방향 */
+    body {
       margin: 0;
       padding: 0;
-    }
-    body {
       font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
       background-color: #f9f9f9;
       color: #333;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
-    /* 중앙 정렬 wrapper */
+    /* 메인 콘텐츠를 감싸는 래퍼: 중앙 정렬 */
+    .main-content-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+    /* 좌우 2열 레이아웃 */
     .wrapper {
-      width: 90%;
-      max-width: 1200px;
       display: flex;
       gap: 20px;
+      width: 90%;
+      max-width: 1200px;
     }
-    /* 왼쪽 열: 옵션 데이터 테이블 */
     .left-column {
       flex: 1;
     }
-    /* 오른쪽 열: 로딩 및 Python 출력 영역 */
     .right-column {
       flex: 2;
       display: flex;
@@ -41,7 +44,7 @@
     /* 옵션 테이블 스타일 */
     .options-table {
       width: 100%;
-      border-collapse: separate; /* 둥근 모서리를 위해 separate 사용 */
+      border-collapse: separate; /* 둥근 모서리를 위해 separate */
       border-spacing: 0;
       background-color: #ffffff;
       color: #333;
@@ -103,12 +106,11 @@
       text-align: center;
       width: 100%;
     }
-    /* Footer 스타일 */
+    /* Footer 스타일: 화면 맨 아래쪽에 위치 */
     .footer {
       text-align: center;
       font-size: 12px;
       color: #666;
-      margin-top: 20px;
       padding: 10px 0;
       display: flex;
       justify-content: center;
@@ -190,19 +192,27 @@
   </style>
 </head>
 <body>
-  <div class="wrapper">
-    <!-- 왼쪽 열: 글로벌 옵션 데이터 테이블 -->
-    <div class="left-column" id="globalData"></div>
-    <!-- 오른쪽 열: 로딩 영역과 Python 출력 -->
-    <div class="right-column">
-      <div id="loading">
-        <h1>Collecting Data...</h1>
-        <p>DBLP CRAWLER is working...</p>
-        <div class="spinner"></div>
+  <div class="main-content-wrapper">
+    <div class="wrapper">
+      <!-- 왼쪽 열: 옵션 데이터 테이블 -->
+      <div class="left-column" id="globalData"></div>
+      <!-- 오른쪽 열: 로딩 및 Python 출력 영역 -->
+      <div class="right-column">
+        <div id="loading">
+          <h1>Collecting Data...</h1>
+          <p>DBLP CRAWLER is working...</p>
+          <div class="spinner"></div>
+        </div>
+        <pre id="output"></pre>
       </div>
-      <pre id="output"></pre>
     </div>
   </div>
+  <footer class="footer">
+    Developed By 
+    <a href="https://github.com/yojun313" target="_blank" class="footer-link">
+      <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="github-logo" alt="GitHub">Yojun Moon</a> 
+    | Contact: <a href="mailto:yojun313@postech.ac.kr" class="footer-link">yojun313@postech.ac.kr</a>
+  </footer>
   
   <script src="/socket.io/socket.io.js"></script>
   <script>
@@ -217,7 +227,7 @@
         .then(data => {
           console.log('Global input data:', data);
           
-          // 사용자가 지정할 수 있는 테이블 열 이름 (예시)
+          // 사용자가 지정할 테이블 열 이름 (예시)
           const columns = {
             option: "선택 옵션",
             startyear: "연도 범위",
@@ -267,9 +277,7 @@
             } else if (key === 'Possible') {
               value = data[key] === 'True' ? "포함" : "미포함";
             } else if (key === 'startyear' || key === 'endyear') {
-              // '연도 범위'는 따로 처리하여 두 값을 합침 (이미 columns에 'startyear'만 포함되어 있다면, 수정 필요)
               value = data['startyear'] + " ~ " + data['endyear'];
-              // 건너뛰도록 continue 할 수 있으나, 여기서는 단순히 설정
             } else {
               value = data[key];
             }
@@ -291,7 +299,7 @@
       socket.on('python_output', (data) => {
         const trimmed = data.trim();
         if (trimmed.startsWith('PATH=') && trimmed.endsWith('.json')) {
-          return; // 이 경우 출력하지 않음
+          return;
         }
         output.innerHTML = `<div>${data}</div>`;
       });
@@ -328,11 +336,5 @@
       });
     });
   </script>    
-  <footer class="footer">
-    Developed By 
-    <a href="https://github.com/yojun313" target="_blank" class="footer-link">
-      <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="github-logo" alt="GitHub">Yojun Moon</a> 
-    | Contact: <a href="mailto:yojun313@postech.ac.kr" class="footer-link">yojun313@postech.ac.kr</a>
-  </footer>
 </body>
 </html>
