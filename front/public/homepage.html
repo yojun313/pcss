@@ -1,207 +1,290 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PCSS</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f9f9f9;
-        }
-        .container {
-            display: flex;
-            flex-direction: row; /* 메인 콘텐츠와 선택된 컨퍼런스 리스트를 가로로 배치 */
-            max-width: 1400px;
-            margin: auto;
-            padding: 20px;
-        }
-        .main-content {
-            flex: 3; /* 메인 콘텐츠가 더 많은 공간 차지 */
-            padding-right: 20px;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 40px;
-            color: rgba(200, 1, 80);
-        }
-        .form-section {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            padding: 10px;
-            background-color: #ffffff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-        }
-        .form-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .form-group label {
-            font-weight: bold;
-            color: #34495e;
-        }
-        .form-group input,
-        .form-group select {
-            padding: 5px 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        #submit-btn {
-            padding: 10px 20px;
-            background-color: rgba(200, 1, 80);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        #submit-btn:hover {
-            background-color: rgb(194, 50, 108);
-        }
-        .select-all-container {
-            display: flex;
-            justify-content: flex-start; /* 왼쪽 정렬 (필요 시 center로 변경 가능) */
-            margin-bottom: 20px; /* 버튼 아래 공간 */
-        }
-        
-        .select-btn {
-            padding: 8px 15px;
-            background-color: #34495e;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.3s ease;
-        }
-        
-        .select-btn:hover {
-            background-color: #34495e;
-        }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-        .card {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .card h2 {
-            margin-top: 0;
-            color: #34495e;
-        }
-        .checkbox-group {
-            margin-top: 10px;
-        }
-        .checkbox-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .footer {
-            text-align: center;
-            font-size: 12px;  /* 글자 작게 */
-            color: #666;
-            margin-top: 20px;
-            padding: 10px 0;
-            display: flex;
-            justify-content: center; /* 가운데 정렬 */
-            align-items: center; /* 세로 정렬 */
-            gap: 5px; /* 요소 간 간격 */
-        }
-        
-        .footer-link {
-            color: #007bff;
-            text-decoration: none;
-            display: flex;
-            align-items: center; /* 글자와 로고 수직 정렬 */
-            gap: 5px; /* 글자와 로고 간격 */
-        }
-        
-        .footer-link:hover {
-            text-decoration: underline;
-        }
-        
-        .github-logo {
-            width: 14px;  /* 로고 크기 작게 */
-            height: 14px;
-            vertical-align: middle;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PCSS</title>
+  <style>
+    /* 기본 라이트 모드 스타일 */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    .container {
+      display: flex;
+      flex-direction: row; /* 메인 콘텐츠와 선택된 컨퍼런스 리스트를 가로로 배치 */
+      max-width: 1400px;
+      margin: auto;
+      padding: 20px;
+    }
+    .main-content {
+      flex: 3; /* 메인 콘텐츠가 더 많은 공간 차지 */
+      padding-right: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      color: rgba(200, 1, 80, 1);
+    }
+    .form-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 10px;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+    .form-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .form-group label {
+      font-weight: bold;
+      color: #34495e;
+    }
+    .form-group input,
+    .form-group select {
+      padding: 5px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: #fff;
+      color: #333;
+    }
+    #submit-btn {
+      padding: 10px 20px;
+      background-color: rgba(200, 1, 80, 1);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    #submit-btn:hover {
+      background-color: rgb(194, 50, 108);
+    }
+    .select-all-container {
+      display: flex;
+      justify-content: flex-start;
+      margin-bottom: 20px;
+    }
+    .select-btn {
+      padding: 8px 15px;
+      background-color: #34495e;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background-color 0.3s ease;
+    }
+    .select-btn:hover {
+      background-color: #2c3e50;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .card h2 {
+      margin-top: 0;
+      color: #34495e;
+    }
+    .checkbox-group {
+      margin-top: 10px;
+    }
+    .checkbox-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    /* Footer 스타일 */
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: #666;
+      margin-top: 20px;
+      padding: 10px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+    }
+    .footer-link {
+      color: #007bff;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .footer-link:hover {
+      text-decoration: underline;
+    }
+    .github-logo {
+      width: 14px;
+      height: 14px;
+      vertical-align: middle;
+    }
+    /* 다크 모드 스타일 */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #181818;
+        color: #e0e0e0;
+      }
+      .container {
+        background-color: #242424;
+      }
+      h1 {
+        color: #ff88a2;
+      }
+      .form-section {
+        background-color: #2c2c2c;
+        border: 1px solid #444;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.8);
+      }
+      .form-group label {
+        color: #ccc;
+      }
+      .form-group input,
+      .form-group select {
+        background-color: #3a3a3a;
+        border: 1px solid #555;
+        color: #eee;
+      }
+      #submit-btn {
+        background-color: #b3305c;
+      }
+      #submit-btn:hover {
+        background-color: #a02c52;
+      }
+      .select-btn {
+        background-color: #555;
+      }
+      .select-btn:hover {
+        background-color: #444;
+      }
+      .grid .card {
+        background-color: #333;
+        border: 1px solid #555;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+        color: #ddd;
+      }
+      .card h2 {
+        color: #ddd;
+      }
+      .footer {
+        color: #aaa;
+      }
+      .footer-link {
+        color: #4da6ff;
+      }
+      /* 테이블 다크 모드 */
+      table {
+        background-color: #2c2c2c;
+        color: #e0e0e0;
+      }
+      table th, table td {
+        border: 1px solid #444;
+      }
+      table th {
+        background-color: #3a3a3a;
+        color: #ff88a2;
+      }
+      table td {
+        background-color: #242424;
+      }
+    }
+    /* 반응형 디자인 */
+    @media (max-width: 768px) {
+      body {
+        font-size: 12px;
+      }
+      .container {
+        flex-direction: column;
+        padding: 10px;
+        max-width: 100%;
+      }
+      h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <!-- 메인 콘텐츠 -->
-        <div class="main-content">
-            <h1>PCSS: POSTECH Computer Scientist Search</h1>
+  <div class="container">
+    <!-- 메인 콘텐츠 -->
+    <div class="main-content">
+      <h1>PCSS: POSTECH Computer Scientist Search</h1>
 
-            <!-- 드롭다운 메뉴와 입력 옵션 -->
-            <div class="form-section">
-                <form id="filter-form" style="display: flex; gap: 20px; align-items: center;">
-                    <!-- 드롭다운 메뉴 -->
-                    <div class="form-group">
-                        <label for="dropdown">Select an Option:</label>
-                        <select id="option" name="option">
-                            <option value="1">1저자가 한국인</option>
-                            <option value="2">1저자 또는 2저자가 한국인</option>
-                            <option value="3">마지막 저자가 한국인</option>
-                            <option value="4">1저자 또는 마지막 저자가 한국인</option>
-                            <option value="5">저자 중 한 명 이상이 한국인</option>
-                        </select>
-                    </div>
-                    <!-- 연도 범위 입력 -->
-                    <div class="form-group">
-                        <label for="startyear">Start Year:</label>
-                        <input type="number" id="startyear" name="startyear" placeholder="Start Year">
-                    </div>
-                    <div class="form-group">
-                        <label for="endyear">End Year:</label>
-                        <input type="number" id="endyear" name="endyear" placeholder="End Year">
-                    </div>
+      <!-- 드롭다운 메뉴와 입력 옵션 -->
+      <div class="form-section">
+        <form id="filter-form" style="display: flex; gap: 20px; align-items: center;">
+          <!-- 드롭다운 메뉴 -->
+          <div class="form-group">
+            <label for="dropdown">Select an Option:</label>
+            <select id="option" name="option">
+              <option value="1">1저자가 한국인</option>
+              <option value="2">1저자 또는 2저자가 한국인</option>
+              <option value="3">마지막 저자가 한국인</option>
+              <option value="4">1저자 또는 마지막 저자가 한국인</option>
+              <option value="5">저자 중 한 명 이상이 한국인</option>
+            </select>
+          </div>
+          <!-- 연도 범위 입력 -->
+          <div class="form-group">
+            <label for="startyear">Start Year:</label>
+            <input type="number" id="startyear" name="startyear" placeholder="Start Year">
+          </div>
+          <div class="form-group">
+            <label for="endyear">End Year:</label>
+            <input type="number" id="endyear" name="endyear" placeholder="End Year">
+          </div>
 
-                    <!-- 라디오 버튼 -->
-                    <div class="form-group">
-                        <label>불확실 포함:</label>
-                        <label>
-                            <input type="radio" name="Possible" value="True"> 예
-                        </label>
-                        <label>
-                            <input type="radio" name="Possible" value="False" checked> 아니오
-                        </label>
-                    </div>
+          <!-- 라디오 버튼 -->
+          <div class="form-group">
+            <label>불확실 포함:</label>
+            <label>
+              <input type="radio" name="Possible" value="True"> 예
+            </label>
+            <label>
+              <input type="radio" name="Possible" value="False" checked> 아니오
+            </label>
+          </div>
 
-                    <!-- 제출 버튼 -->
-                    <button type="button" id="submit-btn">Submit</button>
-                </form>
-            </div>
-            <div class="select-all-container">
-                <button class="select-btn" id="toggle-select-btn">모두 선택</button>
-            </div>
+          <!-- 제출 버튼 -->
+          <button type="button" id="submit-btn">Submit</button>
+        </form>
+      </div>
+      <div class="select-all-container">
+        <button class="select-btn" id="toggle-select-btn">모두 선택</button>
+      </div>
 
-            <!-- 학회 체크박스를 동적으로 생성할 영역 -->
-            <div class="grid" id="conference-grid"></div>
-        </div>
+      <!-- 학회 체크박스를 동적으로 생성할 영역 -->
+      <div class="grid" id="conference-grid"></div>
     </div>
+  </div>
 
-    <script src="script.js"></script>
-    <footer class="footer">
-        Developed By
-        <a href="https://github.com/yojun313" target="_blank" class="footer-link">
-          <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="github-logo" alt="GitHub">Yojun Moon </a> 
-        | Contact: <a href="mailto:yojun313@postech.ac.kr" class="footer-link">yojun313@postech.ac.kr</a>
-    </footer>
+  <script src="script.js"></script>
+  <footer class="footer">
+    Developed By
+    <a href="https://github.com/yojun313" target="_blank" class="footer-link">
+      <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="github-logo" alt="GitHub">Yojun Moon
+    </a> 
+    | Contact: <a href="mailto:yojun313@postech.ac.kr" class="footer-link">yojun313@postech.ac.kr</a>
+  </footer>
 </body>
 </html>

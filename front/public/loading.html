@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Loading...</title>
   <style>
+    /* 기본 라이트 모드 스타일 */
     body {
       margin: 0;
       padding: 0;
@@ -15,25 +16,22 @@
       justify-content: center;
       height: 100vh;
       background-color: #f9f9f9;
+      color: #333;
     }
-
     #loading {
       text-align: center;
-      color: #C80150; /* POSTECH Red */
       margin-bottom: 20px;
     }
-
     #loading h1 {
       font-size: 2rem;
       margin-bottom: 20px;
+      color: #C80150; /* POSTECH Red */
     }
-
     #loading p {
       font-size: 1.2rem;
       margin-bottom: 10px;
       color: #555;
     }
-
     .spinner {
       border: 5px solid #f3f3f3;
       border-top: 5px solid #C80150;
@@ -43,17 +41,10 @@
       animation: spin 1s linear infinite;
       margin: 0 auto;
     }
-
     @keyframes spin {
-      0% {
-        transform: rotate(0deg);
-      }
-      100% {
-        transform: rotate(360deg);
-      }
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
-
-    /* 출력 영역: 네모박스 스타일 제거 */
     pre {
       margin-top: 20px;
       font-size: 1rem;
@@ -62,37 +53,70 @@
       white-space: pre-wrap;
       word-wrap: break-word;
       text-align: center;
-      /* 배경, 테두리, 패딩 없음 */
     }
-
     .footer {
       text-align: center;
-      font-size: 12px;  /* 글자 작게 */
+      font-size: 12px;
       color: #666;
       margin-top: 20px;
       padding: 10px 0;
       display: flex;
-      justify-content: center; /* 가운데 정렬 */
-      align-items: center; /* 세로 정렬 */
-      gap: 5px; /* 요소 간 간격 */
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
     }
-          
     .footer-link {
       color: #007bff;
       text-decoration: none;
       display: flex;
-      align-items: center; /* 글자와 로고 수직 정렬 */
-      gap: 5px; /* 글자와 로고 간격 */
+      align-items: center;
+      gap: 5px;
     }
-          
     .footer-link:hover {
       text-decoration: underline;
     }
-          
     .github-logo {
-      width: 14px;  /* 텍스트와 비슷한 크기 */
+      width: 14px;
       height: 14px;
       vertical-align: middle;
+    }
+    /* 다크 모드 스타일 */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #121212;
+        color: #e0e0e0;
+      }
+      #loading h1 {
+        color: #ff88a2;
+      }
+      #loading p {
+        color: #aaa;
+      }
+      .spinner {
+        border: 5px solid #333;
+        border-top: 5px solid #ff88a2;
+      }
+      pre {
+        color: #e0e0e0;
+      }
+      .footer {
+        color: #aaa;
+      }
+      .footer-link {
+        color: #4da6ff;
+      }
+    }
+    /* 반응형 디자인 */
+    @media (max-width: 768px) {
+      #loading h1 {
+        font-size: 1.5rem;
+      }
+      #loading p {
+        font-size: 1rem;
+      }
+      pre {
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
@@ -116,6 +140,7 @@
       // Python 실행 요청
       socket.emit('start-python');
 
+      // Python stdout 수신
       socket.on('python_output', (data) => {
         const trimmed = data.trim();
         if (trimmed.startsWith('PATH=') && trimmed.endsWith('.json')) {
@@ -124,31 +149,27 @@
         output.innerHTML = `<div>${data}</div>`;
       });
 
-      // Python stderr 출력 받기
+      // Python stderr 수신
       socket.on('python_error', (data) => {
-        // 이전 출력을 지우고 에러 내용 덮어쓰기
         output.innerHTML = `<div style="color: red;">Error: ${data}</div>`;
       });
 
-      // Python 실행 완료 시 서버에서 데이터 수신
+      // Python 실행 완료 후 결과 전송
       socket.on('redirect_to_results', (response) => {
-        // 클라이언트에서 /results로 POST 요청 전송
         fetch('/results', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(response),
         })
           .then((response) => {
             if (!response.ok) {
               console.error('POST /results 실패:', response.statusText);
-              return alert('Failed to load results.');
+              alert('Failed to load results.');
+              return;
             }
-            return response.text(); // 서버에서 렌더링된 HTML 반환
+            return response.text();
           })
           .then((html) => {
-            // 렌더링된 HTML을 새 페이지로 표시
             document.open();
             document.write(html);
             window.history.pushState({}, '', '/results');
@@ -160,6 +181,5 @@
       });
     });
   </script>    
-
 </body>
 </html>
