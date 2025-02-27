@@ -56,7 +56,7 @@ class PCSSEARCH:
         self.llm_model = 'llama3.3:70b-instruct-q8_0'
         if self.llm_api_option == False:
             self.llm = OllamaLLM(model=self.llm_model)
-
+        self.checkedNameList = []
 
         # last_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'last_name.csv'), sep=';')
         # self.last_name_list = list(last_name_df[['eng_1', 'eng_2', 'eng_3']].stack() .astype(str))
@@ -333,9 +333,13 @@ class PCSSEARCH:
 
 
     def single_name_llm(self, name):
+        if name not in self.checkedNameList:
+            self.checkedNameList.append(name)
+            
         if name in self.name_dict:
             return self.name_dict[name]
-
+        
+        
         if self.llm_api_option == False:
             template = "Express the likelihood of this {name} being Korean using only a number between 0~1. You need to say number only"
 
@@ -443,7 +447,7 @@ class PCSSEARCH:
             return stats
 
     def printStatus(self, msg='', url=None):
-        print(f'\r{msg} | {url} | paper: {len(self.CrawlData)}', end='')
+        print(f'\r{msg} | {url} | paper: {len(self.CrawlData)} | Checked Person: {len(self.checkedNameList)}', end='')
 
 
     def kornametoeng(self, name, option=1):
