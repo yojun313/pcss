@@ -50,13 +50,13 @@ class PCSSEARCH:
             self.llm = OllamaLLM(model=self.llm_model)
 
 
-        last_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'last_name.csv'), sep=';')
-        self.last_name_list = list(last_name_df[['eng_1', 'eng_2', 'eng_3']].stack() .astype(str))
-        self.last_name_list = [item.strip() for sublist in self.last_name_list for item in sublist.split(",")]
+        # last_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'last_name.csv'), sep=';')
+        # self.last_name_list = list(last_name_df[['eng_1', 'eng_2', 'eng_3']].stack() .astype(str))
+        # self.last_name_list = [item.strip() for sublist in self.last_name_list for item in sublist.split(",")]
 
-        first_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'first_name.csv'))
-        self.first_name_list = list(first_name_df[['eng']].stack()) # 모든 열을 행 방향으로 쌓음 (NaN 제거 포함).astype(str)  # 모든 값을 문자열로 변환
-        self.first_name_list = [item.strip() for sublist in self.first_name_list for item in sublist.split(",")]
+        # first_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'first_name.csv'))
+        # self.first_name_list = list(first_name_df[['eng']].stack()) # 모든 열을 행 방향으로 쌓음 (NaN 제거 포함).astype(str)  # 모든 값을 문자열로 변환
+        # self.first_name_list = [item.strip() for sublist in self.first_name_list for item in sublist.split(",")]
 
         self.conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))
         self.CrawlData = []
@@ -129,15 +129,16 @@ class PCSSEARCH:
                     if len(authors_origin) > 0 and len(authors_url) == 0:
                         continue
 
-                    # Gil Dong Hong 이렇게 쪼개져있을 때 Gildong Hong으로 붙임
-                    authors = []
-                    for name in authors_origin:
-                        parts = name.split()
-                        if len(parts) >= 3:
-                            full_name = parts[0] + parts[1].lower()
-                            authors.append(full_name)
-                        else:
-                            authors.append(name)
+                    # # Gil Dong Hong 이렇게 쪼개져있을 때 Gildong Hong으로 붙임
+                    # authors = []
+                    # for name in authors_origin:
+                    #     parts = name.split()
+                    #     if len(parts) >= 3:
+                    #         full_name = parts[0] + parts[1].lower()
+                    #         authors.append(full_name)
+                    #     else:
+                    #         authors.append(name)
+                    authors = authors_origin
 
                     # 1저자가 한국인
                     if self.option == 1:
@@ -307,12 +308,20 @@ class PCSSEARCH:
     def koreanChecker(self, name):
         
         if self.possible == True:
-            if name.split()[-1] in self.last_name_list and name.split()[0] in self.first_name_list and float(self.single_name_llm(name)) > self.possible_stat:
+            if float(self.single_name_llm(name)) > self.possible_stat:
                 return True
         else:
-            if name.split()[-1] in self.last_name_list and name.split()[0] in self.first_name_list and float(self.single_name_llm(name)) > 0.5:
+            if float(self.single_name_llm(name)) > 0.5:
                 return True
         return False
+    
+        # if self.possible == True:
+        #     if name.split()[-1] in self.last_name_list and name.split()[0] in self.first_name_list and float(self.single_name_llm(name)) > self.possible_stat:
+            
+        # else:
+        #     if name.split()[-1] in self.last_name_list and name.split()[0] in self.first_name_list and float(self.single_name_llm(name)) > 0.5:
+            
+        # return False
 
 
     def single_name_llm(self, name):
@@ -618,7 +627,7 @@ class PCSSEARCH:
             os.system("clear")
 
 if __name__ == "__main__":
-    pcssearch_obj = PCSSEARCH(1, False, 2024, 2024)
+    pcssearch_obj = PCSSEARCH(5, False, 2024, 2024)
 
     conf_list = ['CCS']
     pcssearch_obj.main(conf_list)
