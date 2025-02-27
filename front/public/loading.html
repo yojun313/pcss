@@ -15,10 +15,36 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       background-color: #f9f9f9;
       color: #333;
     }
+    /* 전역 데이터(옵션) 표시용 테이블 */
+    #globalData {
+      width: 90%;
+      max-width: 800px;
+      margin-bottom: 20px;
+    }
+    #globalData table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    #globalData th, #globalData td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    #globalData th {
+      background-color: #f2f2f2;
+      color: #C80150;
+      font-size: 18px;
+    }
+    /* 기존 loading 영역 */
     #loading {
       text-align: center;
       margin-bottom: 20px;
@@ -46,7 +72,8 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    pre {
+    /* 출력 영역: Python 응답 전용 */
+    #output {
       margin-top: 20px;
       font-size: 1rem;
       line-height: 1.5;
@@ -87,6 +114,18 @@
         background-color: #121212;
         color: #e0e0e0;
       }
+      #globalData table {
+        background-color: #2c2c2c;
+        color: #e0e0e0;
+        border-color: #444;
+      }
+      #globalData th {
+        background-color: #3a3a3a;
+        color: #ff88a2;
+      }
+      #globalData td {
+        background-color: #242424;
+      }
       #loading h1 {
         color: #ff88a2;
       }
@@ -97,7 +136,7 @@
         border: 5px solid #333;
         border-top: 5px solid #ff88a2;
       }
-      pre {
+      #output {
         color: #e0e0e0;
       }
       .footer {
@@ -115,20 +154,23 @@
       #loading p {
         font-size: 1rem;
       }
-      pre {
+      #output {
         font-size: 0.9rem;
       }
     }
   </style>
 </head>
 <body>
+  <!-- 전역 옵션 데이터 표시 영역 -->
+  <div id="globalData"></div>
+
   <div id="loading">
     <h1>Collecting Data...</h1>
     <p>DBLP CRAWLER is working...</p>
     <div class="spinner"></div>
   </div>
 
-  <!-- 출력 영역: 네모박스 없이 바로 텍스트로 표시 -->
+  <!-- Python 응답 출력 영역 -->
   <pre id="output"></pre>
 
   <script src="/socket.io/socket.io.js"></script>
@@ -137,61 +179,48 @@
       const socket = io(); // Socket.IO 연결
       const output = document.getElementById('output');
       const loading = document.getElementById('loading');
+      const globalDataDiv = document.getElementById('globalData');
       
+      // 전역 옵션 데이터 가져오기
       fetch('/loading-data')
-      .then(response => response.json())
-      .then(data => {
-        console.log('Global input data:', data);
-        const output = document.getElementById('output');
-        // 기존 출력 내용 초기화
-        output.innerHTML = '';
+        .then(response => response.json())
+        .then(data => {
+          console.log('Global input data:', data);
+          // 테이블 생성
+          const table = document.createElement('table');
 
-        // 테이블 생성
-        const table = document.createElement('table');
-        table.style.width = '100%';
-        table.style.borderCollapse = 'collapse';
-        table.style.margin = '0 auto';
+          // 테이블 헤더 생성
+          const headerRow = document.createElement('tr');
+          const thField = document.createElement('th');
+          thField.textContent = 'Field';
+          const thValue = document.createElement('th');
+          thValue.textContent = 'Value';
+          headerRow.appendChild(thField);
+          headerRow.appendChild(thValue);
+          table.appendChild(headerRow);
 
-        // 테이블 헤더 생성 (옵션)
-        const headerRow = document.createElement('tr');
-        const thField = document.createElement('th');
-        thField.textContent = 'Field';
-        thField.style.border = '1px solid #ddd';
-        thField.style.padding = '8px';
-        const thValue = document.createElement('th');
-        thValue.textContent = 'Value';
-        thValue.style.border = '1px solid #ddd';
-        thValue.style.padding = '8px';
-        headerRow.appendChild(thField);
-        headerRow.appendChild(thValue);
-        table.appendChild(headerRow);
-
-        // 데이터 항목 순회하여 행 생성
-        for (const key in data) {
-          const row = document.createElement('tr');
-          const cellKey = document.createElement('td');
-          cellKey.textContent = key;
-          cellKey.style.border = '1px solid #ddd';
-          cellKey.style.padding = '8px';
-          const cellValue = document.createElement('td');
-          // 만약 값이 배열이라면 콤마로 구분된 문자열로 표시
-          if (Array.isArray(data[key])) {
-            cellValue.textContent = data[key].join(', ');
-          } else {
-            cellValue.textContent = data[key];
+          // 데이터 항목 순회하여 행 생성
+          for (const key in data) {
+            const row = document.createElement('tr');
+            const cellKey = document.createElement('td');
+            cellKey.textContent = key;
+            const cellValue = document.createElement('td');
+            if (Array.isArray(data[key])) {
+              cellValue.textContent = data[key].join(', ');
+            } else {
+              cellValue.textContent = data[key];
+            }
+            row.appendChild(cellKey);
+            row.appendChild(cellValue);
+            table.appendChild(row);
           }
-          cellValue.style.border = '1px solid #ddd';
-          cellValue.style.padding = '8px';
-          row.appendChild(cellKey);
-          row.appendChild(cellValue);
-          table.appendChild(row);
-        }
-        output.appendChild(table);
-      })
-      .catch(err => {
-        console.error('Loading data fetch error:', err);
-      });
-
+          // globalDataDiv에 테이블 추가
+          globalDataDiv.appendChild(table);
+        })
+        .catch(err => {
+          console.error('Loading data fetch error:', err);
+        });
+      
       // Python 실행 요청
       socket.emit('start-python');
 
