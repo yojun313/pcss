@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PCSS Result</title>
   <style>
-    /* 기본 스타일 */
+    /* 기본 라이트 모드 스타일 */
     body {
       font-family: Arial, sans-serif;
       margin: 10px;
@@ -144,33 +144,31 @@
     }
     .footer {
       text-align: center;
-      font-size: 12px;  /* 글자 작게 */
+      font-size: 12px;
       color: #666;
       margin-top: 20px;
       padding: 10px 0;
       display: flex;
-      justify-content: center; /* 가운데 정렬 */
-      align-items: center; /* 세로 정렬 */
-      gap: 5px; /* 요소 간 간격 */
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
     }
-    
     .footer-link {
-        color: #007bff;
-        text-decoration: none;
-        display: flex;
-        align-items: center; /* 글자와 로고 수직 정렬 */
-        gap: 5px; /* 글자와 로고 간격 */
+      color: #007bff;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
-    
     .footer-link:hover {
-        text-decoration: underline;
+      text-decoration: underline;
+    }
+    .github-logo {
+      width: 14px;
+      height: 14px;
+      vertical-align: middle;
     }
     
-    .github-logo {
-        width: 14px;  /* 로고 크기 작게 */
-        height: 14px;
-        vertical-align: middle;
-    }
     /* 다크 모드 스타일 */
     @media (prefers-color-scheme: dark) {
       body {
@@ -179,7 +177,7 @@
       }
       .container {
         background-color: #242424;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.8);
       }
       h1 {
         color: #ff88a2;
@@ -201,16 +199,22 @@
       .year-section, .conference-section, .card {
         background-color: #333;
         border-color: #444;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.8);
       }
       .year-header, .conference-header {
         background-color: #3a3a3a;
         color: #ff88a2;
       }
+      .card-title {
+        color: #e0e0e0;
+      }
       .authors li a,
       a.conference-link,
       a.author-link {
         color: #ff88a2;
+      }
+      .source-link {
+        color: #4da6ff;
       }
       .footer {
         color: #aaa;
@@ -219,7 +223,6 @@
         color: #4da6ff;
       }
     }
-
   </style>
 </head>
 <body>
@@ -274,7 +277,7 @@
       function createToggleHeader(text, headerClass) {
         const header = document.createElement("div");
         header.className = headerClass;
-        header.innerHTML = text + '<span class="toggle-icon" style="margin-left:auto";>▼</span>';
+        header.innerHTML = text + '<span class="toggle-icon" style="margin-left:auto;">▼</span>';
         header.addEventListener("click", function() {
           const content = header.nextElementSibling;
           const icon = header.querySelector(".toggle-icon");
@@ -359,7 +362,7 @@
               });
               
               authorHeader.innerHTML = `${linkHtmls.join(', ')}<span class="toggle-icon" style="margin-left:auto;">▼</span>`;
-              // 토글 아이콘는 createToggleHeader 함수를 쓸 수도 있으나 여기서는 이벤트 핸들러 직접 추가
+              // 토글 기능 이벤트 추가
               authorHeader.addEventListener("click", () => {
                   const content = authorSection.querySelector(".year-content");
                   const icon = authorHeader.querySelector(".toggle-icon");
@@ -403,7 +406,6 @@
                       confToggleIcon.style.marginLeft = "auto";
                       confToggleIcon.textContent = "▼";
                       conferenceHeader.appendChild(confToggleIcon);
-                      // remove event listener from conferenceHeader and add it to confToggleIcon:
                       confToggleIcon.addEventListener("click", (event) => {
                         event.preventDefault();
                         event.stopPropagation();
@@ -416,7 +418,6 @@
                             confToggleIcon.textContent = "▶";
                         }
                       });
-
                       
                       const conferenceContent = document.createElement("div");
                       conferenceContent.className = "conference-content";
@@ -468,7 +469,5 @@
       <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="github-logo" alt="GitHub">Yojun Moon </a> 
     | Contact: <a href="mailto:yojun313@postech.ac.kr" class="footer-link">yojun313@postech.ac.kr</a>
   </footer>
-
-
 </body>
 </html>
