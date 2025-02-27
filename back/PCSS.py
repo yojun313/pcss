@@ -604,6 +604,7 @@ class PCSSEARCH:
 
             # 응답 확인
             if response.status_code == 200:
+                self.write_log(response.text)
                 result = response.json()['response']
                 result = result.replace('<think>', '').replace('</think>', '').replace('\n\n', '')
                 return result
