@@ -40,10 +40,7 @@ class Test:
 
             # 응답 확인
             if response.status_code == 200:
-                if self.com == 'z8':
-                    result = response.json()['result']
-                else:
-                    result = response.json()['response']
+                result = response.json()['response']
                 result = result.replace('<think>', '').replace('</think>', '').replace('\n\n', '')
                 print(result)
             else:
@@ -54,5 +51,5 @@ class Test:
 
 if __name__ == "__main__":
     test = Test()
-    query = "What is the capital of Korea?"
+    query = "Who are you?"
     test.main(query)
