@@ -12,7 +12,7 @@ const { spawn } = require('child_process');
 
 const server = http.createServer(app);
 const io = new Server(server);
-const port = 80;
+const port = 3000;
 
 // 로그 파일을 저장할 디렉토리
 const logDir = path.join(__dirname, 'log');
