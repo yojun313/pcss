@@ -7,6 +7,11 @@
   <title>Loading...</title>
   <style>
     /* 수정된 body 스타일: 수직 전체 채움, 컬럼 방향 */
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      color: rgba(200, 1, 80, 1);
+    }
     body {
       margin: 0;
       padding: 0;
@@ -134,6 +139,9 @@
     }
     /* 다크 모드 스타일 */
     @media (prefers-color-scheme: dark) {
+      h1 {
+        color: #ff88a2;
+      }
       body {
         background-color: #121212;
         color: #e0e0e0;
@@ -193,6 +201,7 @@
 </head>
 <body>
   <div class="main-content-wrapper">
+    <h1>PCSS: POSTECH Computer Scientist Search</h1>
     <div class="wrapper">
       <!-- 왼쪽 열: 옵션 데이터 테이블 -->
       <div class="left-column" id="globalData"></div>
@@ -254,7 +263,7 @@
           // 테이블 헤더 생성
           const headerRow = document.createElement('tr');
           const thField = document.createElement('th');
-          thField.textContent = 'Field';
+          thField.textContent = 'Options';
           const thValue = document.createElement('th');
           thValue.textContent = 'Value';
           headerRow.appendChild(thField);
