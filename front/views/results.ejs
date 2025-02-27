@@ -4,153 +4,106 @@
   <link rel="icon" type="image/png" href="/favicon.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PCSS Result</title>
+  <title>Loading...</title>
   <style>
-    /* 기본 라이트 모드 스타일 */
+    /* 뷰포트 전체를 사용하여 중앙 정렬 */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
     body {
       font-family: Arial, sans-serif;
-      margin: 10px;
-      background-color: #f8f9fa;
+      background-color: #f9f9f9;
       color: #333;
-      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .container {
-      padding: 15px;
-      background: #ffffff;
-      border-radius: 6px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      overflow-x: auto;
+    /* 중앙 정렬 wrapper */
+    .wrapper {
+      width: 90%;
       max-width: 1200px;
-      margin: 0 auto;
+      display: flex;
+      gap: 20px;
     }
-    h1 {
-      text-align: center;
-      font-size: 35px;
-      font-weight: bold;
-      margin-bottom: 30px;
-      color: #C80150;
+    /* 왼쪽 열: 옵션 데이터 테이블 */
+    .left-column {
+      flex: 1;
     }
-    /* 테이블 스타일 (검색 옵션 영역) */
+    /* 오른쪽 열: 로딩 및 Python 출력 영역 */
+    .right-column {
+      flex: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    /* 옵션 테이블 스타일 */
     .options-table {
       width: 100%;
       border-collapse: separate; /* 둥근 모서리를 위해 separate 사용 */
       border-spacing: 0;
-      margin-bottom: 20px;
       background-color: #ffffff;
       color: #333;
       border: 1px solid #ddd;
-      border-radius: 6px; /* 둥근 모서리 적용 */
+      border-radius: 6px;
       overflow: hidden;
+      margin-bottom: 20px;
     }
-    .options-table th,
-    .options-table td {
+    .options-table th, .options-table td {
       padding: 10px;
       border: 1px solid #ddd;
+      text-align: left;
     }
     .options-table th {
       background-color: #f2f2f2;
       color: #C80150;
       font-size: 18px;
-      text-align: left;
     }
     .option-label {
       background-color: #fafafa;
       font-weight: bold;
     }
-    /* 섹션 스타일 */
-    .year-section, .conference-section {
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      background-color: #ffffff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    /* 로딩 영역 스타일 */
+    #loading {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #loading h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #C80150;
+    }
+    #loading p {
+      font-size: 1.2rem;
       margin-bottom: 10px;
-      padding: 10px;
+      color: #555;
     }
-    .year-header, .conference-header {
-      font-size: 14px;
-      color: #C80150;
-      font-weight: bold;
-      padding: 5px 10px;
-      background-color: #f2f2f2;
-      cursor: pointer;
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
+    .spinner {
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #C80150;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
     }
-    .year-content, .conference-content {
-      padding: 5px 10px;
-      display: block;
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
-    .card {
-      margin: 5px 0;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      background-color: #ffffff;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    .card-title {
-      font-size: 14px;
-      font-weight: bold;
+    /* Python 출력 영역 */
+    #output {
+      margin-top: 20px;
+      font-size: 1rem;
+      line-height: 1.5;
       color: #333;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      text-align: center;
+      width: 100%;
     }
-    .authors {
-      list-style: none;
-      padding: 0;
-      margin: 3px 0;
-      font-size: 13px;
-    }
-    .authors li {
-      display: inline;
-      margin-right: 5px;
-    }
-    .authors li a,
-    a.conference-link,
-    a.author-link {
-      text-decoration: none;
-      color: #C80150;
-    }
-    a.conference-link:hover,
-    a.author-link:hover,
-    .authors li a:hover {
-      text-decoration: underline;
-    }
-    .source-link {
-      font-size: 13px;
-      color: #007bff;
-      text-decoration: none;
-      display: inline-block;
-      margin-top: 3px;
-    }
-    .source-link:hover {
-      text-decoration: underline;
-    }
-    /* 반응형 디자인 */
-    @media (max-width: 768px) {
-      body {
-        font-size: 12px;
-      }
-      .container {
-        padding: 10px;
-        max-width: 100%;
-      }
-      h1 {
-        font-size: 24px;
-      }
-      .year-header, .conference-header {
-        font-size: 12px;
-        padding: 8px 10px;
-      }
-      .card-title {
-        font-size: 13px;
-      }
-      .authors {
-        font-size: 12px;
-      }
-      table th, table td {
-        padding: 8px;
-      }
-    }
+    /* Footer 스타일 */
     .footer {
       text-align: center;
       font-size: 12px;
@@ -177,28 +130,16 @@
       height: 14px;
       vertical-align: middle;
     }
-    
     /* 다크 모드 스타일 */
     @media (prefers-color-scheme: dark) {
       body {
         background-color: #121212;
         color: #e0e0e0;
       }
-      .container {
-        background-color: #242424;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.8);
-      }
-      h1 {
-        color: #ff88a2;
-      }
       .options-table {
         background-color: #2c2c2c;
         color: #e0e0e0;
         border: 1px solid #444;
-      }
-      .options-table th,
-      .options-table td {
-        border-color: #444;
       }
       .options-table th {
         background-color: #3a3a3a;
@@ -211,26 +152,18 @@
       .options-table td {
         background-color: #242424;
       }
-    }
-      .year-section, .conference-section, .card {
-        background-color: #333;
-        border-color: #444;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.8);
-      }
-      .year-header, .conference-header {
-        background-color: #3a3a3a;
+      #loading h1 {
         color: #ff88a2;
       }
-      .card-title {
+      #loading p {
+        color: #aaa;
+      }
+      .spinner {
+        border: 5px solid #333;
+        border-top: 5px solid #ff88a2;
+      }
+      #output {
         color: #e0e0e0;
-      }
-      .authors li a,
-      a.conference-link,
-      a.author-link {
-        color: #ff88a2;
-      }
-      .source-link {
-        color: #4da6ff;
       }
       .footer {
         color: #aaa;
@@ -239,250 +172,166 @@
         color: #4da6ff;
       }
     }
+    /* 반응형 디자인 */
+    @media (max-width: 768px) {
+      .wrapper {
+        flex-direction: column;
+      }
+      #loading h1 {
+        font-size: 1.5rem;
+      }
+      #loading p {
+        font-size: 1rem;
+      }
+      #output {
+        font-size: 0.9rem;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>PCSS Result</h1>
-    
-    <% 
-      // 옵션 번호를 설명 텍스트로 변환하는 함수
-      function getOptionText(optionValue) {
-        switch(optionValue) {
-          case "1": return "1저자가 한국인";
-          case "2": return "1저자 또는 2저자가 한국인";
-          case "3": return "마지막 저자가 한국인";
-          case "4": return "1저자 또는 마지막 저자가 한국인";
-          case "5": return "저자 중 한 명 이상이 한국인";
-          default: return "옵션 미선택";
-        }
-      }
-    %>
-    
-    <!-- 검색 옵션을 테이블로 표시 -->
-    <table class="options-table">
-      <thead>
-        <tr>
-          <th colspan="2">검색 옵션</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="option-label">선택 옵션</td>
-          <td><%= getOptionText(options.option) %></td>
-        </tr>
-        <tr>
-          <td class="option-label">연도 범위</td>
-          <td><%= options.startyear %> ~ <%= options.endyear %></td>
-        </tr>
-        <tr>
-          <td class="option-label">불확실 포함 여부</td>
-          <td><%= options.Possible === 'True' ? "포함" : "미포함" %></td>
-        </tr>
-        <tr>
-          <td class="option-label">선택 학회</td>
-          <td><%= options.selectedConferences.join(', ') %></td>
-        </tr>
-      </tbody>
-    </table>
-    
-    <div id="papers-container"></div>
-    
-    <script>
-      // 헬퍼 함수: 토글 가능한 헤더 생성
-      function createToggleHeader(text, headerClass) {
-        const header = document.createElement("div");
-        header.className = headerClass;
-        header.innerHTML = text + '<span class="toggle-icon" style="margin-left:auto;">▼</span>';
-        header.addEventListener("click", function() {
-          const content = header.nextElementSibling;
-          const icon = header.querySelector(".toggle-icon");
-          if (!content.style.display || content.style.display === "none") {
-            content.style.display = "block";
-            icon.textContent = "▼";
-          } else {
-            content.style.display = "none";
-            icon.textContent = "▶";
-          }
-        });
-        return header;
-      }
-      
-      // papers 변수는 서버에서 전달된 데이터
-      const papers = <%- JSON.stringify(pythonResult) %>;
-      const container = document.getElementById("papers-container");
-      
-      if (!papers || Object.keys(papers).length === 0) {
-          alert("검색 조건을 만족하는 논문이 존재하지 않습니다.");
-          container.innerHTML = `
-              <div style="text-align:center; padding:20px; background:#fff4f4; border:1px solid #f5c2c2; border-radius:8px; color:#c71d1d;">
-                  검색 조건을 만족하는 논문이 존재하지 않습니다.
-              </div>`;
-      } else {
-          // 그룹화: target_author > year > conference
-          const groupedPapers = {};
-          for (const key in papers) {
-              const paper = papers[key];
-              paper.target_author.forEach(author => {
-                  if (!groupedPapers[author]) groupedPapers[author] = {};
-                  if (!groupedPapers[author][paper.year]) groupedPapers[author][paper.year] = {};
-                  if (!groupedPapers[author][paper.year][paper.conference]) groupedPapers[author][paper.year][paper.conference] = [];
-                  groupedPapers[author][paper.year][paper.conference].push(paper);
-              });
-          }
-          
-          // 각 저자별 섹션 생성
-          for (const author in groupedPapers) {
-              const authorSection = document.createElement("div");
-              authorSection.className = "year-section";
-              
-              // 저자 헤더 생성
-              const authorHeader = document.createElement("div");
-              authorHeader.className = "year-header";
-              
-              // 저자 문자열에서 이름과 괄호 부분 분리
-              const bracketIndex = author.indexOf('(');
-              let nameOnly = author, bracketPart = '';
-              if (bracketIndex !== -1) {
-                  nameOnly = author.substring(0, bracketIndex).trim();
-                  bracketPart = author.substring(bracketIndex);
-              }
-              
-              // 첫 번째 논문 데이터를 참조하여 저자 URL 결정
-              const firstYear = Object.keys(groupedPapers[author])[0];
-              const firstConference = Object.keys(groupedPapers[author][firstYear])[0];
-              const referencePaper = groupedPapers[author][firstYear][firstConference][0];
-              let targetAuthorUrl = '#';
-              if (referencePaper.author_name && referencePaper.author_url) {
-                  const matchedIndex = referencePaper.author_name.findIndex(n => n.includes(nameOnly));
-                  if (matchedIndex !== -1) {
-                      targetAuthorUrl = referencePaper.author_url[matchedIndex];
-                  }
-              }
-              
-              // 저자 이름을 링크로 변환 (콤마 구분된 경우 처리)
-              const authorsArray = author.split(',').map(a => a.trim());
-              const linkHtmls = authorsArray.map(authorStr => {
-                  const idx = authorStr.indexOf('(');
-                  let nameOnlyInner = authorStr, bracketPartInner = '';
-                  if (idx !== -1) {
-                      nameOnlyInner = authorStr.substring(0, idx).trim();
-                      bracketPartInner = authorStr.substring(idx);
-                  }
-                  let authorUrl = '#';
-                  if (referencePaper.author_name && referencePaper.author_url) {
-                      const i = referencePaper.author_name.findIndex(n => n.includes(nameOnlyInner));
-                      if (i !== -1) authorUrl = referencePaper.author_url[i];
-                  }
-                  return `<a href="${authorUrl}" class="author-link" target="_blank">${nameOnlyInner}</a>${bracketPartInner}`;
-              });
-              
-              authorHeader.innerHTML = `${linkHtmls.join(', ')}<span class="toggle-icon" style="margin-left:auto;">▼</span>`;
-              // 토글 기능 이벤트 추가
-              authorHeader.addEventListener("click", () => {
-                  const content = authorSection.querySelector(".year-content");
-                  const icon = authorHeader.querySelector(".toggle-icon");
-                  if (!content.style.display || content.style.display === "none") {
-                      content.style.display = "block";
-                      icon.textContent = "▼";
-                  } else {
-                      content.style.display = "none";
-                      icon.textContent = "▶";
-                  }
-              });
-              
-              const authorContent = document.createElement("div");
-              authorContent.className = "year-content";
-              
-              // 연도별 섹션 생성
-              for (const year in groupedPapers[author]) {
-                  const yearSection = document.createElement("div");
-                  yearSection.className = "conference-section";
-                  
-                  // 연도 헤더: toggle 기능 추가
-                  const yearHeaderEl = createToggleHeader(`Year: ${year}`, "conference-header");
-                  yearSection.appendChild(yearHeaderEl);
-                  
-                  const yearContent = document.createElement("div");
-                  yearContent.className = "conference-content";
-                  
-                  // 학회별 섹션 생성
-                  for (const conference in groupedPapers[author][year]) {
-                      const conferenceSection = document.createElement("div");
-                      conferenceSection.className = "conference-section";
-                      
-                      const confPaper = groupedPapers[author][year][conference][0];
-                      const conferenceLink = confPaper.source || "#";
-                      const conferenceHeader = document.createElement("div");
-                      conferenceHeader.className = "conference-header";
-                      conferenceHeader.innerHTML = `<a href="${conferenceLink}" target="_blank" class="conference-link">Conference: ${conference}</a>`;
-                      // 토글 아이콘 추가
-                      const confToggleIcon = document.createElement("span");
-                      confToggleIcon.className = "toggle-icon";
-                      confToggleIcon.style.marginLeft = "auto";
-                      confToggleIcon.textContent = "▼";
-                      conferenceHeader.appendChild(confToggleIcon);
-                      confToggleIcon.addEventListener("click", (event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        const content = conferenceSection.querySelector(".conference-content");
-                        if (!content.style.display || content.style.display === "none") {
-                            content.style.display = "block";
-                            confToggleIcon.textContent = "▼";
-                        } else {
-                            content.style.display = "none";
-                            confToggleIcon.textContent = "▶";
-                        }
-                      });
-                      
-                      const conferenceContent = document.createElement("div");
-                      conferenceContent.className = "conference-content";
-                      
-                      // 논문 카드 생성
-                      groupedPapers[author][year][conference].forEach(paper => {
-                          const card = document.createElement("div");
-                          card.className = "card";
-                          
-                          const titleEl = document.createElement("div");
-                          titleEl.className = "card-title";
-                          titleEl.textContent = `Title: ${paper.title}`;
-                          card.appendChild(titleEl);
-                          
-                          const authorsList = document.createElement("ul");
-                          authorsList.className = "authors";
-                          paper.author_name.forEach((a, index) => {
-                              const li = document.createElement("li");
-                              const link = document.createElement("a");
-                              link.href = paper.author_url[index] || "#";
-                              link.textContent = a;
-                              link.target = "_blank";
-                              li.appendChild(link);
-                              authorsList.appendChild(li);
-                          });
-                          card.appendChild(authorsList);
-                          conferenceContent.appendChild(card);
-                      });
-                      
-                      conferenceSection.appendChild(conferenceHeader);
-                      conferenceSection.appendChild(conferenceContent);
-                      yearContent.appendChild(conferenceSection);
-                  }
-                  
-                  yearSection.appendChild(yearContent);
-                  authorContent.appendChild(yearSection);
-              }
-              
-              authorSection.appendChild(authorHeader);
-              authorSection.appendChild(authorContent);
-              container.appendChild(authorSection);
-          }
-      }
-    </script>
+  <div class="wrapper">
+    <!-- 왼쪽 열: 글로벌 옵션 데이터 테이블 -->
+    <div class="left-column" id="globalData"></div>
+    <!-- 오른쪽 열: 로딩 영역과 Python 출력 -->
+    <div class="right-column">
+      <div id="loading">
+        <h1>Collecting Data...</h1>
+        <p>DBLP CRAWLER is working...</p>
+        <div class="spinner"></div>
+      </div>
+      <pre id="output"></pre>
+    </div>
   </div>
+  
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const socket = io();
+      const output = document.getElementById('output');
+      const globalDataDiv = document.getElementById('globalData');
+
+      // 전역 옵션 데이터 가져오기
+      fetch('/loading-data')
+        .then(response => response.json())
+        .then(data => {
+          console.log('Global input data:', data);
+          
+          // 사용자가 지정할 수 있는 테이블 열 이름 (예시)
+          const columns = {
+            option: "선택 옵션",
+            startyear: "연도 범위",
+            Possible: "불확실 포함 여부",
+            selectedConferences: "선택 학회"
+          };
+
+          // 옵션 변환 함수
+          function getOptionText(optionValue) {
+            switch(optionValue) {
+              case "1": return "1저자가 한국인";
+              case "2": return "1저자 또는 2저자가 한국인";
+              case "3": return "마지막 저자가 한국인";
+              case "4": return "1저자 또는 마지막 저자가 한국인";
+              case "5": return "저자 중 한 명 이상이 한국인";
+              default: return "옵션 미선택";
+            }
+          }
+
+          // 테이블 생성
+          const table = document.createElement('table');
+          table.className = 'options-table';
+
+          // 테이블 헤더 생성
+          const headerRow = document.createElement('tr');
+          const thField = document.createElement('th');
+          thField.textContent = 'Field';
+          const thValue = document.createElement('th');
+          thValue.textContent = 'Value';
+          headerRow.appendChild(thField);
+          headerRow.appendChild(thValue);
+          table.appendChild(headerRow);
+
+          // 각 필드에 대해 행 생성
+          for (const key in columns) {
+            const row = document.createElement('tr');
+            const cellKey = document.createElement('td');
+            cellKey.textContent = columns[key];
+            cellKey.className = 'option-label';
+            const cellValue = document.createElement('td');
+
+            let value;
+            if (key === 'option') {
+              value = getOptionText(data[key]);
+            } else if (key === 'selectedConferences') {
+              value = Array.isArray(data[key]) ? data[key].join(', ') : data[key];
+            } else if (key === 'Possible') {
+              value = data[key] === 'True' ? "포함" : "미포함";
+            } else if (key === 'startyear' || key === 'endyear') {
+              // '연도 범위'는 따로 처리하여 두 값을 합침 (이미 columns에 'startyear'만 포함되어 있다면, 수정 필요)
+              value = data['startyear'] + " ~ " + data['endyear'];
+              // 건너뛰도록 continue 할 수 있으나, 여기서는 단순히 설정
+            } else {
+              value = data[key];
+            }
+            cellValue.textContent = value;
+            row.appendChild(cellKey);
+            row.appendChild(cellValue);
+            table.appendChild(row);
+          }
+          globalDataDiv.appendChild(table);
+        })
+        .catch(err => {
+          console.error('Loading data fetch error:', err);
+        });
+      
+      // Python 실행 요청
+      socket.emit('start-python');
+
+      // Python stdout 수신
+      socket.on('python_output', (data) => {
+        const trimmed = data.trim();
+        if (trimmed.startsWith('PATH=') && trimmed.endsWith('.json')) {
+          return; // 이 경우 출력하지 않음
+        }
+        output.innerHTML = `<div>${data}</div>`;
+      });
+
+      // Python stderr 수신
+      socket.on('python_error', (data) => {
+        output.innerHTML = `<div style="color: red;">Error: ${data}</div>`;
+      });
+
+      // Python 실행 완료 후 결과 전송
+      socket.on('redirect_to_results', (response) => {
+        fetch('/results', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(response),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              console.error('POST /results 실패:', response.statusText);
+              alert('Failed to load results.');
+              return;
+            }
+            return response.text();
+          })
+          .then((html) => {
+            document.open();
+            document.write(html);
+            window.history.pushState({}, '', '/results');
+            document.close();
+          })
+          .catch((err) => {
+            console.error('POST /results 요청 실패:', err);
+          });
+      });
+    });
+  </script>    
   <footer class="footer">
     Developed By 
     <a href="https://github.com/yojun313" target="_blank" class="footer-link">
-      <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="github-logo" alt="GitHub">Yojun Moon </a> 
+      <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="github-logo" alt="GitHub">Yojun Moon</a> 
     | Contact: <a href="mailto:yojun313@postech.ac.kr" class="footer-link">yojun313@postech.ac.kr</a>
   </footer>
 </body>
