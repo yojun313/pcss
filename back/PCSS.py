@@ -53,7 +53,7 @@ class PCSSEARCH:
         self.llm_api_option = True
         self.api_url = f"http://{LLM_SERVER}:{PORT}/api/process"
 
-        self.llm_model = 'llama3.1:8b'
+        self.llm_model = 'llama3.3:70b-instruct-q8_0'
         if self.llm_api_option == False:
             self.llm = OllamaLLM(model=self.llm_model)
 
