@@ -20,8 +20,16 @@ import json
 
 TIMEOUT = 10
 TRYNUM = 3
-LLM_SERVER = '121.152.225.232'
-PORT = "3333"
+
+com = 'cluster'
+
+if com == 'z8':
+    LLM_SERVER = '121.152.225.232'
+    PORT = "3333"
+elif com == 'cluster':
+    LLM_SERVER = '141.223.16.196'
+    PORT = "8089"
+    
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -596,7 +604,7 @@ class PCSSEARCH:
 
             # 응답 확인
             if response.status_code == 200:
-                result = response.json()['result']
+                result = response.json()['response']
                 result = result.replace('<think>', '').replace('</think>', '').replace('\n\n', '')
                 return result
             else:
