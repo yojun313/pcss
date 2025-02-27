@@ -137,6 +137,60 @@
       const socket = io(); // Socket.IO 연결
       const output = document.getElementById('output');
       const loading = document.getElementById('loading');
+      
+      fetch('/loading-data')
+      .then(response => response.json())
+      .then(data => {
+        console.log('Global input data:', data);
+        const output = document.getElementById('output');
+        // 기존 출력 내용 초기화
+        output.innerHTML = '';
+
+        // 테이블 생성
+        const table = document.createElement('table');
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
+        table.style.margin = '0 auto';
+
+        // 테이블 헤더 생성 (옵션)
+        const headerRow = document.createElement('tr');
+        const thField = document.createElement('th');
+        thField.textContent = 'Field';
+        thField.style.border = '1px solid #ddd';
+        thField.style.padding = '8px';
+        const thValue = document.createElement('th');
+        thValue.textContent = 'Value';
+        thValue.style.border = '1px solid #ddd';
+        thValue.style.padding = '8px';
+        headerRow.appendChild(thField);
+        headerRow.appendChild(thValue);
+        table.appendChild(headerRow);
+
+        // 데이터 항목 순회하여 행 생성
+        for (const key in data) {
+          const row = document.createElement('tr');
+          const cellKey = document.createElement('td');
+          cellKey.textContent = key;
+          cellKey.style.border = '1px solid #ddd';
+          cellKey.style.padding = '8px';
+          const cellValue = document.createElement('td');
+          // 만약 값이 배열이라면 콤마로 구분된 문자열로 표시
+          if (Array.isArray(data[key])) {
+            cellValue.textContent = data[key].join(', ');
+          } else {
+            cellValue.textContent = data[key];
+          }
+          cellValue.style.border = '1px solid #ddd';
+          cellValue.style.padding = '8px';
+          row.appendChild(cellKey);
+          row.appendChild(cellValue);
+          table.appendChild(row);
+        }
+        output.appendChild(table);
+      })
+      .catch(err => {
+        console.error('Loading data fetch error:', err);
+      });
 
       // Python 실행 요청
       socket.emit('start-python');
