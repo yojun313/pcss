@@ -23,7 +23,7 @@ class Test:
             SERVER = info['z8']
             self.com = 'z8'
 
-        self.LLM_model = "llama3.1:8b"
+        self.LLM_model = "llama3.3:70b-instruct-q8_0"
         self.api_url = f"http://{SERVER[0]}:{SERVER[1]}/api/process"
 
         self.api_model_answer(query)
