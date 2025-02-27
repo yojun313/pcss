@@ -18,8 +18,10 @@ class Test:
         print("\n[Answer]\n")
         if com == 1:
             SERVER = info['cluster']
+            self.com = 'cluster'
         else:
             SERVER = info['z8']
+            self.com = 'z8'
 
         self.LLM_model = "llama3.1:8b"
         self.api_url = f"http://{SERVER[0]}:{SERVER[1]}/api/process"
@@ -38,7 +40,10 @@ class Test:
 
             # 응답 확인
             if response.status_code == 200:
-                result = response.json()['result']
+                if self.com == 'z8':
+                    result = response.json()['result']
+                else:
+                    result = response.json()['response']
                 result = result.replace('<think>', '').replace('</think>', '').replace('\n\n', '')
                 print(result)
             else:
