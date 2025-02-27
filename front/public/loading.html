@@ -6,31 +6,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Loading...</title>
   <style>
-    /* 기본 라이트 모드 스타일 */
-    body {
+    /* 뷰포트 전체를 사용하여 중앙 정렬 */
+    html, body {
+      height: 100%;
       margin: 0;
       padding: 0;
+    }
+    body {
       font-family: Arial, sans-serif;
       background-color: #f9f9f9;
       color: #333;
-    }
-    /* 전체 레이아웃: 좌우 2열 배치 */
-    .flex-container {
       display: flex;
-      flex-wrap: wrap;
+      align-items: center;
       justify-content: center;
-      gap: 20px;
+    }
+    /* 중앙 정렬 wrapper */
+    .wrapper {
       width: 90%;
       max-width: 1200px;
-      margin: 20px auto;
+      display: flex;
+      gap: 20px;
     }
+    /* 왼쪽 열: 옵션 데이터 테이블 */
     .left-column {
       flex: 1;
-      min-width: 300px;
     }
+    /* 오른쪽 열: 로딩 및 Python 출력 영역 */
     .right-column {
       flex: 2;
-      min-width: 300px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     /* 옵션 테이블 스타일 */
     .options-table {
@@ -58,7 +64,7 @@
       background-color: #fafafa;
       font-weight: bold;
     }
-    /* 로딩 및 출력 영역 */
+    /* 로딩 영역 스타일 */
     #loading {
       text-align: center;
       margin-bottom: 20px;
@@ -86,7 +92,7 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    /* Python 응답 출력 영역 */
+    /* Python 출력 영역 */
     #output {
       margin-top: 20px;
       font-size: 1rem;
@@ -95,6 +101,7 @@
       white-space: pre-wrap;
       word-wrap: break-word;
       text-align: center;
+      width: 100%;
     }
     /* Footer 스타일 */
     .footer {
@@ -167,6 +174,9 @@
     }
     /* 반응형 디자인 */
     @media (max-width: 768px) {
+      .wrapper {
+        flex-direction: column;
+      }
       #loading h1 {
         font-size: 1.5rem;
       }
@@ -176,17 +186,14 @@
       #output {
         font-size: 0.9rem;
       }
-      .flex-container {
-        flex-direction: column;
-      }
     }
   </style>
 </head>
 <body>
-  <div class="flex-container">
+  <div class="wrapper">
     <!-- 왼쪽 열: 글로벌 옵션 데이터 테이블 -->
     <div class="left-column" id="globalData"></div>
-    <!-- 오른쪽 열: 로딩 메시지 및 Python 응답 -->
+    <!-- 오른쪽 열: 로딩 영역과 Python 출력 -->
     <div class="right-column">
       <div id="loading">
         <h1>Collecting Data...</h1>
@@ -203,12 +210,33 @@
       const socket = io();
       const output = document.getElementById('output');
       const globalDataDiv = document.getElementById('globalData');
-      
+
       // 전역 옵션 데이터 가져오기
       fetch('/loading-data')
         .then(response => response.json())
         .then(data => {
           console.log('Global input data:', data);
+          
+          // 사용자가 지정할 수 있는 테이블 열 이름 (예시)
+          const columns = {
+            option: "선택 옵션",
+            startyear: "연도 범위",
+            Possible: "불확실 포함 여부",
+            selectedConferences: "선택 학회"
+          };
+
+          // 옵션 변환 함수
+          function getOptionText(optionValue) {
+            switch(optionValue) {
+              case "1": return "1저자가 한국인";
+              case "2": return "1저자 또는 2저자가 한국인";
+              case "3": return "마지막 저자가 한국인";
+              case "4": return "1저자 또는 마지막 저자가 한국인";
+              case "5": return "저자 중 한 명 이상이 한국인";
+              default: return "옵션 미선택";
+            }
+          }
+
           // 테이블 생성
           const table = document.createElement('table');
           table.className = 'options-table';
@@ -223,17 +251,29 @@
           headerRow.appendChild(thValue);
           table.appendChild(headerRow);
 
-          // 데이터 항목 순회하여 행 생성
-          for (const key in data) {
+          // 각 필드에 대해 행 생성
+          for (const key in columns) {
             const row = document.createElement('tr');
             const cellKey = document.createElement('td');
-            cellKey.textContent = key;
+            cellKey.textContent = columns[key];
+            cellKey.className = 'option-label';
             const cellValue = document.createElement('td');
-            if (Array.isArray(data[key])) {
-              cellValue.textContent = data[key].join(', ');
+
+            let value;
+            if (key === 'option') {
+              value = getOptionText(data[key]);
+            } else if (key === 'selectedConferences') {
+              value = Array.isArray(data[key]) ? data[key].join(', ') : data[key];
+            } else if (key === 'Possible') {
+              value = data[key] === 'True' ? "포함" : "미포함";
+            } else if (key === 'startyear' || key === 'endyear') {
+              // '연도 범위'는 따로 처리하여 두 값을 합침 (이미 columns에 'startyear'만 포함되어 있다면, 수정 필요)
+              value = data['startyear'] + " ~ " + data['endyear'];
+              // 건너뛰도록 continue 할 수 있으나, 여기서는 단순히 설정
             } else {
-              cellValue.textContent = data[key];
+              value = data[key];
             }
+            cellValue.textContent = value;
             row.appendChild(cellKey);
             row.appendChild(cellValue);
             table.appendChild(row);
@@ -291,7 +331,7 @@
   <footer class="footer">
     Developed By 
     <a href="https://github.com/yojun313" target="_blank" class="footer-link">
-      <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="github-logo" alt="GitHub">Yojun Moon </a> 
+      <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="github-logo" alt="GitHub">Yojun Moon</a> 
     | Contact: <a href="mailto:yojun313@postech.ac.kr" class="footer-link">yojun313@postech.ac.kr</a>
   </footer>
 </body>
