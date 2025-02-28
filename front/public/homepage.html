@@ -3,6 +3,7 @@
 <head>
   <link rel="icon" type="image/png" href="/favicon.png">
   <meta charset="UTF-8">
+  <!-- 모바일 대응을 위한 meta 태그 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PCSS</title>
   <style>
@@ -14,6 +15,7 @@
       background-color: #f9f9f9;
       color: #333;
     }
+
     .container {
       display: flex;
       flex-direction: row; /* 메인 콘텐츠와 선택된 컨퍼런스 리스트를 가로로 배치 */
@@ -21,15 +23,18 @@
       margin: auto;
       padding: 20px;
     }
+
     .main-content {
       flex: 3; /* 메인 콘텐츠가 더 많은 공간 차지 */
       padding-right: 20px;
     }
+
     h1 {
       text-align: center;
       margin-bottom: 40px;
       color: rgba(200, 1, 80, 1);
     }
+
     .form-section {
       display: flex;
       align-items: center;
@@ -41,16 +46,21 @@
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       margin-bottom: 30px;
+      /* 모바일에서 줄바꿈을 위해 추가 */
+      flex-wrap: wrap;
     }
+
     .form-group {
       display: flex;
       align-items: center;
       gap: 10px;
     }
+
     .form-group label {
       font-weight: bold;
       color: #34495e;
     }
+
     .form-group input,
     .form-group select {
       padding: 5px 10px;
@@ -59,6 +69,7 @@
       background-color: #fff;
       color: #333;
     }
+
     #submit-btn {
       padding: 10px 20px;
       background-color: rgba(200, 1, 80, 1);
@@ -69,14 +80,17 @@
       font-weight: bold;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
+
     #submit-btn:hover {
       background-color: rgb(194, 50, 108);
     }
+
     .select-all-container {
       display: flex;
       justify-content: flex-start;
       margin-bottom: 20px;
     }
+
     .select-btn {
       padding: 8px 15px;
       background-color: #34495e;
@@ -87,14 +101,17 @@
       font-size: 0.9rem;
       transition: background-color 0.3s ease;
     }
+
     .select-btn:hover {
       background-color: #2c3e50;
     }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 20px;
     }
+
     .card {
       background: #fff;
       border: 1px solid #ddd;
@@ -102,17 +119,21 @@
       padding: 20px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
+
     .card h2 {
       margin-top: 0;
       color: #34495e;
     }
+
     .checkbox-group {
       margin-top: 10px;
     }
+
     .checkbox-group label {
       display: block;
       margin-bottom: 5px;
     }
+
     /* Footer 스타일 */
     .footer {
       text-align: center;
@@ -125,6 +146,7 @@
       align-items: center;
       gap: 5px;
     }
+
     .footer-link {
       color: #007bff;
       text-decoration: none;
@@ -132,14 +154,17 @@
       align-items: center;
       gap: 5px;
     }
+
     .footer-link:hover {
       text-decoration: underline;
     }
+
     .github-logo {
       width: 14px;
       height: 14px;
       vertical-align: middle;
     }
+
     /* 다크 모드 스타일 */
     @media (prefers-color-scheme: dark) {
       body {
@@ -209,15 +234,31 @@
         background-color: #242424;
       }
     }
+
     /* 반응형 디자인 */
     @media (max-width: 768px) {
       body {
-        font-size: 12px;
+        font-size: 14px;
       }
       .container {
-        flex-direction: column;
-        padding: 10px;
+        flex-direction: column;  /* 세로 배치 */
         max-width: 100%;
+        padding: 10px;
+      }
+      .main-content {
+        padding-right: 0; /* 우측 여백 제거 */
+      }
+      .form-section {
+        flex-direction: column;
+        align-items: flex-start; /* 왼쪽 정렬 */
+        gap: 10px;
+      }
+      .form-group {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .select-all-container {
+        justify-content: center;
       }
       h1 {
         font-size: 24px;
@@ -233,7 +274,7 @@
 
       <!-- 드롭다운 메뉴와 입력 옵션 -->
       <div class="form-section">
-        <form id="filter-form" style="display: flex; gap: 20px; align-items: center;">
+        <form id="filter-form" style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
           <!-- 드롭다운 메뉴 -->
           <div class="form-group">
             <label for="dropdown">Select an Option:</label>
@@ -270,6 +311,7 @@
           <button type="button" id="submit-btn">Submit</button>
         </form>
       </div>
+
       <div class="select-all-container">
         <button class="select-btn" id="toggle-select-btn">모두 선택</button>
       </div>
