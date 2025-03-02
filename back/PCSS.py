@@ -93,7 +93,7 @@ class PCSSEARCH:
                 if match:
                     year = int(match.group())
                     if self.startyear <= year <= self.endyear:
-                        filtered_urls.append((url, year))
+                        filtered_urls.append((url, year, conf))
                         
             return filtered_urls
         except:
@@ -101,11 +101,11 @@ class PCSSEARCH:
             return []
 
     # 한 개의 Paper에 대한 크롤링 함수
-    async def paper_crawl(self, conf, url, year, session):
+    async def paper_crawl(self, conf, url, year, param, session):
         try:            
             self.printStatus(f"{year} {conf} Loading...", url=url)
             
-            record_path = os.path.join(self.db_path, conf, f"{year}_{conf}.html")
+            record_path = os.path.join(self.db_path, param, f"{year}_{param}.html")
             if os.path.exists(record_path):
                 with open(record_path, "r", encoding="utf-8") as file:
                     response = file.read()
@@ -240,7 +240,8 @@ class PCSSEARCH:
             for conf_url in conf_urls:
                 url = conf_url[0]
                 year = int(conf_url[1])
-                tasks.append(self.paper_crawl(conf_name, url, year, session))
+                param = conf_url[2]
+                tasks.append(self.paper_crawl(conf_name, url, year, param, session))
             results = await asyncio.gather(*tasks)
         except:
             self.write_log(traceback.format_exc())
