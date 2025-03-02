@@ -306,23 +306,12 @@
 
       // Python stdout 수신
       socket.on('python_output', (data) => {
-        // "PATH=...json" 같은 데이터는 무시
         const trimmed = data.trim();
         if (trimmed.startsWith('PATH=') && trimmed.endsWith('.json')) {
           return;
         }
-        
-        // 데이터를 줄 단위로 분리
-        const lines = data.split('\n').filter(line => line.trim() !== '');
-        
-        // 각 줄을 순차적으로 출력 (원한다면 setTimeout으로 딜레이를 줄 수도 있음)
-        lines.forEach(line => {
-          const newDiv = document.createElement('div');
-          newDiv.textContent = line;
-          output.appendChild(newDiv);
-        });
+        output.innerHTML = `<div>${data}</div>`;
       });
-      
 
       // Python stderr 수신
       socket.on('python_error', (data) => {
