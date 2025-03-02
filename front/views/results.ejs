@@ -105,17 +105,16 @@
       margin-right: 5px;
     }
     .authors a,
-      a.conference-link,
-      a.author-link {
-        text-decoration: none;
-        color: #C80150;  /* 원하는 색상으로 설정 */
-      }
-
-      .authors a:hover,
-      a.conference-link:hover,
-      a.author-link:hover {
-        text-decoration: underline;
-      }
+    a.conference-link,
+    a.author-link {
+      text-decoration: none;
+      color: #C80150;  /* 라이트모드에서 원하는 색상 */
+    }
+    .authors a:hover,
+    a.conference-link:hover,
+    a.author-link:hover {
+      text-decoration: underline;
+    }
     a.conference-link:hover,
     a.author-link:hover,
     .authors li a:hover {
@@ -165,7 +164,6 @@
       padding: 10px 0;
       /* 별도의 배경색이나 테두리 없이 깔끔하게 */
     }
-    
     /* footer 내부 컨테이너를 세로 정렬 */
     .footer-container {
       display: flex;
@@ -173,12 +171,10 @@
       align-items: center;
       gap: 5px;
     }
-    
     .footer-container p {
       margin: 0;
       font-weight: bold;
     }
-    
     /* 각 사용자 정보를 한 줄에 깔끔하게 정렬 */
     .user {
       display: flex;
@@ -186,34 +182,28 @@
       gap: 5px;
       font-size: 13px;
     }
-    
     /* 링크 기본 스타일 */
     .user a {
       text-decoration: none;
       transition: color 0.3s;
     }
-    
     /* 호버 시 언더라인 */
     .user a:hover {
       text-decoration: underline;
     }
-    
     /* (선택사항) Contact: 텍스트를 span으로 감싸면 고정폭을 줄 수도 있음 */
     .contact-label {
       display: inline-block;
       width: 60px;  /* 필요에 따라 조정 */
       text-align: right;
     }
-    
     /* 라이트 모드 색상 */
     .footer {
       color: #666;
     }
-    
     .user a {
       color: #007bff;
     }
-    
     /* 다크 모드 스타일 */
     @media (prefers-color-scheme: dark) {
       body {
@@ -263,13 +253,15 @@
       a.conference-link,
       a.author-link {
         text-decoration: none;
-        color: #C80150;  /* 원하는 색상으로 설정 */
+        color: #ff88a2;  /* 다크모드에서 빨간 계열로 변경 */
       }
-
       .authors a:hover,
       a.conference-link:hover,
       a.author-link:hover {
         text-decoration: underline;
+      }
+      .user a {
+        color: #4da6ff;
       }
     }
   </style>
