@@ -135,34 +135,36 @@
     }
 
     /* Footer 스타일 */
-    .footer {
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #333;
+      color: #fff;
       text-align: center;
-      font-size: 12px;
-      color: #666;
-      margin-top: 20px;
-      padding: 10px 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 5px;
+      padding: 20px 0;
     }
-
-    .footer-link {
-      color: #007bff;
+    .footer-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .footer-container p {
+      margin: 0;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .user {
+      display: inline-block;
+      margin: 0 15px;
+    }
+    .user a {
+      color: #fff;
       text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 5px;
+      margin: 0 5px;
     }
-
-    .footer-link:hover {
+    .user a:hover {
       text-decoration: underline;
-    }
-
-    .github-logo {
-      width: 14px;
-      height: 14px;
-      vertical-align: middle;
     }
 
     /* 다크 모드 스타일 */
