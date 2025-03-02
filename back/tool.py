@@ -80,7 +80,7 @@ def local_saver(startyear, endyear, conf_list):
         
         conf_path = os.path.join(db_path, conf)
         if not os.path.exists(conf_path):
-            os.path.makedirs(conf_path)
+            os.makedirs(conf_path)
         
         url=f"https://dblp.org/db/conf/{conf}/index.html"
         print(f"Loading {url}...")
