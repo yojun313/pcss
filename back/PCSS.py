@@ -649,5 +649,5 @@ class PCSSEARCH:
 if __name__ == "__main__":
     pcssearch_obj = PCSSEARCH(5, False, 2024, 2024)
 
-    conf_list = ['CCS']
+    conf_list = ['nips']
     pcssearch_obj.main(conf_list)
