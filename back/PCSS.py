@@ -82,7 +82,7 @@ class PCSSEARCH:
                 return response
             self.printStatus(f"{conf_name} URL Crawling...", url=f"https://dblp.org/db/conf/{conf}/index.html")
 
-            soup = BeautifulSoup(response, "html.parser")
+            soup = BeautifulSoup(response, "lxml")
 
             links = soup.find_all('a', class_='toc-link')
             urls = [link['href'] for link in links if link['href']]
@@ -115,7 +115,7 @@ class PCSSEARCH:
             if isinstance(response, tuple) == True:
                 return response         
 
-            soup = BeautifulSoup(response, "html.parser")
+            soup = BeautifulSoup(response, "lxml")
             papers = soup.find_all('li', class_='entry inproceedings')
 
             # 각 논문에서 제목과 저자 추출
@@ -395,7 +395,7 @@ class PCSSEARCH:
 
             self.printStatus(f"{target_author} Paper Counting", url)
             res = await self.asyncRequester(url, session=session)
-            soup = BeautifulSoup(res, "html.parser")
+            soup = BeautifulSoup(res, "lxml")
 
             publ_lists = soup.find('ul', class_='publ-list')
             if publ_lists is None:
@@ -506,7 +506,7 @@ class PCSSEARCH:
 
             # 응답 확인
             try:
-                soup = BeautifulSoup(response.text, 'html.parser')
+                soup = BeautifulSoup(response.text, 'lxml')
                 target = soup.find('div', class_='finalresult')
                 # 정규식을 사용하여 대문자로 시작하는 단어들의 그룹으로 분리
                 names = re.findall(r'[A-Z][a-z]*\s[A-Z][a-z]*', target.text)
