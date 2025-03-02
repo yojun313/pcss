@@ -136,40 +136,59 @@
 
     /* Footer 스타일 */
     .footer {
-      background-color: #f1f1f1;
-      border-top: 1px solid #ddd;
       text-align: center;
-      font-size: 14px;
-      color: #555;
-      margin-top: 30px;
-      padding: 15px 0;
+      font-size: 12px;
+      margin-top: 20px;
+      padding: 10px 0;
+      /* 별도의 배경색이나 테두리 없이 깔끔하게 */
+    }
+    
+    /* footer 내부 컨테이너를 세로 정렬 */
+    .footer-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
-      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+      gap: 5px;
     }
     
-    .footer .footer-container {
+    .footer-container p {
+      margin: 0;
+      font-weight: bold;
+    }
+    
+    /* 각 사용자 정보를 한 줄에 깔끔하게 정렬 */
+    .user {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-    }
-    
-    .footer .user {
+      align-items: center;
+      gap: 5px;
       font-size: 13px;
     }
     
-    .footer a {
-      color: #007bff;
+    /* 링크 기본 스타일 */
+    .user a {
       text-decoration: none;
       transition: color 0.3s;
     }
     
-    .footer a:hover {
-      color: #0056b3;
+    /* 호버 시 언더라인 */
+    .user a:hover {
       text-decoration: underline;
+    }
+    
+    /* (선택사항) Contact: 텍스트를 span으로 감싸면 고정폭을 줄 수도 있음 */
+    .contact-label {
+      display: inline-block;
+      width: 60px;  /* 필요에 따라 조정 */
+      text-align: right;
+    }
+    
+    /* 라이트 모드 색상 */
+    .footer {
+      color: #666;
+    }
+    
+    .user a {
+      color: #007bff;
     }
 
     /* 다크 모드 스타일 */
@@ -241,21 +260,12 @@
         background-color: #242424;
       }
       .footer {
-        background-color: #2c2c2c;
-        border-top: 1px solid #444;
-        color: #ccc;
-        padding: 15px 0;
-        box-shadow: 0 -2px 5px rgba(255, 255, 255, 0.05);
+        color: #aaa;
       }
-      .footer a {
+      .user a {
         color: #4da6ff;
       }
-      .footer a:hover {
-        color: #66c2ff;
-        text-decoration: underline;
-      }
     }
-    
 
     /* 반응형 디자인 */
     @media (max-width: 768px) {
@@ -343,11 +353,13 @@
     <div class="footer-container">
       <p>Created By</p>
       <div class="user">
-        <a href="https://github.com/yojun313" target="_blank">Yojun Moon</a> Contact:
+        <a href="https://github.com/yojun313" target="_blank">Yojun Moon</a>
+        <span class="contact-label">Contact:</span>
         <a href="mailto:yojun313@postech.ac.kr">yojun313@postech.ac.kr</a>
       </div>
       <div class="user">
-        <a href="https://www.psal.postech.ac.kr/gkim" target="_blank">Gwangsun Kim</a> Contact: 
+        <a href="https://www.psal.postech.ac.kr/gkim" target="_blank">Gwangsun Kim</a>
+        <span class="contact-label">Contact:</span>
         <a href="mailto:g.kim@postech.ac.kr">g.kim@postech.ac.kr</a>
       </div>
     </div>
