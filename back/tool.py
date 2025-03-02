@@ -90,7 +90,6 @@ def local_saver(startyear, endyear, conf_list):
         
         links = soup.find_all('a', class_='toc-link')
         urls = [link['href'] for link in links if link['href']]
-        print(urls)
         conf_urls = []
 
         for url in urls:
