@@ -136,33 +136,40 @@
 
     /* Footer 스타일 */
     .footer {
+      background-color: #f1f1f1;
+      border-top: 1px solid #ddd;
       text-align: center;
-      font-size: 12px;
-      color: #666;
-      margin-top: 20px;
-      padding: 10px 0;
+      font-size: 14px;
+      color: #555;
+      margin-top: 30px;
+      padding: 15px 0;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      gap: 5px;
+      gap: 10px;
+      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
     }
-
-    .footer-link {
+    
+    .footer .footer-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    
+    .footer .user {
+      font-size: 13px;
+    }
+    
+    .footer a {
       color: #007bff;
       text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 5px;
+      transition: color 0.3s;
     }
-
-    .footer-link:hover {
+    
+    .footer a:hover {
+      color: #0056b3;
       text-decoration: underline;
-    }
-
-    .github-logo {
-      width: 14px;
-      height: 14px;
-      vertical-align: middle;
     }
 
     /* 다크 모드 스타일 */
@@ -233,7 +240,22 @@
       table td {
         background-color: #242424;
       }
+      .footer {
+        background-color: #2c2c2c;
+        border-top: 1px solid #444;
+        color: #ccc;
+        padding: 15px 0;
+        box-shadow: 0 -2px 5px rgba(255, 255, 255, 0.05);
+      }
+      .footer a {
+        color: #4da6ff;
+      }
+      .footer a:hover {
+        color: #66c2ff;
+        text-decoration: underline;
+      }
     }
+    
 
     /* 반응형 디자인 */
     @media (max-width: 768px) {
@@ -319,7 +341,7 @@
   <script src="script.js"></script>
   <footer class="footer">
     <div class="footer-container">
-      <p>Created</p>
+      <p>Created By</p>
       <div class="user">
         <a href="https://github.com/yojun313" target="_blank">Yojun Moon</a> Contact:
         <a href="mailto:yojun313@postech.ac.kr">yojun313@postech.ac.kr</a>
