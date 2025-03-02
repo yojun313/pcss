@@ -399,7 +399,7 @@
                   yearSection.className = "conference-section";
                   
                   // 연도 헤더: toggle 기능 추가
-                  const yearHeaderEl = createToggleHeader(`Year: ${year}`, "conference-header");
+                  const yearHeaderEl = createToggleHeader(`${year}`, "conference-header");
                   yearSection.appendChild(yearHeaderEl);
                   
                   const yearContent = document.createElement("div");
@@ -414,7 +414,7 @@
                       const conferenceLink = confPaper.source || "#";
                       const conferenceHeader = document.createElement("div");
                       conferenceHeader.className = "conference-header";
-                      conferenceHeader.innerHTML = `<a href="${conferenceLink}" target="_blank" class="conference-link">Conference: ${conference}</a>`;
+                      conferenceHeader.innerHTML = `<a href="${conferenceLink}" target="_blank" class="conference-link">${conference}</a>`;
                       // 토글 아이콘 추가
                       const confToggleIcon = document.createElement("span");
                       confToggleIcon.className = "toggle-icon";
@@ -444,19 +444,20 @@
                           
                           const titleEl = document.createElement("div");
                           titleEl.className = "card-title";
-                          titleEl.textContent = `Title: ${paper.title}`;
+                          titleEl.textContent = `${paper.title}`;
                           card.appendChild(titleEl);
                           
-                          const authorsList = document.createElement("ul");
+                          const authorsList = document.createElement("div");
                           authorsList.className = "authors";
                           paper.author_name.forEach((a, index) => {
-                              const li = document.createElement("li");
                               const link = document.createElement("a");
                               link.href = paper.author_url[index] || "#";
                               link.textContent = a;
                               link.target = "_blank";
-                              li.appendChild(link);
-                              authorsList.appendChild(li);
+                              authorsList.appendChild(link);
+                              if (index < paper.author_name.length - 1) {
+                                  authorsList.appendChild(document.createTextNode(', '));
+                              }
                           });
                           card.appendChild(authorsList);
                           conferenceContent.appendChild(card);

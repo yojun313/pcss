@@ -35,11 +35,10 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 class PCSSEARCH:
-    def __init__(self, option, possible, startyear, endyear):
+    def __init__(self, option, threshold, startyear, endyear):
 
         self.option         = option
-        self.possible       = possible
-        self.possible_stat  = 0               # possible 허용 범위
+        self.threshold      = threshold
         self.startyear      = int(startyear)
         self.endyear        = int(endyear)                    
 
@@ -75,10 +74,11 @@ class PCSSEARCH:
     # 한 Conference에 대한 연도별 url 크롤링 함수
     async def conf_crawl(self, conf, session, conf_name):
         try:
-            self.printStatus(f"{conf_name} URL Crawling...", url=f"https://dblp.org/db/conf/{conf}/index.html")
+            self.printStatus(f"{conf_name} Loading...", url=f"https://dblp.org/db/conf/{conf}/index.html")
             response = await self.asyncRequester(f"https://dblp.org/db/conf/{conf}/index.html", session=session)
             if isinstance(response, tuple) == True:
                 return response
+            self.printStatus(f"{conf_name} URL Crawling...", url=f"https://dblp.org/db/conf/{conf}/index.html")
 
             soup = BeautifulSoup(response, "html.parser")
 
@@ -104,10 +104,8 @@ class PCSSEARCH:
 
     # 한 개의 Paper에 대한 크롤링 함수
     async def paper_crawl(self, conf, url, year, session):
-        try:
-            returnData = []
-            
-            self.printStatus(f"{year} {conf} Crawling...", url=url)
+        try:            
+            self.printStatus(f"{year} {conf} Loading...", url=url)
             response = await self.asyncRequester(url, session=session)
             if isinstance(response, tuple) == True:
                 return response         
@@ -116,6 +114,7 @@ class PCSSEARCH:
             papers = soup.find_all('li', class_='entry inproceedings')
 
             # 각 논문에서 제목과 저자 추출
+            self.printStatus(f"{year} {conf} Crawling...", url=url)
             for paper in papers:
                 try:
                     # 제목 추출
@@ -272,6 +271,7 @@ class PCSSEARCH:
                 new_authors = []
 
                 for index, author in enumerate(data_copy["author_name"]):
+                    self.printStatus(f"LLM Checking Korean...", url = author)
                     if self.koreanChecker(author) == False:
                         new_authors.append(author)
                         continue
@@ -314,13 +314,9 @@ class PCSSEARCH:
 
 
     def koreanChecker(self, name):
-        
-        if self.possible == True:
-            if float(self.single_name_llm(name)) > self.possible_stat:
-                return True
-        else:
-            if float(self.single_name_llm(name)) > 0.5:
-                return True
+        if float(self.single_name_llm(name)) > self.threshold:
+            return True
+
         return False
     
         # if self.possible == True:
@@ -447,7 +443,7 @@ class PCSSEARCH:
             return stats
 
     def printStatus(self, msg='', url=None):
-        print(f'\r{msg} | {url} | paper: {len(self.CrawlData)} | Checked Person: {len(self.checkedNameList)}', end='')
+        print(f'\r{msg} | {url} | paper: {len(self.CrawlData)} | Korean Authors: {len(self.checkedNameList)}', end='')
 
 
     def kornametoeng(self, name, option=1):

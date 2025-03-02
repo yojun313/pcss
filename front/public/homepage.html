@@ -298,13 +298,8 @@
 
           <!-- 라디오 버튼 -->
           <div class="form-group">
-            <label>불확실 포함:</label>
-            <label>
-              <input type="radio" name="Possible" value="True"> 예
-            </label>
-            <label>
-              <input type="radio" name="Possible" value="False" checked> 아니오
-            </label>
+            <label for="uncertainty">저자명 한국인 판단 기준값(0.0~1.0):</label>
+            <input type="number" id="uncertainty" name="uncertainty" min="0" max="1" step="0.1" placeholder="0.0">
           </div>
 
           <!-- 제출 버튼 -->
