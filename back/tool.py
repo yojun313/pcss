@@ -119,14 +119,14 @@ if __name__ == '__main__':
     conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))
     conf_param_list = conf_df['param'].tolist()
     conf_param_list = [
-        'cc',
-        'cgo',
-        'IEEEpact',
-        'ppopp',
-        'ec',
-        'ismb',
-        'soda',
-        'vis',
+        # 'cc',
+        # 'cgo',
+        # 'IEEEpact',
+        # 'ppopp',
+        # 'ec',
+        # 'ismb',
+        # 'soda',
+        # 'vis',
         'wsdm'
     ]
     #print(len(conf_param_list))
