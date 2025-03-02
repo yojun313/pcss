@@ -359,9 +359,26 @@
                   groupedPapers[author][paper.year][paper.conference].push(paper);
               });
           }
+          const authorList = Object.keys(groupedPapers);
+
+          // 2. 괄호 안의 숫자를 파싱하는 헬퍼 함수
+          function getNumberInParentheses(str) {
+            // 예: "William Won(0.2)" -> 0.2
+            //     "Ni Kang(0.9)"     -> 0.9
+            const match = str.match(/\(([\d.]+)\)/);
+            if (match) {
+              return parseFloat(match[1]);
+            }
+            return 0;
+          }
+
+          // 3. 괄호 안 숫자를 기준으로 내림차순 정렬
+          authorList.sort((a, b) => {
+            return getNumberInParentheses(b) - getNumberInParentheses(a);
+          });
           
           // 각 저자별 섹션 생성
-          for (const author in groupedPapers) {
+          for (const author of authorList) {
               const authorSection = document.createElement("div");
               authorSection.className = "year-section";
               
@@ -514,9 +531,7 @@
       <p>Created By</p>
       <div class="user">
         <a href="https://github.com/yojun313" target="_blank">Yojun Moon</a>
-        <a href="mailto:yojun313@postech.ac.kr">(yojun313@postech.ac.kr)</a>
-      </div>
-      <div class="user">
+        <a href="mailto:yojun313@postech.ac.kr">(yojun313@postech.ac.kr)</a> | 
         <a href="https://www.psal.postech.ac.kr/gkim" target="_blank">Gwangsun Kim</a>
         <a href="mailto:g.kim@postech.ac.kr">(g.kim@postech.ac.kr)</a>
       </div>
