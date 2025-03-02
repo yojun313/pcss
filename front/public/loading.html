@@ -276,7 +276,7 @@
           const columns = {
             option: "선택 옵션",
             startyear: "연도 범위",
-            Possible: "불확실 포함 여부",
+            threshold: "한국인 판단 기준값",
             selectedConferences: "선택 학회"
           };
 
@@ -319,8 +319,8 @@
               value = getOptionText(data[key]);
             } else if (key === 'selectedConferences') {
               value = Array.isArray(data[key]) ? data[key].join(', ') : data[key];
-            } else if (key === 'Possible') {
-              value = data[key] === 'True' ? "포함" : "미포함";
+            } else if (key === 'threshold') {
+              value = data['uncertainty'];
             } else if (key === 'startyear' || key === 'endyear') {
               value = data['startyear'] + " ~ " + data['endyear'];
             } else {
