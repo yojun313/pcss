@@ -90,19 +90,19 @@ def local_saver(startyear, endyear, conf_list):
         
         links = soup.find_all('a', class_='toc-link')
         urls = [link['href'] for link in links if link['href']]
+        print(urls)
         conf_urls = []
 
         for url in urls:
             match = re.search(r'\d{4}', url)
+            
             if match:
                 year = int(match.group())
                 if startyear <= year <= endyear:
                     conf_urls.append((url, year))
-                else:
-                    break
             else:
                 print(f"Error: {url}")
-        
+                
         for conf_url in conf_urls:
             url = conf_url[0]
             year = conf_url[1]
@@ -119,15 +119,14 @@ if __name__ == '__main__':
     conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))
     conf_param_list = conf_df['param'].tolist()
     conf_param_list = [
-        # 'cc',
-        # 'cgo',
-        # 'IEEEpact',
-        # 'ppopp',
-        # 'ec',
-        # 'ismb',
-        # 'soda',
-        # 'vis',
+        'cc',
+        'cgo',
+        'IEEEpact',
+        'ppopp',
+        'ec',
+        'ismb',
+        'soda',
+        'vis',
         'wsdm'
     ]
-    #print(len(conf_param_list))
     local_saver(2010, 2024, conf_param_list)

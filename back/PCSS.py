@@ -93,8 +93,6 @@ class PCSSEARCH:
                     year = int(match.group())
                     if self.startyear <= year <= self.endyear:
                         filtered_urls.append((url, year))
-                    else:
-                        break
                 else:
                     return ("Failed to extract year", url)
 
