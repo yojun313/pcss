@@ -66,6 +66,7 @@ class PCSSEARCH:
         # self.first_name_list = [item.strip() for sublist in self.first_name_list for item in sublist.split(",")]
 
         self.conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))
+        self.conf_param_list = self.conf_df['param'].tolist()
         self.CrawlData = []
         self.FinalData = {}
 
@@ -107,6 +108,7 @@ class PCSSEARCH:
         try:            
             self.printStatus(f"{year} {conf} Loading...", url=url)
             response = await self.asyncRequester(url, session=session)
+            
             if isinstance(response, tuple) == True:
                 return response         
 
@@ -391,46 +393,53 @@ class PCSSEARCH:
             res = await self.asyncRequester(url, session=session)
             soup = BeautifulSoup(res, "html.parser")
 
-            publ_list = soup.find('ul', class_='publ-list')
-            if publ_list is None:
+            publ_lists = soup.find('ul', class_='publ-list')
+            if publ_lists is None:
                 return stats
 
             papers = []
-            for paper in publ_list:
-                title = paper.find('span', 'title')
-                if title is not None:
-                    title = title.text
-                    middle = paper.find('cite', 'data tts-content')
-                    authors = middle.select('span[itemprop="name"]:not(.title)')
-                    author_list = [author.get_text(strip=True) for author in authors]
-                    author_list.pop()
+            for publ_list in publ_lists:
+                publ_list = publ_list.find_all("li", class_="entry inproceedings toc")
+                ids = [li["id"] for li in publ_list if li.has_attr("id")]
+                
+                for index, paper in enumerate(publ_list):
+                    conf = ids[index].split('/')[1]
+                    if conf not in self.conf_param_list:
+                        continue  
+                    title = paper.find('span', 'title')
+                    if title is not None:
+                        title = title.text
+                        middle = paper.find('cite', 'data tts-content')
+                        authors = middle.select('span[itemprop="name"]:not(.title)')
+                        author_list = [author.get_text(strip=True) for author in authors]
+                        author_list.pop()
 
-                    authors = []
-                    for name in author_list:
-                        parts = name.split()
-                        if len(parts) >= 3:
-                            full_name = parts[0] + parts[1].lower()
-                            authors.append(full_name)
+                        authors = []
+                        for name in author_list:
+                            parts = name.split()
+                            if len(parts) >= 3:
+                                full_name = parts[0] + parts[1].lower()
+                                authors.append(full_name)
+                            else:
+                                authors.append(name)
+
+                        papers.append({
+                            'title': title,
+                            'authors': authors
+                        })
+
+                for paper in papers:
+                    authors = paper["authors"]
+                    if target_author in authors:
+                        if authors[0] == target_author:
+                            stats["first_author"] += 1
+                            stats["first_or_second_author"] += 1  # 1저자도 2저자 조건에 포함됨
+                        elif len(authors) > 1 and authors[1] == target_author:
+                            stats["first_or_second_author"] += 1
+                        elif authors[-1] == target_author:
+                            stats["last_author"] += 1
                         else:
-                            authors.append(name)
-
-                    papers.append({
-                        'title': title,
-                        'authors': authors
-                    })
-
-            for paper in papers:
-                authors = paper["authors"]
-                if target_author in authors:
-                    if authors[0] == target_author:
-                        stats["first_author"] += 1
-                        stats["first_or_second_author"] += 1  # 1저자도 2저자 조건에 포함됨
-                    elif len(authors) > 1 and authors[1] == target_author:
-                        stats["first_or_second_author"] += 1
-                    elif authors[-1] == target_author:
-                        stats["last_author"] += 1
-                    else:
-                        stats["co_author"] += 1
+                            stats["co_author"] += 1
 
             return f"({stats['first_author']},{stats['first_or_second_author']},{stats['last_author']},{stats['co_author']})"
         except Exception as e:
