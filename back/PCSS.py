@@ -316,6 +316,8 @@ class PCSSEARCH:
     def koreanChecker(self, name):
         self.printStatus(msg="LLM Checking Korean... ", url=name)
         if float(self.single_name_llm(name)) > self.threshold:
+            if name not in self.checkedNameList:
+                self.checkedNameList.append(name)
             return True
 
         return False
@@ -330,8 +332,6 @@ class PCSSEARCH:
 
 
     def single_name_llm(self, name):
-        if name not in self.checkedNameList:
-            self.checkedNameList.append(name)
             
         if name in self.name_dict:
             return self.name_dict[name]
