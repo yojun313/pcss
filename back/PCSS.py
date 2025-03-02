@@ -71,6 +71,7 @@ class PCSSEARCH:
         self.FinalData = {}
 
         self.log_file_path = os.path.join(os.path.dirname(__file__), 'log', f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt")  # 로그 파일 이름
+        self.db_path = os.path.join(os.path.dirname(__file__), 'db')
 
     # 한 Conference에 대한 연도별 url 크롤링 함수
     async def conf_crawl(self, conf, session, conf_name):
@@ -105,7 +106,13 @@ class PCSSEARCH:
     async def paper_crawl(self, conf, url, year, session):
         try:            
             self.printStatus(f"{year} {conf} Loading...", url=url)
-            response = await self.asyncRequester(url, session=session)
+            
+            record_path = os.path.join(self.db_path, conf, f"{year}_{conf}.html")
+            if os.path.exists(record_path):
+                with open(record_path, "r", encoding="utf-8") as file:
+                    response = file.read()
+            else:
+                response = await self.asyncRequester(url, session=session)
             
             if isinstance(response, tuple) == True:
                 return response         
