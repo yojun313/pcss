@@ -159,7 +159,6 @@ class PCSSEARCH:
                                 'year': year, 
                                 'source': url
                             })
-                            self.printStatus(f"{year} {conf} Crawling", url=url)
                             
                     # 1저자 또는 2저자가 한국인
                     elif self.option == 2:
@@ -178,7 +177,6 @@ class PCSSEARCH:
                                 'year': year,
                                 'source': url
                             })
-                            self.printStatus(f"{year} {conf} Crawling", url=url)
                             
                     # 마지막 저자가 한국인
                     elif self.option == 3:
@@ -191,7 +189,6 @@ class PCSSEARCH:
                                 'conference': conf, 'year': year, 
                                 'source': url
                             })
-                            self.printStatus(f"{year} {conf} Crawling", url=url)
                             
                     # 1저자 또는 마지막 저자가 한국인
                     elif self.option == 4:
@@ -210,7 +207,6 @@ class PCSSEARCH:
                                 'year': year,
                                 'source': url
                             })
-                            self.printStatus(f"{year} {conf} Crawling", url=url)
                     
                     # 저자 중 한 명 이상이 한국인
                     else:
@@ -225,7 +221,6 @@ class PCSSEARCH:
                                 'year': year, 
                                 'source': url
                             })
-                            self.printStatus(f"{year} {conf} Crawling", url=url)
 
 
                 except:
@@ -271,7 +266,6 @@ class PCSSEARCH:
                 new_authors = []
 
                 for index, author in enumerate(data_copy["author_name"]):
-                    self.printStatus(f"LLM Checking Korean...", url = author)
                     if self.koreanChecker(author) == False:
                         new_authors.append(author)
                         continue
@@ -314,6 +308,7 @@ class PCSSEARCH:
 
 
     def koreanChecker(self, name):
+        self.printStatus(msg="LLM Checking Korean... ", url=name)
         if float(self.single_name_llm(name)) > self.threshold:
             return True
 
@@ -443,7 +438,10 @@ class PCSSEARCH:
             return stats
 
     def printStatus(self, msg='', url=None):
-        print(f'\r{msg} | {url} | paper: {len(self.CrawlData)} | Korean Authors: {len(self.checkedNameList)}', end='')
+        try:
+            print(f'\r{msg} | {url} | paper: {len(self.CrawlData)} | Korean Authors: {len(self.checkedNameList)}', end='')
+        except:
+            pass
 
 
     def kornametoeng(self, name, option=1):
