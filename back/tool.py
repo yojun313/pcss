@@ -78,8 +78,6 @@ def local_saver(startyear, endyear, conf_list):
     for conf in conf_list:
         
         conf_path = os.path.join(db_path, conf)
-        if os.path.exists(conf_path):
-            continue
         
         if not os.path.exists(conf_path):
             os.makedirs(conf_path)
