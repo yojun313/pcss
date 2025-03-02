@@ -86,7 +86,7 @@ def local_saver(startyear, endyear, conf_list):
         print(f"Loading {url}...")
         response = requests.get(url)
         
-        soup = BeautifulSoup(response, "html.parser")
+        soup = BeautifulSoup(response.text, "html.parser")
         
         links = soup.find_all('a', class_='toc-link')
         urls = [link['href'] for link in links if link['href']]
