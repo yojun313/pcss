@@ -104,12 +104,18 @@
       display: inline;
       margin-right: 5px;
     }
-    .authors li a,
-    a.conference-link,
-    a.author-link {
-      text-decoration: none;
-      color: #C80150;
-    }
+    .authors a,
+      a.conference-link,
+      a.author-link {
+        text-decoration: none;
+        color: #C80150;  /* 원하는 색상으로 설정 */
+      }
+
+      .authors a:hover,
+      a.conference-link:hover,
+      a.author-link:hover {
+        text-decoration: underline;
+      }
     a.conference-link:hover,
     a.author-link:hover,
     .authors li a:hover {
@@ -253,19 +259,17 @@
       .card-title {
         color: #e0e0e0;
       }
-      .authors li a,
+      .authors a,
       a.conference-link,
       a.author-link {
-        color: #ff88a2;
+        text-decoration: none;
+        color: #C80150;  /* 원하는 색상으로 설정 */
       }
-      .source-link {
-        color: #4da6ff;
-      }
-      .footer {
-        color: #aaa;
-      }
-      .user a {
-        color: #4da6ff;
+
+      .authors a:hover,
+      a.conference-link:hover,
+      a.author-link:hover {
+        text-decoration: underline;
       }
     }
   </style>
