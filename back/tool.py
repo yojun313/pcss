@@ -75,10 +75,12 @@ def authorNumChecker(target_author, url):
 
 def local_saver(startyear, endyear, conf_list):
     db_path = os.path.join(os.path.dirname(__file__), 'db')
-    
     for conf in conf_list:
         
         conf_path = os.path.join(db_path, conf)
+        if os.path.exists(conf_path):
+            continue
+        
         if not os.path.exists(conf_path):
             os.makedirs(conf_path)
         
@@ -101,7 +103,7 @@ def local_saver(startyear, endyear, conf_list):
                 else:
                     break
             else:
-                return ("Failed to extract year", url)
+                print(f"Error: {url}")
         
         for conf_url in conf_urls:
             url = conf_url[0]
@@ -118,5 +120,5 @@ def local_saver(startyear, endyear, conf_list):
 if __name__ == '__main__':
     conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))
     conf_param_list = conf_df['param'].tolist()
-    
+    #print(len(conf_param_list))
     local_saver(2010, 2024, conf_param_list)
