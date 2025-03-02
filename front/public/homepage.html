@@ -135,36 +135,34 @@
     }
 
     /* Footer 스타일 */
-    footer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background-color: #333;
-      color: #fff;
+    .footer {
       text-align: center;
-      padding: 20px 0;
+      font-size: 12px;
+      color: #666;
+      margin-top: 20px;
+      padding: 10px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
     }
-    .footer-container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    .footer-container p {
-      margin: 0;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    .user {
-      display: inline-block;
-      margin: 0 15px;
-    }
-    .user a {
-      color: #fff;
+
+    .footer-link {
+      color: #007bff;
       text-decoration: none;
-      margin: 0 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
-    .user a:hover {
+
+    .footer-link:hover {
       text-decoration: underline;
+    }
+
+    .github-logo {
+      width: 14px;
+      height: 14px;
+      vertical-align: middle;
     }
 
     /* 다크 모드 스타일 */
@@ -321,7 +319,7 @@
   <script src="script.js"></script>
   <footer class="footer">
     <div class="footer-container">
-      <p>Created By</p>
+      <p>Created</p>
       <div class="user">
         <a href="https://github.com/yojun313" target="_blank">Yojun Moon</a> Contact:
         <a href="mailto:yojun313@postech.ac.kr">yojun313@postech.ac.kr</a>
