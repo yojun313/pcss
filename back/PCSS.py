@@ -21,7 +21,7 @@ import json
 TIMEOUT = 10
 TRYNUM = 3
 
-com = 'cluster'
+com = 'z8'
 
 if com == 'z8':
     LLM_SERVER = '121.152.225.232'
@@ -94,9 +94,7 @@ class PCSSEARCH:
                     year = int(match.group())
                     if self.startyear <= year <= self.endyear:
                         filtered_urls.append((url, year))
-                else:
-                    return ("Failed to extract year", url)
-
+                        
             return filtered_urls
         except:
             self.write_log(traceback.format_exc())
@@ -649,5 +647,5 @@ class PCSSEARCH:
 if __name__ == "__main__":
     pcssearch_obj = PCSSEARCH(5, False, 2024, 2024)
 
-    conf_list = ['nips']
+    conf_list = ['NeurIPS']
     pcssearch_obj.main(conf_list)
