@@ -130,6 +130,17 @@
     .source-link:hover {
       text-decoration: underline;
     }
+    .main-link {
+      text-align: center;
+      margin: 20px auto 30px auto; /* 위쪽 20px, 아래쪽 30px */
+    }
+    .main-link a {
+      text-decoration: none;
+      color: #C80150;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    
     /* 반응형 디자인 */
     @media (max-width: 768px) {
       body {
@@ -210,6 +221,12 @@
         background-color: #121212;
         color: #e0e0e0;
       }
+      .main-link a {
+        text-decoration: none;
+        color: #ff88a2;
+        font-weight: bold;
+        font-size: 18px;
+      }
       .container {
         background-color: #242424;
         box-shadow: 0 2px 6px rgba(0,0,0,0.8);
@@ -271,8 +288,8 @@
   <div class="container">
     <h1>PCSS Result</h1>
     
-    <div style="text-align: center; margin-top: 20px;">
-      <a href="http://pcss.r-e.kr:3000/" style="text-decoration: none; color: #C80150; font-weight: bold;">
+    <div class="main-link">
+      <a href="http://pcss.r-e.kr:3000/">
         PCSS 메인으로 돌아가기
       </a>
     </div>
