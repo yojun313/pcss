@@ -17,12 +17,16 @@ import copy
 from datetime import datetime
 import asyncio
 import json
+import sys
 
 TIMEOUT = 10
 TRYNUM = 3
 
-com = 'z8'
+com = 'cluster'
 
+if sys.platform == 'darwin':
+    com = 'z8'
+    
 if com == 'z8':
     LLM_SERVER = '121.152.225.232'
     PORT = "3333"
