@@ -328,7 +328,7 @@
                   let option = document.createElement("option");
                   option.value = i;
                   option.textContent = i;
-                  if (i === 2020) {
+                  if (i === 2024) {
                     option.selected = true; // 기본값 설정
                   }
                   startSelect.appendChild(option);
@@ -354,7 +354,7 @@
                 }
                 
                 // 기본값 설정
-                updateEndYearOptions(2020);
+                updateEndYearOptions(2024);
                 
                 // 시작 연도 변경 시 끝 연도 업데이트
                 startSelect.addEventListener("change", function() {
