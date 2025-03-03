@@ -330,18 +330,24 @@
 
           <!-- 라디오 버튼 -->
           <div class="form-group">
-            <label for="uncertainty">저자명 한국인 판단 기준값(0.0~1.0):</label>
-            <input 
-              type="number" 
-              id="uncertainty" 
-              name="uncertainty" 
-              min="0" 
-              max="1" 
-              step="0.1" 
-              placeholder="0.0"
-              value="0.5"
-            >
+            <label for="uncertainty">저자명 한국인 판단 기준값(0.1~1.0):</label>
+            <select id="uncertainty" name="uncertainty">
+              <!-- 옵션 자동 생성 -->
+              <script>
+                const select = document.getElementById("uncertainty");
+                for (let i = 0.1; i <= 1.0; i += 0.1) {
+                  let option = document.createElement("option");
+                  option.value = i.toFixed(1);
+                  option.textContent = i.toFixed(1);
+                  if (i === 0.5) {
+                    option.selected = true; // 기본값 0.5 선택
+                  }
+                  select.appendChild(option);
+                }
+              </script>
+            </select>
           </div>
+          
 
           <!-- 제출 버튼 -->
           <button type="button" id="submit-btn">Submit</button>
