@@ -318,15 +318,52 @@
               <option value="5">저자 중 한 명 이상이 한국인</option>
             </select>
           </div>
-          <!-- 연도 범위 입력 -->
+          <!-- 시작 연도 선택 -->
           <div class="form-group">
             <label for="startyear">시작 연도:</label>
-            <input type="number" id="startyear" name="startyear" placeholder="Start Year">
+            <select id="startyear" name="startyear">
+              <script>
+                const startSelect = document.getElementById("startyear");
+                for (let i = 2010; i <= 2025; i++) {
+                  let option = document.createElement("option");
+                  option.value = i;
+                  option.textContent = i;
+                  if (i === 2020) {
+                    option.selected = true; // 기본값 설정
+                  }
+                  startSelect.appendChild(option);
+                }
+              </script>
+            </select>
           </div>
+
+          <!-- 끝 연도 선택 -->
           <div class="form-group">
             <label for="endyear">끝 연도:</label>
-            <input type="number" id="endyear" name="endyear" placeholder="End Year">
+            <select id="endyear" name="endyear">
+              <script>
+                const endSelect = document.getElementById("endyear");
+                function updateEndYearOptions(startValue) {
+                  endSelect.innerHTML = ""; // 기존 옵션 제거
+                  for (let i = startValue; i <= 2025; i++) {
+                    let option = document.createElement("option");
+                    option.value = i;
+                    option.textContent = i;
+                    endSelect.appendChild(option);
+                  }
+                }
+                
+                // 기본값 설정
+                updateEndYearOptions(2020);
+                
+                // 시작 연도 변경 시 끝 연도 업데이트
+                startSelect.addEventListener("change", function() {
+                  updateEndYearOptions(parseInt(this.value));
+                });
+              </script>
+            </select>
           </div>
+
 
           <!-- 라디오 버튼 -->
           <div class="form-group">
