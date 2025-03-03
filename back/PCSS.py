@@ -284,16 +284,26 @@ class PCSSEARCH:
                 data_copy = copy.deepcopy(data)
                 new_authors = []
 
-                for index, author in enumerate(data_copy["author_name"]):
-                    if self.koreanChecker(author) == False:
-                        new_authors.append(author)
-                        continue
-                    stats = await self.authorNumChecker(author, data['author_url'][index], session)
-                    new_authors.append(author+stats)
-
+                multi_name_option = True
+                
+                if multi_name_option == False:
+                    for index, author in enumerate(data_copy["author_name"]):
+                        if self.koreanChecker(author) == False:
+                            new_authors.append(author)
+                            continue
+                        stats = await self.authorNumChecker(author, data['author_url'][index], session)
+                        new_authors.append(author+stats)
+                else:
+                    llm_result = self.multi_name_llm(data_copy['author_name'])
+                    for index, (author, result) in enumerate(llm_result.items()):
+                        if result == False:
+                            new_authors.append(author)
+                            continue
+                        stats = await self.authorNumChecker(author, data['author_url'][index], session)
+                        
                 data_copy["author_name"] = new_authors
                 self.FinalData.append(data_copy)
-
+                
             tasks = [authorCounter(data, session) for data in self.CrawlData]
 
             # 비동기 작업 병렬 실행
@@ -326,15 +336,29 @@ class PCSSEARCH:
             self.write_log(traceback.format_exc())
 
 
-    def koreanChecker(self, name):
-        self.printStatus(msg="LLM Checking Korean... ", url=name)
-        if float(self.single_name_llm(name)) > self.threshold:
-            if name not in self.checkedNameList:
-                self.checkedNameList.append(name)
-            return True
+    def koreanChecker(self, name, multi=False):
+        if multi == False:
+            self.printStatus(msg="LLM Checking Korean... ", url=name)
+            if float(self.single_name_llm(name)) > self.threshold:
+                if name not in self.checkedNameList:
+                    self.checkedNameList.append(name)
+                return True
 
-        return False
-    
+            return False
+        else:
+            self.printStatus(msg="LLM Checking Korean... ", url=', '.join(name))
+            result = self.multi_name_llm(name)
+            
+            result_dict = {}
+            for key, value in result.items():
+                if float(value) > self.threshold:
+                    if name not in self.checkedNameList:
+                        self.checkedNameList.append(name)
+                    result_dict[key] = True
+                else:
+                    result_dict[key] = False
+                    
+            return result_dict
         # if self.possible == True:
         #     if name.split()[-1] in self.last_name_list and name.split()[0] in self.first_name_list and float(self.single_name_llm(name)) > self.possible_stat:
             
@@ -382,6 +406,53 @@ class PCSSEARCH:
 
         return formatted_value  # 🔹 결과 반환 (0.0 ~ 1.0)
 
+    def multi_name_llm(self, names):
+        result_dict = {}
+        remaining_names = [name for name in names if name not in self.name_dict]
+
+        # 기존에 저장된 값 추가
+        for name in names:
+            if name in self.name_dict:
+                result_dict[name] = self.name_dict[name]
+
+        if remaining_names:  # 새로운 값을 조회할 필요가 있는 경우만 실행
+            query = f"""
+                Given a list of names, express the likelihood of each name being Korean using only a number between 0 and 1.
+                Return the results **only as numbers in the same order as the input**, separated by spaces.
+
+                Do not include any additional text, explanations, or formatting. Here are the names: {', '.join(remaining_names)}.
+            """
+
+            if not self.llm_api_option:
+                template = PromptTemplate.from_template(template=query)
+                chain = template | self.llm | StrOutputParser()
+                results = chain.invoke({"names": remaining_names})
+            else:
+                results = self.llm_api_answer(query, model=self.llm_model)
+
+            results = results.split()
+
+            for index, result in enumerate(results):
+                # 🔹 숫자만 추출 (지수 표기법 방지)
+                match = re.findall(r"\d+\.\d+|\d+", result)
+                if not match:
+                    value = 0.0  # 예외 처리: 결과가 없을 경우 기본값
+                else:
+                    value = float(match[0])  # 🔹 문자열을 float으로 변환
+                    value = max(0.0, min(1.0, value))  # 🔹 범위 조정 (0.0 ~ 1.0)
+
+                # 🔹 소수점 1자리까지 포맷팅
+                formatted_value = "{:.1f}".format(value)
+                result_dict[remaining_names[index]] = formatted_value
+
+        return {name: result_dict.get(name, "0.0") for name in names}  # 원래 순서 유지
+
+            
+            
+ 
+        
+    
+    
 
     def save_name_dict(self):
         """ name_dict를 JSON 파일로 저장 """
