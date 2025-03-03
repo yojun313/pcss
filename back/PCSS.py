@@ -284,7 +284,7 @@ class PCSSEARCH:
                 data_copy = copy.deepcopy(data)
                 new_authors = []
 
-                multi_name_option = True
+                multi_name_option = False
                 
                 if multi_name_option == False:
                     for index, author in enumerate(data_copy["author_name"]):
@@ -447,12 +447,6 @@ class PCSSEARCH:
 
         return {name: result_dict.get(name, "0.0") for name in names}  # 원래 순서 유지
 
-            
-            
- 
-        
-    
-    
 
     def save_name_dict(self):
         """ name_dict를 JSON 파일로 저장 """
