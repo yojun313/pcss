@@ -67,6 +67,7 @@ class PCSSEARCH:
 
         self.conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))
         self.conf_param_list = self.conf_df['param'].tolist()
+        self.conf_param_dict = self.conf_df.set_index('conference')['param'].to_dict()
         self.CrawlData = []
         self.FinalData = {}
 
@@ -93,7 +94,9 @@ class PCSSEARCH:
                 if match:
                     year = int(match.group())
                     if self.startyear <= year <= self.endyear:
-                        filtered_urls.append((url, year, conf))
+                        filtered_urls.append((url, year))
+                else:
+                    continue
                         
             return filtered_urls
         except:
@@ -101,10 +104,11 @@ class PCSSEARCH:
             return []
 
     # 한 개의 Paper에 대한 크롤링 함수
-    async def paper_crawl(self, conf, url, year, param, session):
+    async def paper_crawl(self, conf, url, year, session):
         try:            
             self.printStatus(f"{year} {conf} Loading...", url=url)
             
+            param = self.conf_param_dict[conf]
             record_path = os.path.join(self.db_path, param, f"{year}_{param}.html")
             if os.path.exists(record_path):
                 with open(record_path, "r", encoding="utf-8") as file:
@@ -240,8 +244,7 @@ class PCSSEARCH:
             for conf_url in conf_urls:
                 url = conf_url[0]
                 year = int(conf_url[1])
-                param = conf_url[2]
-                tasks.append(self.paper_crawl(conf_name, url, year, param, session))
+                tasks.append(self.paper_crawl(conf_name, url, year, session))
             results = await asyncio.gather(*tasks)
         except:
             self.write_log(traceback.format_exc())
@@ -255,7 +258,7 @@ class PCSSEARCH:
             # 여러개의 Conference에 대해 동시 크롤링 수행
             async def process_conference(conf):
                 conf_name = conf
-                conf_param = self.conf_df.loc[self.conf_df['conference'] == conf, 'param'].values[0]
+                conf_param = self.conf_param_dict[conf_name]
                 conf_urls = await self.conf_crawl(conf_param, session, conf_name)
                 await self.MultiPaperCollector(conf_urls, conf_name, session)
 
