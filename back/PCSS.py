@@ -653,7 +653,7 @@ class PCSSEARCH:
             os.system("clear")
 
 if __name__ == "__main__":
-    pcssearch_obj = PCSSEARCH(5, False, 2024, 2024)
+    pcssearch_obj = PCSSEARCH(1, False, 2024, 2024)
 
     conf_list = ['CCS']
     pcssearch_obj.main(conf_list)
