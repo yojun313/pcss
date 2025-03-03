@@ -20,7 +20,7 @@ import json
 import sys
 
 TIMEOUT = 10
-TRYNUM = 3
+TRYNUM = 100
 
 com = 'cluster'
 
@@ -94,13 +94,13 @@ class PCSSEARCH:
             filtered_urls = []
 
             for url in urls:
-                match = re.search(r'\d{4}', url)
+                match = re.search(r'\d{4}', url)  # 4자리 숫자 찾기
                 if match:
-                    year = int(match.group())
-                    if self.startyear <= year <= self.endyear:
-                        filtered_urls.append((url, year))
-                else:
-                    continue
+                    year_str = match.group()
+                    if year_str.isdigit():  
+                        year = int(year_str)
+                        if self.startyear <= year <= self.endyear:
+                            filtered_urls.append((url, year))
                         
             return filtered_urls
         except:
@@ -160,6 +160,9 @@ class PCSSEARCH:
                     #         authors.append(name)
                     authors = authors_origin
 
+                    if len(authors) == 0:
+                        continue
+                    
                     # 1저자가 한국인
                     if self.option == 1:
                         if self.koreanChecker(authors[0]):
@@ -246,9 +249,12 @@ class PCSSEARCH:
         try:
             tasks = []
             for conf_url in conf_urls:
-                url = conf_url[0]
-                year = int(conf_url[1])
-                tasks.append(self.paper_crawl(conf_name, url, year, session))
+                try:
+                    url = conf_url[0]
+                    year = int(conf_url[1])
+                    tasks.append(self.paper_crawl(conf_name, url, year, session))
+                except:
+                    self.write_log(f"{conf_url[1]}")
             results = await asyncio.gather(*tasks)
         except:
             self.write_log(traceback.format_exc())
