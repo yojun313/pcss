@@ -21,7 +21,7 @@ import json
 TIMEOUT = 10
 TRYNUM = 3
 
-com = 'cluster'
+com = 'z8'
 
 if com == 'z8':
     LLM_SERVER = '121.152.225.232'
@@ -398,6 +398,10 @@ class PCSSEARCH:
 
             self.printStatus(f"{target_author} Paper Counting", url)
             res = await self.asyncRequester(url, session=session)
+            if isinstance(res, tuple):
+                # 오류 상황 처리: 로그 기록 또는 기본값 반환
+                self.write_log("asyncRequester returned an error: " + str(res))
+                return stats
             soup = BeautifulSoup(res, "lxml")
 
             publ_lists = soup.find('ul', class_='publ-list')
@@ -634,11 +638,11 @@ class PCSSEARCH:
         while True:
             try:
                 async with session.get(url, headers=headers, params=params, proxy=proxies, cookies=cookies,
-                                       ssl=False, timeout=timeout) as response:
+                                       ssl=False) as response:
                     return await response.text()
             except (aiohttp.ClientError, asyncio.TimeoutError, Exception) as e:
                 if trynum >= TRYNUM:
-                    print(traceback.format_exc())
+                    self.write_log(traceback.format_exc())
                     return ("ERROR", traceback.format_exc())
                 trynum += 1
 
@@ -651,5 +655,5 @@ class PCSSEARCH:
 if __name__ == "__main__":
     pcssearch_obj = PCSSEARCH(5, False, 2024, 2024)
 
-    conf_list = ['NeurIPS']
+    conf_list = ['CCS']
     pcssearch_obj.main(conf_list)
