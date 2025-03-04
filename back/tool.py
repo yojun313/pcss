@@ -115,6 +115,7 @@ def local_saver(startyear, endyear, conf_list):
                 file.write(response.text)
                 
 if __name__ == '__main__':
-    conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))
-    conf_param_list = conf_df['param'].tolist()
-    local_saver(2010, 2024, conf_param_list)
+    # conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))
+    # conf_param_list = conf_df['param'].tolist()
+    # local_saver(2010, 2024, conf_param_list)
+    print(authorNumChecker('Yongwoo Lee', 'https://dblp.org/pid/49/8558-1.html'))

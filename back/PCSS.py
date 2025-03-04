@@ -60,6 +60,7 @@ class PCSSEARCH:
         if self.llm_api_option == False:
             self.llm = OllamaLLM(model=self.llm_model)
         self.checkedNameList = []
+        self.titleList = []
 
         # last_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'last_name.csv'), sep=';')
         # self.last_name_list = list(last_name_df[['eng_1', 'eng_2', 'eng_3']].stack() .astype(str))
@@ -125,19 +126,18 @@ class PCSSEARCH:
 
             soup = BeautifulSoup(response, "lxml")
             papers = soup.find_all('li', class_='entry inproceedings')
-
             # 각 논문에서 제목과 저자 추출
             self.printStatus(f"{year} {conf} Crawling...", url=url)
-            title_list = []
             for paper in papers:
                 try:
                     # 제목 추출
                     title_tag = paper.find('span', class_='title')
                     title = title_tag.get_text(strip=True) if title_tag else 'No title found'
-                    if title in title_list:
+                    self.write_log(title)
+                    if title in self.titleList:
                         continue
                     else:
-                        title_list.append(title)
+                        self.titleList.append(title)
                     
                     # 저자 추출
                     authors_origin = []
@@ -308,7 +308,7 @@ class PCSSEARCH:
                         
                 data_copy["author_name"] = new_authors
                 self.FinalData.append(data_copy)
-                
+            
             tasks = [authorCounter(data, session) for data in self.CrawlData]
 
             # 비동기 작업 병렬 실행
@@ -484,7 +484,8 @@ class PCSSEARCH:
                 return stats
             soup = BeautifulSoup(res, "lxml")
 
-            publ_lists = soup.find('ul', class_='publ-list')
+            publ_lists = soup.find_all('ul', class_='publ-list')
+        
             if publ_lists is None:
                 return stats
 
