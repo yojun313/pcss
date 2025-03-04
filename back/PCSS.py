@@ -133,7 +133,7 @@ class PCSSEARCH:
                     # 제목 추출
                     title_tag = paper.find('span', class_='title')
                     title = title_tag.get_text(strip=True) if title_tag else 'No title found'
-
+                        
                     # 저자 추출
                     authors_origin = []
                     authors_url = []
@@ -728,7 +728,7 @@ class PCSSEARCH:
             os.system("clear")
 
 if __name__ == "__main__":
-    pcssearch_obj = PCSSEARCH(1, False, 2024, 2024)
+    pcssearch_obj = PCSSEARCH(1, 0.5, 2024, 2024)
 
-    conf_list = ['CCS']
+    conf_list = ['ASPLOS']
     pcssearch_obj.main(conf_list)
