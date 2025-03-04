@@ -5,9 +5,9 @@
 *.pyc
 mail_lock.json
 lock.json
-llm_name.json
 node_modules/
 front/node_modules/
+llm_name.json
 res/
 log/
 user_history/
