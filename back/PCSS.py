@@ -133,7 +133,6 @@ class PCSSEARCH:
                     # 제목 추출
                     title_tag = paper.find('span', class_='title')
                     title = title_tag.get_text(strip=True) if title_tag else 'No title found'
-                    self.write_log(title)
                     if title in self.titleList:
                         continue
                     else:
