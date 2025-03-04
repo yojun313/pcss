@@ -128,12 +128,17 @@ class PCSSEARCH:
 
             # 각 논문에서 제목과 저자 추출
             self.printStatus(f"{year} {conf} Crawling...", url=url)
+            title_list = []
             for paper in papers:
                 try:
                     # 제목 추출
                     title_tag = paper.find('span', class_='title')
                     title = title_tag.get_text(strip=True) if title_tag else 'No title found'
-                        
+                    if title in title_list:
+                        continue
+                    else:
+                        title_list.append(title)
+                    
                     # 저자 추출
                     authors_origin = []
                     authors_url = []
