@@ -134,21 +134,16 @@ def collect_author(confList):
             papers = soup.find_all('li', class_='entry inproceedings')
             # 각 논문에서 제목과 저자 추출
             for paper in papers:
-                # 제목 추출
-                
-                # 저자 추출
-                authors_origin = []
+
                 author_tags = paper.find_all('span', itemprop='author')
                 for author_tag in author_tags:
                     try:
                         author_name_tag = author_tag.find('span', itemprop='name')
                         if author_name_tag:
-                            authors_origin.append(author_name_tag.get_text(strip=True))
+                            final_author_list.append(author_name_tag.get_text(strip=True))
+                            print(f"\r{len(final_author_list)}", end='')
                     except:
                         continue
-
-                final_author_list.extend(authors_origin)
-                print(f"\r{len(final_author_list)}", end='')
                 
                 # 리스트를 텍스트 파일로 저장
                 output_file_path = os.path.join(os.path.dirname(__file__), 'data', 'authors_list.txt')
