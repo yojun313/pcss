@@ -89,7 +89,7 @@ DAC,dac,Design Automation
 ICCAD,iccad,Design Automation
 VIS,visualization,Visualization
 VR,vr,Visualization
-PPoPP, ppopp, Compiler
-CGO, cgo, Compiler
-PACT, IEEEpact, Compiler
-CC, cc, Compiler
+PPoPP,ppopp,Compiler
+CGO,cgo,Compiler
+PACT,IEEEpact,Compiler
+CC,cc,Compiler

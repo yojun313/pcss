@@ -410,6 +410,7 @@ class PCSSEARCH:
 
         return formatted_value  # 🔹 결과 반환 (0.0 ~ 1.0)
 
+
     def multi_name_llm(self, names):
         result_dict = {}
         remaining_names = [name for name in names if name not in self.name_dict]
