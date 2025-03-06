@@ -156,7 +156,7 @@ def collect_author(confList):
                 print(f"\r{len(final_author_list)}", end='')
                 
                 # 리스트를 텍스트 파일로 저장
-                output_file_path = os.path.join(os.path.dirname(__file__), 'authors_list.txt')
+                output_file_path = os.path.join(os.path.dirname(__file__), 'data', 'authors_list.txt')
                 with open(output_file_path, 'w', encoding='utf-8') as f:
                     for author in final_author_list:
                         f.write(author + '\n')
