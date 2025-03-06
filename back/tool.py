@@ -147,8 +147,6 @@ def collect_author(confList):
                     except:
                         continue
 
-                if len(authors_origin) > 0:
-                    continue
                 final_author_list.extend(authors_origin)
                 print(f"\r{len(final_author_list)}", end='')
                 
