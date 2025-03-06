@@ -240,6 +240,6 @@ def calculate_author():
 
 
 if __name__ == '__main__':
-    # calculate_author()
-    conf_list = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))['conference'].tolist()
-    collect_author(conf_list)
+    calculate_author()
+    # conf_list = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))['conference'].tolist()
+    # collect_author(conf_list)
