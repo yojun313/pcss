@@ -143,17 +143,23 @@ def collect_author(confList):
                 authors_url = []
                 author_tags = paper.find_all('span', itemprop='author')
                 for author_tag in author_tags:
-                    author_name_tag = author_tag.find('span', itemprop='name')
-                    author_url_tag = author_tag.find('a', href=True)['href']
-                    if author_name_tag:
-                        authors_origin.append(author_name_tag.get_text(strip=True))
-                    if author_url_tag:
-                        authors_url.append(author_url_tag)
+                    try:
+                        author_name_tag = author_tag.find('span', itemprop='name')
+                        if author_name_tag:
+                            authors_origin.append(author_name_tag.get_text(strip=True))
+                    except:
+                        continue
 
                 if len(authors_origin) > 0 and len(authors_url) == 0:
                     continue
                 final_author_list.extend(authors_origin)
                 print(f"\r{len(final_author_list)}", end='')
+                
+                # 리스트를 텍스트 파일로 저장
+                output_file_path = os.path.join(os.path.dirname(__file__), 'authors_list.txt')
+                with open(output_file_path, 'w', encoding='utf-8') as f:
+                    for author in final_author_list:
+                        f.write(author + '\n')
                     
 if __name__ == '__main__':
     conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))
