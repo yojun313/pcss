@@ -112,10 +112,50 @@ def local_saver(startyear, endyear, conf_list):
             print(f"Loading {conf_url}")
             response = requests.get(url)
             with open(os.path.join(conf_path, f"{year}_{conf}.html"), "w", encoding="utf-8") as file:
-                file.write(response.text)
+                file.write(response.text)           
+
+def collect_author(confList):      
+    final_author_list = []
+    conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))
+    conf_param_dict = conf_df.set_index('conference')['param'].to_dict()
+    db_path = os.path.join(os.path.dirname(__file__), 'db')
+    
+    for year in range(2010, 2015):
+        for conf in confList:
+            param = conf_param_dict[conf]
+            record_path = os.path.join(db_path, param, f"{year}_{param}.html")
+            if os.path.exists(record_path):
+                with open(record_path, "r", encoding="utf-8") as file:
+                    response = file.read()
+            else:
+                continue   
+
+            soup = BeautifulSoup(response, "lxml")
+            papers = soup.find_all('li', class_='entry inproceedings')
+            # 각 논문에서 제목과 저자 추출
+            for paper in papers:
+                # 제목 추출
+                title_tag = paper.find('span', class_='title')
+                title = title_tag.get_text(strip=True) if title_tag else 'No title found'
                 
+                # 저자 추출
+                authors_origin = []
+                authors_url = []
+                author_tags = paper.find_all('span', itemprop='author')
+                for author_tag in author_tags:
+                    author_name_tag = author_tag.find('span', itemprop='name')
+                    author_url_tag = author_tag.find('a', href=True)['href']
+                    if author_name_tag:
+                        authors_origin.append(author_name_tag.get_text(strip=True))
+                    if author_url_tag:
+                        authors_url.append(author_url_tag)
+
+                if len(authors_origin) > 0 and len(authors_url) == 0:
+                    continue
+                final_author_list.extend(authors_origin)
+                print(f"\r{len(final_author_list)}", end='')
+                    
 if __name__ == '__main__':
-    # conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))
-    # conf_param_list = conf_df['param'].tolist()
-    # local_saver(2010, 2024, conf_param_list)
-    print(authorNumChecker('Yongwoo Lee', 'https://dblp.org/pid/49/8558-1.html'))
+    conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))
+    conf_list = conf_df['conference'].tolist()
+    collect_author(conf_list)
