@@ -135,12 +135,9 @@ def collect_author(confList):
             # 각 논문에서 제목과 저자 추출
             for paper in papers:
                 # 제목 추출
-                title_tag = paper.find('span', class_='title')
-                title = title_tag.get_text(strip=True) if title_tag else 'No title found'
                 
                 # 저자 추출
                 authors_origin = []
-                authors_url = []
                 author_tags = paper.find_all('span', itemprop='author')
                 for author_tag in author_tags:
                     try:
@@ -150,7 +147,7 @@ def collect_author(confList):
                     except:
                         continue
 
-                if len(authors_origin) > 0 and len(authors_url) == 0:
+                if len(authors_origin) > 0:
                     continue
                 final_author_list.extend(authors_origin)
                 print(f"\r{len(final_author_list)}", end='')
