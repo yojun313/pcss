@@ -1,9 +1,0 @@
-https://dblp.org/db/conf/oopsla/oopsla2016.html
-https://dblp.org/db/conf/oopsla/oopsla2015.html
-https://dblp.org/db/conf/oopsla/oopsla2014.html
-https://dblp.org/db/conf/oopsla/oopsla2013.html
-https://dblp.org/db/conf/oopsla/oopsla2012.html
-https://dblp.org/db/conf/oopsla/oopsla2011.html
-https://dblp.org/db/conf/oopsla/oopsla2011c.html
-https://dblp.org/db/conf/oopsla/oopsla2010.html
-https://dblp.org/db/conf/oopsla/oopsla2010c.html

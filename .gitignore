@@ -8,6 +8,7 @@ lock.json
 node_modules/
 front/node_modules/
 res/
+urls/
 log/
 user_history/
 db/
