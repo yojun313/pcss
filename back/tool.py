@@ -5,13 +5,20 @@ import pandas as pd
 import os
 import re
 import json
+import random
 
 conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))
 conf_list = conf_df['param'].tolist()
 
+with open("D:/BIGMACLAB/CRAWLER/아이피샵(유동프록시).txt", "r", encoding="utf-8") as f:
+    ipList = [line.strip() for line in f]  # strip()을 사용하여 개행 문자 제거 
+
+def random_proxy():
+    proxy_server = random.choice(ipList)
+    return {"http": 'http://' + proxy_server, 'https': 'http://' + proxy_server}
+
 def authorNumChecker(target_author, url):
     try:
-        
         stats = {
             "first_author": 0,
             "first_or_second_author": 0,
@@ -70,7 +77,6 @@ def authorNumChecker(target_author, url):
 def local_saver(startyear, endyear, conf_list):
     db_path = os.path.join(os.path.dirname(__file__), 'db')
     for conf in conf_list:
-        
         conf_path = os.path.join(db_path, conf)
         
         if not os.path.exists(conf_path):
@@ -101,6 +107,7 @@ def local_saver(startyear, endyear, conf_list):
             year = conf_url[1]
 
             edited_url = re.sub(r'[^\w\-_]', '_', url) + ".html"
+            edited_url = edited_url.replace('https___', '').replace('_html', '')
             
             print(f"Loading {conf_url}")
             response = requests.get(url)
@@ -109,16 +116,13 @@ def local_saver(startyear, endyear, conf_list):
 
 def collect_author(confList):      
     final_author_list = []
-    conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))
-    conf_param_dict = conf_df.set_index('conference')['param'].to_dict()
     db_path = os.path.join(os.path.dirname(__file__), 'db')
     conf_cnt = len(confList)
     for conf_index, conf in enumerate(confList):
-        for year in range(2024, 2025): 
-            param = conf_param_dict[conf]
-            record_path = os.path.join(db_path, param, f"{year}_{param}.html")
-            if not os.path.exists(record_path):
-                continue
+        param = conf
+        folder_path = os.path.join(db_path, param)
+        file_list = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
+        for record_path in file_list:
 
             with open(record_path, "r", encoding="utf-8") as file:
                 response = file.read()
@@ -130,11 +134,13 @@ def collect_author(confList):
             final_author_list.extend(
                 [author.get_text(strip=True) for paper in papers for author in paper.select('span[itemprop="author"] span[itemprop="name"]') if author.get_text(strip=True) not in final_author_list]
             )
+            
+            final_author_list = list(set(final_author_list))
 
             print(f"\r[{conf_index+1}/{conf_cnt}] {len(final_author_list)}", end='')
 
         # 📌 파일 저장은 마지막에 한 번만 수행하여 I/O 부담 줄이기
-        output_file_path = os.path.join(os.path.dirname(__file__), 'data', 'authors_list_2.txt')
+        output_file_path = os.path.join(os.path.dirname(__file__), 'data', 'all_authors.txt')
         with open(output_file_path, 'w', encoding='utf-8') as f:
             f.write('\n'.join(final_author_list) + '\n')
 
@@ -176,8 +182,10 @@ def calculate_author():
     
     def single_name_llm(name):
         
-        if name in name_dict:
-            return name_dict[name]
+        try:
+            return name_dict.get(name)
+        except KeyError:
+            pass
         
         result = llm_api_answer(
             query = f"Express the likelihood of this {name} being Korean using only a number between 0~1. You need to say number only",
@@ -208,7 +216,7 @@ def calculate_author():
     json_filename  = os.path.join(os.path.dirname(__file__), 'data', "llm_name.json")
     name_dict = load_name_dict()
     
-    with open(os.path.join(os.path.dirname(__file__), 'data', 'authors_list_2.txt'), "r", encoding="utf-8") as f:
+    with open(os.path.join(os.path.dirname(__file__), 'data', 'all_authors.txt'), "r", encoding="utf-8") as f:
         lines = f.readlines()
 
     # 개행 문자 제거
@@ -229,6 +237,6 @@ def calculate_author():
     # 마지막 저장 (1000의 배수가 아니어도 실행)
     save_name_dict()
 
-# conf_list = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))['conference'].tolist()
+conf_list = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))['param'].tolist()
 if __name__ == '__main__':
-    result = authorNumChecker("Yelim Yu", "https://dblp.org/pid/358/8563.html")
+    collect_author(conf_list)
