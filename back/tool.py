@@ -122,7 +122,7 @@ def collect_author(confList):
     db_path = os.path.join(os.path.dirname(__file__), 'db')
     conf_cnt = len(confList)
     for conf_index, conf in enumerate(confList):
-        for year in range(2010, 2024): 
+        for year in range(2024, 2025): 
             param = conf_param_dict[conf]
             record_path = os.path.join(db_path, param, f"{year}_{param}.html")
             if not os.path.exists(record_path):
@@ -142,7 +142,7 @@ def collect_author(confList):
             print(f"\r[{conf_index+1}/{conf_cnt}] {len(final_author_list)}", end='')
 
         # 📌 파일 저장은 마지막에 한 번만 수행하여 I/O 부담 줄이기
-        output_file_path = os.path.join(os.path.dirname(__file__), 'data', 'authors_list.txt')
+        output_file_path = os.path.join(os.path.dirname(__file__), 'data', 'authors_list_2.txt')
         with open(output_file_path, 'w', encoding='utf-8') as f:
             f.write('\n'.join(final_author_list) + '\n')
 
@@ -217,7 +217,7 @@ def calculate_author():
     json_filename  = os.path.join(os.path.dirname(__file__), 'data', "llm_name.json")
     name_dict = load_name_dict()
     
-    with open(os.path.join(os.path.dirname(__file__), 'data', 'authors_list.txt'), "r", encoding="utf-8") as f:
+    with open(os.path.join(os.path.dirname(__file__), 'data', 'authors_list_2.txt'), "r", encoding="utf-8") as f:
         lines = f.readlines()
 
     # 개행 문자 제거
