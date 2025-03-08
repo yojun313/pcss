@@ -2,6 +2,7 @@ from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_ollama import OllamaLLM
 import platform
+import aiofiles
 from bs4 import BeautifulSoup
 from user_agent import generate_navigator
 import requests
@@ -83,168 +84,212 @@ class PCSSEARCH:
     async def conf_crawl(self, conf, session, conf_name):
         try:
             self.printStatus(f"{conf_name} Loading...", url=f"https://dblp.org/db/conf/{conf}/index.html")
-            response = await self.asyncRequester(f"https://dblp.org/db/conf/{conf}/index.html", session=session)
-            if isinstance(response, tuple) == True:
-                return response
-            self.printStatus(f"{conf_name} URL Crawling...", url=f"https://dblp.org/db/conf/{conf}/index.html")
+            
+            folder_path = os.path.join(os.path.dirname(__file__), 'urls')
+            file_path = os.path.join(folder_path, f"{conf_name}.txt")
+            
+            if os.path.exists(file_path) and self.endyear != 2025:
+                # 이미 파일이 있다면, 해당 내용 사용
+                filtered_urls = []
+                async with aiofiles.open(file_path, 'r', encoding='utf-8') as f:
+                    async for line in f:
+                        line = line.strip()
+                        if not line:
+                            continue
 
-            soup = BeautifulSoup(response, "lxml")
+                        # 정규식으로 4자리 숫자를 검색
+                        match = re.search(r'\d{4}', line)
+                        if match:
+                            year_str = match.group()
+                            try:
+                                year_int = int(year_str)
+                                filtered_urls.append((line, year_int))
+                            except ValueError:
+                                # 4자리 숫자가 int로 변환 불가능한 경우(거의 없긴 함)
+                                filtered_urls.append((line, None))
+                        else:
+                            # URL에 4자리 숫자가 아예 없으면 None 처리
+                            filtered_urls.append((line, None))
+                            return filtered_urls
+            else:
+                response = await self.asyncRequester(f"https://dblp.org/db/conf/{conf}/index.html", session=session)
+                if isinstance(response, tuple) == True:
+                    return response
+                self.printStatus(f"{conf_name} URL Crawling...", url=f"https://dblp.org/db/conf/{conf}/index.html")
 
-            links = soup.find_all('a', class_='toc-link')
-            urls = [link['href'] for link in links if link['href']]
-            filtered_urls = []
+                soup = BeautifulSoup(response, "lxml")
 
-            for url in urls:
-                match = re.search(r'\d{4}', url)  # 4자리 숫자 찾기
-                if match:
-                    year_str = match.group()
-                    if year_str.isdigit():  
-                        year = int(year_str)
-                        if self.startyear <= year <= self.endyear:
-                            filtered_urls.append((url, year))
-                        
-            return filtered_urls
+                links = soup.find_all('a', class_='toc-link')
+                urls = [link['href'] for link in links if link['href']]
+                filtered_urls = []
+
+                for url in urls:
+                    match = re.search(r'\d{4}', url)  # 4자리 숫자 찾기
+                    if match:
+                        year_str = match.group()
+                        if year_str.isdigit():  
+                            year = int(year_str)
+                            if self.startyear <= year <= self.endyear:
+                                filtered_urls.append((url, year))
+                            
+                return filtered_urls
         except:
             self.write_log(traceback.format_exc())
             return []
 
     # 한 개의 Paper에 대한 크롤링 함수
     async def paper_crawl(self, conf, url, year, session):
-        try:            
+        try:
             self.printStatus(f"{year} {conf} Loading...", url=url)
-            
             param = self.conf_param_dict[conf]
             record_path = os.path.join(self.db_path, param, f"{year}_{param}.html")
+            
+            # 비동기 파일 읽기: 파일이 존재하면 aiofiles로 읽음
             if os.path.exists(record_path):
-                with open(record_path, "r", encoding="utf-8") as file:
-                    response = file.read()
+                async with aiofiles.open(record_path, "r", encoding="utf-8") as file:
+                    response = await file.read()
             else:
                 response = await self.asyncRequester(url, session=session)
             
-            if isinstance(response, tuple) == True:
+            if isinstance(response, tuple):
                 return response         
 
-            soup = BeautifulSoup(response, "lxml")
-            papers = soup.find_all('li', class_='entry inproceedings')
-            # 각 논문에서 제목과 저자 추출
+            # CPU 바운드 파싱 작업은 별도 스레드에서 실행
+            soup = await asyncio.to_thread(BeautifulSoup, response, "lxml")
+            
+            # li.entry.inproceedings 태그를 한 번에 select로 가져옵니다.
+            papers = soup.select('li.entry.inproceedings')
+
             self.printStatus(f"{year} {conf} Crawling...", url=url)
+            
+            # titleList를 집합으로도 관리(초기화)
+            if not hasattr(self, "_titleSet"):
+                self._titleSet = set(self.titleList)
+            
+            # 동기 for 루프로 처리 (비동기로 할 이득이 없는 CPU 작업)
             for paper in papers:
                 try:
                     # 제목 추출
-                    title_tag = paper.find('span', class_='title')
+                    title_tag = paper.select_one('span.title')
                     title = title_tag.get_text(strip=True) if title_tag else 'No title found'
-                    if title in self.titleList:
+
+                    # 중복 체크
+                    if title in self._titleSet:
                         continue
-                    else:
-                        self.titleList.append(title)
-                    
+                    self._titleSet.add(title)
+                    self.titleList.append(title)
+
                     # 저자 추출
                     authors_origin = []
                     authors_url = []
-                    author_tags = paper.find_all('span', itemprop='author')
-                    for author_tag in author_tags:
-                        author_name_tag = author_tag.find('span', itemprop='name')
-                        author_url_tag = author_tag.find('a', href=True)['href']
+
+                    # 저자 정보를 한 번에 select
+                    author_tags = paper.select('span[itemprop="author"] > a[href]')
+                    if not author_tags:
+                        # 저자가 하나도 없거나 a[href]가 아예 없는 경우
+                        continue
+
+                    for a in author_tags:
+                        author_name_tag = a.select_one('span[itemprop="name"]')
                         if author_name_tag:
                             authors_origin.append(author_name_tag.get_text(strip=True))
-                        if author_url_tag:
-                            authors_url.append(author_url_tag)
+                        authors_url.append(a['href'])
 
-                    if len(authors_origin) > 0 and len(authors_url) == 0:
+                    # authors_origin 있고, authors_url이 하나도 없는 경우는 skip
+                    if authors_origin and not authors_url:
                         continue
 
-                    # # Gil Dong Hong 이렇게 쪼개져있을 때 Gildong Hong으로 붙임
-                    # authors = []
-                    # for name in authors_origin:
-                    #     parts = name.split()
-                    #     if len(parts) >= 3:
-                    #         full_name = parts[0] + parts[1].lower()
-                    #         authors.append(full_name)
-                    #     else:
-                    #         authors.append(name)
+                    if not authors_origin:
+                        continue
+
+                    # 조건별 필터링/저장
+                    # ----------------------------------------------------
                     authors = authors_origin
+                    def store_if_korean(idx_list):
+                        """idx_list에 해당하는 저자가 한국인이면 저장"""
+                        target_authors = []
+                        for idx in idx_list:
+                            if idx < len(authors) and self.koreanChecker(authors[idx]):
+                                # 이미 name_dict에 값이 있을 것이므로 가져오기
+                                target_authors.append(
+                                    authors[idx] + f'({self.name_dict[authors[idx]]})'
+                                )
+                        return target_authors
 
-                    if len(authors) == 0:
-                        continue
-                    
-                    # 1저자가 한국인
                     if self.option == 1:
+                        # 1저자
                         if self.koreanChecker(authors[0]):
-                            self.CrawlData.append({
-                                'title': title, 
-                                'author_name': authors, 
-                                'author_url': authors_url, 
-                                'target_author': [authors[0]+f'({self.name_dict[authors[0]]})'], 
-                                'conference': conf, 
-                                'year': year, 
-                                'source': url
-                            })
-                            
-                    # 1저자 또는 2저자가 한국인
-                    elif self.option == 2:
-                        target_authors = [
-                            author + f'({self.name_dict[author]})' 
-                            for author in authors[:2] if self.koreanChecker(author)
-                        ]
-
-                        if target_authors:
                             self.CrawlData.append({
                                 'title': title,
                                 'author_name': authors,
                                 'author_url': authors_url,
-                                'target_author': target_authors,
+                                'target_author': [authors[0] + f'({self.name_dict[authors[0]]})'],
                                 'conference': conf,
                                 'year': year,
                                 'source': url
                             })
-                            
-                    # 마지막 저자가 한국인
+                    elif self.option == 2:
+                        # 1저자 또는 2저자
+                        target = store_if_korean([0, 1])  # 0,1인덱스
+                        if target:
+                            self.CrawlData.append({
+                                'title': title,
+                                'author_name': authors,
+                                'author_url': authors_url,
+                                'target_author': target,
+                                'conference': conf,
+                                'year': year,
+                                'source': url
+                            })
                     elif self.option == 3:
+                        # 마지막 저자
                         if self.koreanChecker(authors[-1]):
                             self.CrawlData.append({
                                 'title': title, 
-                                'author_name': authors, 
-                                'author_url': authors_url, 
-                                'target_author': [authors[-1]+f'({self.name_dict[authors[-1]]})'], 
-                                'conference': conf, 'year': year, 
-                                'source': url
-                            })
-                            
-                    # 1저자 또는 마지막 저자가 한국인
-                    elif self.option == 4:
-                        target_authors = [
-                            author + f'({self.name_dict[author]})' 
-                            for author in [authors[0], authors[-1]] if self.koreanChecker(author)
-                        ]
-
-                        if target_authors:
-                            self.CrawlData.append({
-                                'title': title,
                                 'author_name': authors,
                                 'author_url': authors_url,
-                                'target_author': target_authors,
+                                'target_author': [authors[-1] + f'({self.name_dict[authors[-1]]})'],
                                 'conference': conf,
                                 'year': year,
                                 'source': url
                             })
-                    
-                    # 저자 중 한 명 이상이 한국인
-                    else:
-                        target_list = [author+f'({self.name_dict[author]})' for author in authors if self.koreanChecker(author)]
-                        if len(target_list) > 0:
+                    elif self.option == 4:
+                        # 1저자 또는 마지막 저자
+                        target = []
+                        if self.koreanChecker(authors[0]):
+                            target.append(authors[0] + f'({self.name_dict[authors[0]]})')
+                        if len(authors) > 1 and self.koreanChecker(authors[-1]):
+                            target.append(authors[-1] + f'({self.name_dict[authors[-1]]})')
+                        if target:
                             self.CrawlData.append({
-                                'title': title, 
-                                'author_name': authors, 
-                                'author_url': authors_url, 
-                                'target_author': target_list, 
-                                'conference': conf, 
-                                'year': year, 
+                                'title': title,
+                                'author_name': authors,
+                                'author_url': authors_url,
+                                'target_author': target,
+                                'conference': conf,
+                                'year': year,
                                 'source': url
                             })
-
-
+                    else:
+                        # 저자 중 한 명 이상이 한국인
+                        target = []
+                        for auth in authors:
+                            if self.koreanChecker(auth):
+                                target.append(auth + f'({self.name_dict[auth]})')
+                        if target:
+                            self.CrawlData.append({
+                                'title': title,
+                                'author_name': authors,
+                                'author_url': authors_url,
+                                'target_author': target,
+                                'conference': conf,
+                                'year': year,
+                                'source': url
+                            })
+                    # ----------------------------------------------------
                 except:
                     self.write_log(traceback.format_exc())
+
         except:
             self.write_log(traceback.format_exc())
 
@@ -263,79 +308,75 @@ class PCSSEARCH:
         except:
             self.write_log(traceback.format_exc())
 
-    # 여러 Conference에 대한 병렬 크롤링 함수
+
     async def MultiConfCollector(self, conf_list):
         try:
-            # 비동기 세션 생성
-            session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=self.speed))
+            # 하나의 세션을 재사용하며 관리 (async with 사용)
+            async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=self.speed)) as session:
+                # 각 컨퍼런스에 대해 동시 크롤링 수행
+                async def process_conference(conf):
+                    conf_name = conf
+                    conf_param = self.conf_param_dict[conf_name]
+                    conf_urls = await self.conf_crawl(conf_param, session, conf_name)
+                    await self.MultiPaperCollector(conf_urls, conf_name, session)
 
-            # 여러개의 Conference에 대해 동시 크롤링 수행
-            async def process_conference(conf):
-                conf_name = conf
-                conf_param = self.conf_param_dict[conf_name]
-                conf_urls = await self.conf_crawl(conf_param, session, conf_name)
-                await self.MultiPaperCollector(conf_urls, conf_name, session)
+                # 컨퍼런스 크롤링 작업들을 병렬 실행
+                tasks = [process_conference(conf) for conf in conf_list]
+                await asyncio.gather(*tasks, return_exceptions=True)
 
-            # 각 컨퍼런스에 대해 비동기 작업 생성
-            tasks = [process_conference(conf) for conf in conf_list]
+                # 첫 번째 단계 완료 후, 결과를 저장할 리스트 초기화
+                self.resultData = []
 
-            # 비동기 작업 병렬 실행
-            await asyncio.gather(*tasks)
+                # 저자 통계 처리 비동기 함수
+                async def authorCounter(data):
+                    data_copy = copy.deepcopy(data)
+                    new_authors = []
+                    multi_name_option = False  # 필요에 따라 True로 변경 가능
+                    
+                    if not multi_name_option:
+                        for index, author in enumerate(data_copy["author_name"]):
+                            if not self.koreanChecker(author):
+                                new_authors.append(author)
+                                continue
+                            stats = await self.authorNumChecker(author, data['author_url'][index], session)
+                            new_authors.append(author + stats)
+                    else:
+                        llm_result = self.multi_name_llm(data_copy['author_name'])
+                        for index, (author, result) in enumerate(llm_result.items()):
+                            if not result:
+                                new_authors.append(author)
+                                continue
+                            stats = await self.authorNumChecker(author, data['author_url'][index], session)
+                    data_copy["author_name"] = new_authors
+                    self.resultData.append(data_copy)
 
-            self.FinalData = []
+                # 각 데이터에 대해 저자 처리 작업들을 병렬 실행
+                tasks = [authorCounter(data) for data in self.CrawlData]
+                await asyncio.gather(*tasks, return_exceptions=True)
 
-            async def authorCounter(data, session):
-                data_copy = copy.deepcopy(data)
-                new_authors = []
-
-                multi_name_option = False
-                
-                if multi_name_option == False:
-                    for index, author in enumerate(data_copy["author_name"]):
-                        if self.koreanChecker(author) == False:
-                            new_authors.append(author)
-                            continue
-                        stats = await self.authorNumChecker(author, data['author_url'][index], session)
-                        new_authors.append(author+stats)
-                else:
-                    llm_result = self.multi_name_llm(data_copy['author_name'])
-                    for index, (author, result) in enumerate(llm_result.items()):
-                        if result == False:
-                            new_authors.append(author)
-                            continue
-                        stats = await self.authorNumChecker(author, data['author_url'][index], session)
-                        
-                data_copy["author_name"] = new_authors
-                self.FinalData.append(data_copy)
-            
-            tasks = [authorCounter(data, session) for data in self.CrawlData]
-
-            # 비동기 작업 병렬 실행
-            await asyncio.gather(*tasks)
-            await session.close()
-
-            self.FinalData = sorted(self.FinalData, key=lambda x: (x["conference"], -x["year"]))
+            # 세션이 종료된 후에 최종 데이터를 정렬 및 JSON 파일로 저장
+            self.FinalData = sorted(self.resultData, key=lambda x: (x["conference"], -x["year"]))
             self.FinalData = {index: element for index, element in enumerate(self.FinalData)}
 
             json_path = os.path.join(os.path.dirname(__file__), 'res', f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json")
-            # 딕셔너리를 JSON 파일로 저장
             with open(json_path, 'w', encoding='utf-8') as json_file:
                 json.dump(self.FinalData, json_file, ensure_ascii=False, indent=4)
 
             self.clear_console()
             print(f" PATH={json_path}")
             self.result_json_path = json_path
-            
-        except:
-            print(f" PATH=ERROR")
+            return self.result_json_path
+
+        except Exception as e:
+            print(" PATH=ERROR", e)
             self.write_log(traceback.format_exc())
 
     # 메인 함수
     def main(self, conf_list):
         try:
-            asyncio.run(self.MultiConfCollector(conf_list))
+            result_json_path = asyncio.run(self.MultiConfCollector(conf_list))
 
-            return self.result_json_path
+            return result_json_path
         except:
             self.write_log(traceback.format_exc())
 
@@ -373,10 +414,11 @@ class PCSSEARCH:
 
 
     def single_name_llm(self, name):
-            
-        if name in self.name_dict:
-            return self.name_dict[name]
         
+        try:
+            return self.name_dict[name]
+        except KeyError:
+            pass
         
         if self.llm_api_option == False:
             template = "Express the likelihood of this {name} being Korean using only a number between 0~1. You need to say number only"
@@ -537,6 +579,7 @@ class PCSSEARCH:
         except Exception as e:
             self.write_log(traceback.format_exc())
             return stats
+
 
     def printStatus(self, msg='', url=None):
         try:
@@ -734,7 +777,8 @@ class PCSSEARCH:
             os.system("clear")
 
 if __name__ == "__main__":
-    pcssearch_obj = PCSSEARCH(1, 0.5, 2024, 2024)
-
-    conf_list = ['ASPLOS']
+    pcssearch_obj = PCSSEARCH(1, 0.5, 2023, 2023)
+    conf_list = ['CIKM', 'ICDM', 'KDD']
     pcssearch_obj.main(conf_list)
+    
+    
