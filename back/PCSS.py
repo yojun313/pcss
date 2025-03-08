@@ -128,10 +128,15 @@ class PCSSEARCH:
         try:
             self.printStatus(f"{year} {conf} Loading...", url=url)
             param = self.conf_param_dict[conf]
-            record_path = os.path.join(self.db_path, param, f"{year}_{param}.html")
+            
+            edited_url = re.sub(r'[^\w\-_]', '_', url) + ".html"
+            edited_url = edited_url.replace('https___', '').replace('_html', '')
+            
+            record_path = os.path.join(self.db_path, param, edited_url)
             
             # 비동기 파일 읽기: 파일이 존재하면 aiofiles로 읽음
             if os.path.exists(record_path):
+                self.write_log(f"Reading {record_path}...")
                 async with aiofiles.open(record_path, "r", encoding="utf-8") as file:
                     response = await file.read()
             else:
