@@ -151,8 +151,6 @@ io.on('connection', (socket) => {
                         }
                     });
                 } else {
-                    const errorMsg = 'PATH를 포함하는 문자열을 찾을 수 없습니다.';
-                    logError(errorMsg);
                     socket.emit('redirect_to_results', { isDictionary: false, data: errorMsg });
                 }
             } catch (err) {

@@ -125,8 +125,8 @@ class PCSSEARCH:
                 links = soup.find_all('a', class_='toc-link')
                 urls = [link['href'] for link in links if link['href']]
                 
-                async with aiofiles.open(file_path, 'w', encoding='utf-8') as f:
-                    async for url in urls:
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    for url in urls:
                         f.write(url + '\n')
 
             for url in urls:
@@ -503,6 +503,28 @@ class PCSSEARCH:
 
         return {name: result_dict.get(name, "0.0") for name in names}  # 원래 순서 유지
 
+    def llm_api_answer(self, query, model):
+        # 전송할 데이터
+        data = {
+            "model": model,
+            "prompt": query
+        }
+
+        try:
+            # POST 요청 보내기
+            response = requests.post(self.api_url, json=data)
+
+            # 응답 확인
+            if response.status_code == 200:
+                result = response.json()['response']
+                result = result.replace('<think>', '').replace('</think>', '').replace('\n\n', '')
+                return result
+            else:
+                return f"Failed to get a valid response: {response.status_code} {response.text}"
+
+        except requests.exceptions.RequestException as e:
+            return "Error communicating with the server: {e}"
+
 
     def save_name_dict(self):
         """ name_dict를 JSON 파일로 저장 """
@@ -642,29 +664,6 @@ class PCSSEARCH:
         except Exception as e:
              return ("ERROR", traceback.format_exc())
     
-    
-    def llm_api_answer(self, query, model):
-        # 전송할 데이터
-        data = {
-            "model": model,
-            "prompt": query
-        }
-
-        try:
-            # POST 요청 보내기
-            response = requests.post(self.api_url, json=data)
-
-            # 응답 확인
-            if response.status_code == 200:
-                result = response.json()['response']
-                result = result.replace('<think>', '').replace('</think>', '').replace('\n\n', '')
-                return result
-            else:
-                return f"Failed to get a valid response: {response.status_code} {response.text}"
-
-        except requests.exceptions.RequestException as e:
-            return "Error communicating with the server: {e}"
-
 
     async def asyncRequester(self, url, headers={}, params={}, proxies='', cookies={}, session=None):
         timeout = aiohttp.ClientTimeout(total=TIMEOUT)
@@ -673,6 +672,7 @@ class PCSSEARCH:
             try:
                 if self.proxy_option:
                     proxies = self.async_proxy()
+                headers = self.random_heador()
                 async with session.get(url, headers=headers, params=params, proxy=proxies, cookies=cookies,
                                        ssl=False, timeout=TIMEOUT) as response:
                     return await response.text()
