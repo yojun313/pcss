@@ -99,13 +99,12 @@ def local_saver(startyear, endyear, conf_list):
         for conf_url in conf_urls:
             url = conf_url[0]
             year = conf_url[1]
-            
-            if os.path.exists(os.path.join(conf_path, f"{year}_{conf}.html")):
-                continue
+
+            edited_url = re.sub(r'[^\w\-_]', '_', url) + ".html"
             
             print(f"Loading {conf_url}")
             response = requests.get(url)
-            with open(os.path.join(conf_path, f"{year}_{conf}.html"), "w", encoding="utf-8") as file:
+            with open(os.path.join(conf_path, edited_url), "w", encoding="utf-8") as file:
                 file.write(response.text)           
 
 def collect_author(confList):      
