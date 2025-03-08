@@ -110,7 +110,6 @@ class PCSSEARCH:
                         else:
                             # URL에 4자리 숫자가 아예 없으면 None 처리
                             filtered_urls.append((line, None))
-                            return filtered_urls
             else:
                 response = await self.asyncRequester(f"https://dblp.org/db/conf/{conf}/index.html", session=session)
                 if isinstance(response, tuple) == True:
@@ -132,7 +131,7 @@ class PCSSEARCH:
                             if self.startyear <= year <= self.endyear:
                                 filtered_urls.append((url, year))
                             
-                return filtered_urls
+            return filtered_urls
         except:
             self.write_log(traceback.format_exc())
             return []
