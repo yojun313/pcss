@@ -277,7 +277,8 @@
             option: "선택 옵션",
             startyear: "연도 범위",
             threshold: "한국인 판단 기준값",
-            selectedConferences: "선택 학회"
+            CountOption: "저자별 논문 Count",
+            selectedConferences: "선택 학회",
           };
 
           // 옵션 변환 함수
@@ -323,7 +324,7 @@
               value = data['uncertainty'];
             } else if (key === 'startyear' || key === 'endyear') {
               value = data['startyear'] + " ~ " + data['endyear'];
-            } else {
+            } else if (key === 'CountOption') {
               value = data[key];
             }
             cellValue.textContent = value;
@@ -344,6 +345,7 @@
       socket.on('python_output', (data) => {
         const trimmed = data.trim();
         if (trimmed.startsWith('PATH=') && trimmed.endsWith('.json')) {
+          output.innerHTML = `<div>${"Importing Data..."}</div>`;
           return;
         }
         output.innerHTML = `<div>${data}</div>`;

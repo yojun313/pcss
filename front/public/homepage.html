@@ -309,7 +309,7 @@
         <form id="filter-form" style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
           <!-- 드롭다운 메뉴 -->
           <div class="form-group">
-            <label for="dropdown">Select an Option:</label>
+            <label for="dropdown">옵션:</label>
             <select id="option" name="option">
               <option value="1">1저자가 한국인</option>
               <option value="2">1저자 또는 2저자가 한국인</option>
@@ -384,6 +384,17 @@
               </script>
             </select>
           </div>
+          <!-- 예 / 아니오 선택 -->
+          <div class="form-group">
+            <label>저자별 논문 Count:</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input type="radio" id="yes" name="CountOption" value="yes" checked>
+              <label for="yes">예</label>
+              <input type="radio" id="no" name="CountOption" value="no">
+              <label for="no">아니오</label>
+            </div>
+          </div>
+
           
 
           <!-- 제출 버튼 -->

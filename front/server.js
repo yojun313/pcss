@@ -98,7 +98,7 @@ app.post('/submit', (req, res) => {
 io.on('connection', (socket) => {
     socket.on('start-python', () => {
         let pythonOutput = '';
-
+        console.log(globalInputData);
         const pythonProcess = spawn('python', ['-u', path.join(__dirname, '..', 'back', 'PCSS_WEB.py'), JSON.stringify(globalInputData)]);
 
         pythonProcess.stdout.on('data', (data) => {

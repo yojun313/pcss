@@ -39,12 +39,13 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 class PCSSEARCH:
-    def __init__(self, option, threshold, startyear, endyear):
+    def __init__(self, option, threshold, startyear, endyear, countOption=True):
 
         self.option         = option
         self.threshold      = threshold
         self.startyear      = int(startyear)
-        self.endyear        = int(endyear)                    
+        self.endyear        = int(endyear)       
+        self.countOption    = countOption             
 
         self.proxy_option   = True
         self.proxy_path     = "C:/Users/magel/Documents/아이피샵(유동프록시).txt"
@@ -176,7 +177,6 @@ class PCSSEARCH:
             if not hasattr(self, "_titleSet"):
                 self._titleSet = set(self.titleList)
             
-            # 동기 for 루프로 처리 (비동기로 할 이득이 없는 CPU 작업)
             for paper in papers:
                 try:
                     # 제목 추출
@@ -359,9 +359,12 @@ class PCSSEARCH:
                     data_copy["author_name"] = new_authors
                     self.resultData.append(data_copy)
 
-                # 각 데이터에 대해 저자 처리 작업들을 병렬 실행
-                tasks = [authorCounter(data) for data in self.CrawlData]
-                await asyncio.gather(*tasks, return_exceptions=True)
+                if self.countOption:
+                    # 각 데이터에 대해 저자 처리 작업들을 병렬 실행
+                    tasks = [authorCounter(data) for data in self.CrawlData]
+                    await asyncio.gather(*tasks, return_exceptions=True)
+                else:
+                    self.resultData = self.CrawlData
 
             # 세션이 종료된 후에 최종 데이터를 정렬 및 JSON 파일로 저장
             self.FinalData = sorted(self.resultData, key=lambda x: (x["conference"], -x["year"]))
