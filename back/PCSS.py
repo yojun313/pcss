@@ -34,7 +34,6 @@ if com == 'z8':
 elif com == 'cluster':
     LLM_SERVER = '141.223.16.196'
     PORT = "8089"
-    
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -103,13 +102,12 @@ class PCSSEARCH:
                             year_str = match.group()
                             try:
                                 year_int = int(year_str)
-                                filtered_urls.append((line, year_int))
+                                if self.startyear <= year_int <= self.endyear:
+                                    filtered_urls.append((line, year_int))
                             except ValueError:
-                                # 4자리 숫자가 int로 변환 불가능한 경우(거의 없긴 함)
-                                filtered_urls.append((line, None))
+                                pass
                         else:
-                            # URL에 4자리 숫자가 아예 없으면 None 처리
-                            filtered_urls.append((line, None))
+                            pass
             else:
                 response = await self.asyncRequester(f"https://dblp.org/db/conf/{conf}/index.html", session=session)
                 if isinstance(response, tuple) == True:
@@ -379,6 +377,33 @@ class PCSSEARCH:
         except:
             self.write_log(traceback.format_exc())
 
+    async def gather_urls_for_confs(self, conf_list):
+        # 실행 코드 예시
+        # pcs = PCSSEARCH(option=1, threshold=0.5, startyear=2010, endyear=2025)
+        # conf_list = ["CIKM", "ICDM", "KDD"]
+        # asyncio.run(pcs.gather_urls_for_confs(conf_list))
+        
+        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=self.speed)) as session:
+            for conf in conf_list:
+                conf_name = conf
+                conf_urls = await self.conf_crawl(conf_name, session, conf_name)
+                if isinstance(conf_urls, tuple) and conf_urls[0] == "ERROR":
+                    self.write_log(f"Error retrieving {conf_name}: {conf_urls[1]}")
+                    continue
+
+                # 텍스트 파일 경로 지정
+                file_path = os.path.join(
+                    os.path.dirname(__file__), 
+                    'urls', 
+                    f'{conf_name}.txt'
+                )
+                
+                # URL만 한 줄에 하나씩 저장
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    for url_val, _ in conf_urls:
+                        f.write(url_val + '\n')
+                
+                print(f"{conf_name} URLs saved to {file_path}")
 
     def koreanChecker(self, name, multi=False):
         if multi == False:
