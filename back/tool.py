@@ -22,9 +22,11 @@ def authorNumChecker(target_author, url):
         res = requests.get(url)
         soup = BeautifulSoup(res.text, "html.parser")
 
-        publ_lists = soup.find_all('ul', class_='publ-list')
-        if publ_lists is None:
-            return stats
+        while True:
+            publ_lists = soup.find_all('ul', class_='publ-list')
+            if publ_lists is None or len(publ_lists) == 0:
+                continue
+            break
 
         papers = []
         for publ_list in publ_lists:
@@ -43,18 +45,9 @@ def authorNumChecker(target_author, url):
                     author_list = [author.get_text(strip=True) for author in authors]
                     author_list.pop()
 
-                    authors = []
-                    for name in author_list:
-                        parts = name.split()
-                        if len(parts) >= 3:
-                            full_name = parts[0] + parts[1].lower()
-                            authors.append(full_name)
-                        else:
-                            authors.append(name)
-
                     papers.append({
                         'title': title,
-                        'authors': authors
+                        'authors': author_list
                     })
 
             for paper in papers:
@@ -69,7 +62,7 @@ def authorNumChecker(target_author, url):
                         stats["last_author"] += 1
                     else:
                         stats["co_author"] += 1
-
+        print(f"({stats['first_author']},{stats['first_or_second_author']},{stats['last_author']},{stats['co_author']})")
         return f"({stats['first_author']},{stats['first_or_second_author']},{stats['last_author']},{stats['co_author']})"
     except Exception as e:
         print(e)
@@ -145,7 +138,6 @@ def collect_author(confList):
         output_file_path = os.path.join(os.path.dirname(__file__), 'data', 'authors_list_2.txt')
         with open(output_file_path, 'w', encoding='utf-8') as f:
             f.write('\n'.join(final_author_list) + '\n')
-
 
 def calculate_author():
     
@@ -238,8 +230,6 @@ def calculate_author():
     # 마지막 저장 (1000의 배수가 아니어도 실행)
     save_name_dict()
 
-
+# conf_list = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))['conference'].tolist()
 if __name__ == '__main__':
-    calculate_author()
-    # conf_list = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))['conference'].tolist()
-    # collect_author(conf_list)
+    result = authorNumChecker("Yelim Yu", "https://dblp.org/pid/358/8563.html")

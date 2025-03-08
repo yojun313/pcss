@@ -83,31 +83,20 @@ class PCSSEARCH:
     async def conf_crawl(self, conf, session, conf_name):
         try:
             self.printStatus(f"{conf_name} Loading...", url=f"https://dblp.org/db/conf/{conf}/index.html")
+            filtered_urls = []
+            urls = []
             
             folder_path = os.path.join(os.path.dirname(__file__), 'urls')
             file_path = os.path.join(folder_path, f"{conf_name}.txt")
             
             if os.path.exists(file_path) and self.endyear != 2025:
                 # 이미 파일이 있다면, 해당 내용 사용
-                filtered_urls = []
                 async with aiofiles.open(file_path, 'r', encoding='utf-8') as f:
                     async for line in f:
                         line = line.strip()
                         if not line:
                             continue
-
-                        # 정규식으로 4자리 숫자를 검색
-                        match = re.search(r'\d{4}', line)
-                        if match:
-                            year_str = match.group()
-                            try:
-                                year_int = int(year_str)
-                                if self.startyear <= year_int <= self.endyear:
-                                    filtered_urls.append((line, year_int))
-                            except ValueError:
-                                pass
-                        else:
-                            pass
+                        urls.append(line)
             else:
                 response = await self.asyncRequester(f"https://dblp.org/db/conf/{conf}/index.html", session=session)
                 if isinstance(response, tuple) == True:
@@ -118,16 +107,16 @@ class PCSSEARCH:
 
                 links = soup.find_all('a', class_='toc-link')
                 urls = [link['href'] for link in links if link['href']]
-                filtered_urls = []
+                
 
-                for url in urls:
-                    match = re.search(r'\d{4}', url)  # 4자리 숫자 찾기
-                    if match:
-                        year_str = match.group()
-                        if year_str.isdigit():  
-                            year = int(year_str)
-                            if self.startyear <= year <= self.endyear:
-                                filtered_urls.append((url, year))
+            for url in urls:
+                match = re.search(r'\d{4}', url)  # 4자리 숫자 찾기
+                if match:
+                    year_str = match.group()
+                    if year_str.isdigit():  
+                        year = int(year_str)
+                        if self.startyear <= year <= self.endyear:
+                            filtered_urls.append((url, year))
                             
             return filtered_urls
         except:
@@ -377,6 +366,7 @@ class PCSSEARCH:
         except:
             self.write_log(traceback.format_exc())
 
+
     async def gather_urls_for_confs(self, conf_list):
         # 실행 코드 예시
         # pcs = PCSSEARCH(option=1, threshold=0.5, startyear=2010, endyear=2025)
@@ -404,6 +394,7 @@ class PCSSEARCH:
                         f.write(url_val + '\n')
                 
                 print(f"{conf_name} URLs saved to {file_path}")
+
 
     def koreanChecker(self, name, multi=False):
         if multi == False:
@@ -551,10 +542,17 @@ class PCSSEARCH:
             soup = BeautifulSoup(res, "lxml")
 
             publ_lists = soup.find_all('ul', class_='publ-list')
-        
-            if publ_lists is None:
-                return stats
-
+            
+            trynum = 1
+            while True:
+                publ_lists = soup.find_all('ul', class_='publ-list')
+                if publ_lists is None or len(publ_lists) == 0:
+                    trynum += 1
+                    if trynum == 10:
+                        break
+                    continue
+                break
+            
             papers = []
             for publ_list in publ_lists:
                 publ_list = publ_list.find_all("li", class_="entry inproceedings toc")
@@ -572,18 +570,9 @@ class PCSSEARCH:
                         author_list = [author.get_text(strip=True) for author in authors]
                         author_list.pop()
 
-                        authors = []
-                        for name in author_list:
-                            parts = name.split()
-                            if len(parts) >= 3:
-                                full_name = parts[0] + parts[1].lower()
-                                authors.append(full_name)
-                            else:
-                                authors.append(name)
-
                         papers.append({
                             'title': title,
-                            'authors': authors
+                            'authors': author_list
                         })
 
                 for paper in papers:
