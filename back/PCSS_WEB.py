@@ -14,7 +14,7 @@ threshold = InputData['uncertainty']
 conf_list = InputData['selectedConferences']
 countOption = InputData['CountOption']
 
-countOption = True if countOption == '예' else False
+countOption = True if countOption == 'yes' else False
 
 pcssearch_obj = PCSSEARCH(int(option), float(threshold), int(startyear), int(endyear), countOption)
 pcssearch_obj.main(conf_list)

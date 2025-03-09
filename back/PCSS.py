@@ -47,7 +47,7 @@ class PCSSEARCH:
         self.endyear        = int(endyear)       
         self.countOption    = countOption             
 
-        self.proxy_option   = True
+        self.proxy_option   = False
         self.proxy_path     = "C:/Users/magel/Documents/아이피샵(유동프록시).txt"
         self.speed          = 3
         
