@@ -161,6 +161,10 @@ class PCSSEARCH:
                     response = await file.read()
             else:
                 response = await self.asyncRequester(url, session=session)
+                if year != 2025:
+                    async with aiofiles.open(record_path, "w", encoding="utf-8") as file:
+                        await file.write(response)
+                
             
             if isinstance(response, tuple):
                 return response         
@@ -692,8 +696,8 @@ class PCSSEARCH:
             os.system("clear")
 
 if __name__ == "__main__":
-    pcssearch_obj = PCSSEARCH(1, 0.5, 2023, 2023)
-    conf_list = ['CIKM', 'ICDM', 'KDD']
+    pcssearch_obj = PCSSEARCH(1, 0.5, 2024, 2024)
+    conf_list = ['CCS']
     pcssearch_obj.main(conf_list)
     
     

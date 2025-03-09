@@ -122,7 +122,7 @@
     }
     .source-link {
       font-size: 13px;
-      color: #007bff;
+      color: #007bff; /* 라이트모드 색상 */
       text-decoration: none;
       display: inline-block;
       margin-top: 3px;
@@ -226,6 +226,9 @@
         color: #ff88a2;
         font-weight: bold;
         font-size: 18px;
+      }
+      .source-link {
+        color: #4da6ff;  /* 다크모드에서 원하는 색상으로 변경 */
       }
       .container {
         background-color: #242424;
@@ -481,11 +484,9 @@
                       const conferenceSection = document.createElement("div");
                       conferenceSection.className = "conference-section";
                       
-                      const confPaper = groupedPapers[author][year][conference][0];
-                      const conferenceLink = confPaper.source || "#";
                       const conferenceHeader = document.createElement("div");
                       conferenceHeader.className = "conference-header";
-                      conferenceHeader.innerHTML = `<a href="${conferenceLink}" target="_blank" class="conference-link">${conference}</a>`;
+                      conferenceHeader.innerHTML = `<span class="conference-link">${conference}</span>`;
                       // 토글 아이콘 추가
                       const confToggleIcon = document.createElement("span");
                       confToggleIcon.className = "toggle-icon";
@@ -510,29 +511,39 @@
                       
                       // 논문 카드 생성
                       groupedPapers[author][year][conference].forEach(paper => {
-                          const card = document.createElement("div");
-                          card.className = "card";
-                          
-                          const titleEl = document.createElement("div");
-                          titleEl.className = "card-title";
-                          titleEl.textContent = `${paper.title}`;
-                          card.appendChild(titleEl);
-                          
-                          const authorsList = document.createElement("div");
-                          authorsList.className = "authors";
-                          paper.author_name.forEach((a, index) => {
-                              const link = document.createElement("a");
-                              link.href = paper.author_url[index] || "#";
-                              link.textContent = a;
-                              link.target = "_blank";
-                              authorsList.appendChild(link);
-                              if (index < paper.author_name.length - 1) {
-                                  authorsList.appendChild(document.createTextNode(', '));
-                              }
-                          });
-                          card.appendChild(authorsList);
-                          conferenceContent.appendChild(card);
+                        const card = document.createElement("div");
+                        card.className = "card";
+                        
+                        const titleEl = document.createElement("div");
+                        titleEl.className = "card-title";
+                        titleEl.textContent = `${paper.title}`;
+                        card.appendChild(titleEl);
+                        
+                        const authorsList = document.createElement("div");
+                        authorsList.className = "authors";
+                        paper.author_name.forEach((a, index) => {
+                            const link = document.createElement("a");
+                            link.href = paper.author_url[index] || "#";
+                            link.textContent = a;
+                            link.target = "_blank";
+                            authorsList.appendChild(link);
+                            if (index < paper.author_name.length - 1) {
+                                authorsList.appendChild(document.createTextNode(', '));
+                            }
+                        });
+                        card.appendChild(authorsList);
+
+                        // 추가: 논문의 source URL로 이동할 수 있는 링크 추가
+                        const sourceLink = document.createElement("a");
+                        sourceLink.href = paper.source || "#";
+                        sourceLink.textContent = "source";
+                        sourceLink.className = "paper-source-link"; // 필요에 따라 스타일링 가능
+                        sourceLink.target = "_blank";
+                        card.appendChild(sourceLink);
+
+                        conferenceContent.appendChild(card);
                       });
+
                       
                       conferenceSection.appendChild(conferenceHeader);
                       conferenceSection.appendChild(conferenceContent);
