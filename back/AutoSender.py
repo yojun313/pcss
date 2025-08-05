@@ -1,4 +1,4 @@
-from PCSS import PCSSEARCH
+from pcss import PCSSEARCH
 import pandas as pd
 import os
 import gspread
