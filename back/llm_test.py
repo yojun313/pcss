@@ -1,7 +1,7 @@
 import requests
 
 info = {
-    'cluster': ("141.223.16.254", 8089),
+    'cluster': ("cse-cluster0.postech.ac.kr", 8089),
     'z8':  ('121.152.225.232', 80)
 }
 
