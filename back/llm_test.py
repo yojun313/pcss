@@ -51,6 +51,7 @@ class Test:
 
 if __name__ == "__main__":
     test = Test()
+    names = ["John Kim", "Minji Lee", "Alice Park", "Sungmin Choi", "Jisoo Kim"]
     query = f"""
         Given a list of names, express the likelihood of each name being Korean using only a number between 0 and 1.
         Return the results **only as numbers in the same order as the input**, separated by spaces.
