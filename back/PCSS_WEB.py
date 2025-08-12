@@ -2,7 +2,7 @@ import sys
 import json
 import ast
 
-from PCSS import PCSSEARCH
+from pcss import PCSSEARCH
 
 InputData = json.loads(sys.argv[1])
 
