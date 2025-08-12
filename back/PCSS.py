@@ -80,15 +80,12 @@ class PCSSEARCH:
         self.log_file_path = os.path.join(os.path.dirname(__file__), 'log', f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt")  # 로그 파일 이름
         self.db_path = os.path.join(os.path.dirname(__file__), 'db')
         
-        self.init_proxy()
+        if self.proxy_option == True:
+            self.init_proxy()
 
     def init_proxy(self):
         with open(self.proxy_path, "r", encoding="utf-8") as f:
             self.proxy_list = [line.strip() for line in f]  # strip()을 사용하여 개행 문자 제거 (필요한 경우)
-    
-    def random_proxy(self):
-        proxy_server = random.choice(self.proxy_list)
-        return {"http": 'http://' + proxy_server, 'https': 'http://' + proxy_server}
     
     def async_proxy(self):
         proxy_server = random.choice(self.proxy_list)
