@@ -428,7 +428,7 @@ class PCSSEARCH:
             pass
         
         if self.llm_api_option == False:
-            template = "Express the likelihood of this {name} being Korean using only a number between 0~1. You need to say number only"
+            template = f"Express the likelihood of this {name} being Korean using only a number between 0~1. You need to say number only"
 
             prompt = PromptTemplate.from_template(template=template)
             chain = prompt | self.llm | StrOutputParser()

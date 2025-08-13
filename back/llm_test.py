@@ -51,8 +51,6 @@ class Test:
 
 if __name__ == "__main__":
     test = Test()
-    names = ["John Kim", "Minji Lee", "Alice Park", "Sungmin Choi", "Jisoo Kim"]
-    query = f"""
-        hi
-    """
+    name = "Antonio Terpin"
+    query = f"Express the likelihood of this {name} being Korean using only a number between 0~1. You need to say number only"
     test.main(query)
