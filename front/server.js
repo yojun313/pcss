@@ -9,6 +9,7 @@ const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
 const { spawn } = require('child_process');
+const PYTHON_BIN = path.join(__dirname, '..', 'venv', 'bin', 'python');
 
 const server = http.createServer(app);
 const io = new Server(server);
@@ -96,73 +97,92 @@ app.post('/submit', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-    socket.on('start-python', () => {
-        let pythonOutput = '';
-        const pythonProcess = spawn('python', ['-u', path.join(__dirname, '..', 'back', 'pcss_web.py'), JSON.stringify(globalInputData)]);
+  socket.on('start-python', () => {
+    let pythonOutput = '';
 
-        pythonProcess.stdout.on('data', (data) => {
-            pythonOutput += data.toString();
-            socket.emit('python_output', data.toString());
-        });
+    // 스크립트/작업 디렉토리 경로
+    const scriptPath = path.join(__dirname, '..', 'back', 'pcss_web.py');
+    const cwdPath    = path.join(__dirname, '..', 'back');
 
-        pythonProcess.stderr.on('data', (data) => {
-            const errorMsg = `Python stderr: ${data}`;
-            logError(errorMsg);
-            pythonOutput += data.toString();
-            socket.emit('python_error', data.toString());
-        });
-
-        pythonProcess.on('close', (code) => {
-            try {
-                const pathStartIndex = pythonOutput.indexOf('PATH=');
-                if (pathStartIndex !== -1) {
-                    const pathEndIndex = pythonOutput.indexOf('\n', pathStartIndex);
-                    const jsonPath = pythonOutput.slice(pathStartIndex + 5, pathEndIndex !== -1 ? pathEndIndex : undefined).trim();
-
-                    if (jsonPath === "ERROR") {
-                        const errorMsg = 'Python 실행 중 오류 발생';
-                        logError(errorMsg);
-                        socket.emit('redirect_to_results', { isDictionary: false, data: errorMsg });
-                        return;
-                    }
-
-                    fs.readFile(jsonPath, 'utf-8', (err, fileData) => {
-                        if (err) {
-                            const errorMsg = `JSON 파일 읽기 오류: ${err.message}`;
-                            logError(errorMsg);
-                            socket.emit('redirect_to_results', { isDictionary: false, data: errorMsg });
-                            return;
-                        }
-
-                        try {
-                            const finalOutput = JSON.parse(fileData);
-                            socket.emit('redirect_to_results', { isDictionary: true, data: finalOutput });
-
-                            fs.unlink(jsonPath, (unlinkErr) => {
-                                if (unlinkErr) {
-                                    logError(`JSON 파일 삭제 오류: ${unlinkErr.message}`);
-                                }
-                            });
-                        } catch (parseErr) {
-                            const errorMsg = `JSON 파싱 오류: ${parseErr.message}`;
-                            logError(errorMsg);
-                            socket.emit('redirect_to_results', { isDictionary: false, data: errorMsg });
-                        }
-                    });
-                } else {
-                    socket.emit('redirect_to_results', { isDictionary: false, data: errorMsg });
-                }
-            } catch (err) {
-                logError(`오류 발생: ${err.message}`);
-                socket.emit('redirect_to_results', { isDictionary: false, data: pythonOutput.trim() });
-            }
-        });
-
-        socket.on('disconnect', () => {
-            pythonProcess.kill();
-        });
+    // 가상환경 파이썬으로 실행
+    const pythonProcess = spawn(PYTHON_BIN, ['-u', scriptPath, JSON.stringify(globalInputData || {})], {
+      cwd: cwdPath,
+      env: { ...process.env }, // 필요 시 venv 전용 ENV 추가 가능
     });
+
+    // (강력 추천) 시작 실패 캐치
+    pythonProcess.on('error', (err) => {
+      const msg = `[spawn error] ${err.message}`;
+      logError(msg);
+      socket.emit('redirect_to_results', { isDictionary: false, data: msg });
+    });
+
+    pythonProcess.stdout.on('data', (data) => {
+      pythonOutput += data.toString();
+      socket.emit('python_output', data.toString());
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+      const errorMsg = `Python stderr: ${data}`;
+      logError(errorMsg);
+      pythonOutput += data.toString();
+      socket.emit('python_error', data.toString());
+    });
+
+    pythonProcess.on('close', (code) => {
+      try {
+        const pathStartIndex = pythonOutput.indexOf('PATH=');
+        if (pathStartIndex !== -1) {
+          const pathEndIndex = pythonOutput.indexOf('\n', pathStartIndex);
+          const jsonPath = pythonOutput.slice(
+            pathStartIndex + 5,
+            pathEndIndex !== -1 ? pathEndIndex : undefined
+          ).trim();
+
+          if (jsonPath === 'ERROR') {
+            const errorMsg = 'Python 실행 중 오류 발생';
+            logError(errorMsg);
+            socket.emit('redirect_to_results', { isDictionary: false, data: errorMsg });
+            return;
+          }
+
+          fs.readFile(jsonPath, 'utf-8', (err, fileData) => {
+            if (err) {
+              const errorMsg = `JSON 파일 읽기 오류: ${err.message}`;
+              logError(errorMsg);
+              socket.emit('redirect_to_results', { isDictionary: false, data: errorMsg });
+              return;
+            }
+            try {
+              const finalOutput = JSON.parse(fileData);
+              socket.emit('redirect_to_results', { isDictionary: true, data: finalOutput });
+              fs.unlink(jsonPath, (unlinkErr) => {
+                if (unlinkErr) logError(`JSON 파일 삭제 오류: ${unlinkErr.message}`);
+              });
+            } catch (parseErr) {
+              const errorMsg = `JSON 파싱 오류: ${parseErr.message}`;
+              logError(errorMsg);
+              socket.emit('redirect_to_results', { isDictionary: false, data: errorMsg });
+            }
+          });
+        } else {
+          // 기존 코드 버그: errorMsg 미정의 → 고정 메시지로 대체
+          const msg = 'Python 출력에서 PATH=를 찾지 못했습니다. (pcss_web.py가 JSON 경로를 출력하지 않음)';
+          logError(msg);
+          socket.emit('redirect_to_results', { isDictionary: false, data: msg });
+        }
+      } catch (err) {
+        logError(`후처리 오류: ${err.message}`);
+        socket.emit('redirect_to_results', { isDictionary: false, data: pythonOutput.trim() });
+      }
+    });
+
+    socket.on('disconnect', () => {
+      pythonProcess.kill();
+    });
+  });
 });
+
 
 server.listen(port, () => {
     console.log(`서버 실행 중: http://localhost:${port}`);
