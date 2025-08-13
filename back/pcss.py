@@ -33,7 +33,7 @@ if com == 'z8':
     PORT = "3333"
 elif com == 'cluster':
     LLM_SERVER = '141.223.16.196'
-    PORT = "8089"
+    PORT = "8000"
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)

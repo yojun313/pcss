@@ -1,7 +1,7 @@
 import requests
 
 info = {
-    'cluster': ("141.223.16.254", 8009),
+    'cluster': ("141.223.16.254", 8000),
     'z8':  ('121.152.225.232', 80)
 }
 
@@ -10,18 +10,21 @@ class Test:
         pass
 
     def main(self, query):
-        idx = 1
-        for key, value in info.items():
-            print(f"{idx}: {key}")
-            idx += 1
-        com = int(input("Enter number: "))
-        print("\n[Answer]\n")
-        if com == 1:
-            SERVER = info['cluster']
-            self.com = 'cluster'
-        else:
-            SERVER = info['z8']
-            self.com = 'z8'
+        # idx = 1
+        # for key, value in info.items():
+        #     print(f"{idx}: {key}")
+        #     idx += 1
+        # com = int(input("Enter number: "))
+        # print("\n[Answer]\n")
+        # if com == 1:
+        #     SERVER = info['cluster']
+        #     self.com = 'cluster'
+        # else:
+        #     SERVER = info['z8']
+        #     self.com = 'z8'
+                
+        SERVER = info['cluster']
+        self.com = 'cluster'
 
         self.LLM_model = "llama3.3:70b-instruct-q8_0"
         self.api_url = f"http://{SERVER[0]}:{SERVER[1]}/api/process"
