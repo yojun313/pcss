@@ -50,6 +50,7 @@ class PCSSEARCH:
         self.proxy_option   = False
         self.proxy_path     = "C:/Users/magel/Documents/아이피샵(유동프록시).txt"
         self.speed          = 3
+        self.current_year   = 2025
         
         self.json_filename  = os.path.join(os.path.dirname(__file__), 'data', "llm_name.json")
         self.name_dict      = self.load_name_dict()
@@ -62,14 +63,6 @@ class PCSSEARCH:
             self.llm = OllamaLLM(model=self.llm_model)
         self.checkedNameList = []
         self.titleList = []
-
-        # last_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'last_name.csv'), sep=';')
-        # self.last_name_list = list(last_name_df[['eng_1', 'eng_2', 'eng_3']].stack() .astype(str))
-        # self.last_name_list = [item.strip() for sublist in self.last_name_list for item in sublist.split(",")]
-
-        # first_name_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'first_name.csv'))
-        # self.first_name_list = list(first_name_df[['eng']].stack()) # 모든 열을 행 방향으로 쌓음 (NaN 제거 포함).astype(str)  # 모든 값을 문자열로 변환
-        # self.first_name_list = [item.strip() for sublist in self.first_name_list for item in sublist.split(",")]
 
         self.conf_df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))
         self.conf_param_list = self.conf_df['param'].tolist()
@@ -104,7 +97,7 @@ class PCSSEARCH:
             folder_path = os.path.join(os.path.dirname(__file__), 'data', 'urls')
             file_path = os.path.join(folder_path, f"{conf_name}.txt")
             
-            if os.path.exists(file_path) and self.endyear != 2025:
+            if os.path.exists(file_path) and self.endyear != self.current_year:
                 # 이미 파일이 있다면, 해당 내용 사용
                 async with aiofiles.open(file_path, 'r', encoding='utf-8') as f:
                     async for line in f:
@@ -318,6 +311,7 @@ class PCSSEARCH:
             results = await asyncio.gather(*tasks)
         except:
             self.write_log(traceback.format_exc())
+
 
     async def MultiConfCollector(self, conf_list):
         try:
@@ -575,13 +569,13 @@ class PCSSEARCH:
             
             papers = []
             for publ_list in publ_lists:
-                publ_list = publ_list.find_all("li", class_="entry inproceedings toc")
-                ids = [li["id"] for li in publ_list if li.has_attr("id")]
-                
-                for index, paper in enumerate(publ_list):
-                    conf = ids[index].split('/')[1]
-                    if conf not in self.conf_param_list:
-                        continue  
+                publ_list = publ_list.find_all("li", class_=re.compile(r"entry"))  
+                for paper in publ_list:
+                    if paper.has_attr('id') and paper['id'].split('/')[1] in conf_list:
+                        pass
+                    else:
+                        continue
+                    
                     title = paper.find('span', 'title')
                     if title is not None:
                         title = title.text
@@ -605,8 +599,7 @@ class PCSSEARCH:
                             stats["first_or_second_author"] += 1
                         elif authors[-1] == target_author:
                             stats["last_author"] += 1
-                        else:
-                            stats["co_author"] += 1
+                        stats["co_author"] += 1
 
             return f"({stats['first_author']},{stats['first_or_second_author']},{stats['last_author']},{stats['co_author']})"
         except Exception as e:

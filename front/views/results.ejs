@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PCSS Result</title>
   <style>
-    /* 기본 라이트 모드 스타일 */
+        /* 기본 라이트 모드 스타일 */
     body {
       font-family: Arial, sans-serif;
       margin: 10px;
@@ -15,7 +15,7 @@
       font-size: 14px;
     }
     .container {
-      padding: 15px;
+      padding: 10px; /* 여백 줄임 */
       background: #ffffff;
       border-radius: 6px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
@@ -25,53 +25,55 @@
     }
     h1 {
       text-align: center;
-      font-size: 35px;
+      font-size: 30px; /* 크기 줄임 */
       font-weight: bold;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       color: #C80150;
     }
+
     /* 테이블 스타일 (검색 옵션 영역) */
     .options-table {
       width: 100%;
-      border-collapse: separate; /* 둥근 모서리를 위해 separate 사용 */
+      border-collapse: separate;
       border-spacing: 0;
-      margin-bottom: 20px;
+      margin-bottom: 15px; /* 아래 여백 줄임 */
       background-color: #ffffff;
       color: #333;
       border: 1px solid #ddd;
-      border-radius: 6px; /* 둥근 모서리 적용 */
+      border-radius: 6px;
       overflow: hidden;
     }
     .options-table th,
     .options-table td {
-      padding: 10px;
+      padding: 8px;
       width: 50%;
       border: 1px solid #ddd;
     }
     .options-table th {
       background-color: #f2f2f2;
       color: #C80150;
-      font-size: 18px;
+      font-size: 16px;
       text-align: left;
     }
     .option-label {
       background-color: #fafafa;
       font-weight: bold;
     }
+
     /* 섹션 스타일 */
     .year-section, .conference-section {
       border: 1px solid #ddd;
       border-radius: 6px;
       background-color: #ffffff;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      margin-bottom: 10px;
-      padding: 10px;
+      margin-bottom: 8px; /* 간격 줄임 */
+      padding: 6px;
     }
     .year-header, .conference-header {
-      font-size: 14px;
+      font-size: 13px;
       color: #C80150;
       font-weight: bold;
-      padding: 5px 10px;
+      padding: 4px 8px;
       background-color: #f2f2f2;
       cursor: pointer;
       display: flex;
@@ -79,27 +81,44 @@
       align-items: center;
     }
     .year-content, .conference-content {
-      padding: 5px 10px;
+      padding: 4px 6px;
       display: block;
     }
+
+    /* 카드(논문) */
     .card {
-      margin: 5px 0;
-      padding: 8px;
+      margin: 3px 0; /* 위아래 간격 줄임 */
+      padding: 5px;  /* 내부 여백 줄임 */
       border: 1px solid #ddd;
       border-radius: 4px;
       background-color: #ffffff;
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     .card-title {
-      font-size: 14px;
+      font-size: 13px; /* 조금 줄임 */
       font-weight: bold;
       color: #333;
+      margin-bottom: 2px;
     }
+    .meta-line {
+      font-size: 12px;
+      color: #555;
+      margin-bottom: 4px;
+    }
+    .meta-line a {
+      text-decoration: none;
+      color: #C80150;
+      margin-left: 5px;
+    }
+    .meta-line a:hover {
+      text-decoration: underline;
+    }
+
     .authors {
       list-style: none;
       padding: 0;
-      margin: 3px 0;
-      font-size: 13px;
+      margin: 2px 0;
+      font-size: 12px;
     }
     .authors li {
       display: inline;
@@ -109,113 +128,92 @@
     a.conference-link,
     a.author-link {
       text-decoration: none;
-      color: #C80150;  /* 라이트모드에서 원하는 색상 */
+      color: #C80150;
     }
     .authors a:hover,
     a.conference-link:hover,
     a.author-link:hover {
       text-decoration: underline;
     }
-    a.conference-link:hover,
-    a.author-link:hover,
-    .authors li a:hover {
-      text-decoration: underline;
-    }
+
+    /* source 링크 */
     .paper-source-link {
-      font-size: 13px;
-      color: #0056b3; /* 변경된 라이트모드 색상 */
+      font-size: 12px;
+      color: #0056b3;
       text-decoration: none;
-      display: inline-block;
-      margin-top: 3px;
     }
     .paper-source-link:hover {
       text-decoration: underline;
     }
+
+    /* 메인 페이지 링크 */
     .main-link {
       text-align: center;
-      margin: 20px auto 30px auto; /* 위쪽 20px, 아래쪽 30px */
+      margin: 15px auto 20px auto;
     }
     .main-link a {
       text-decoration: none;
       color: #C80150;
       font-weight: bold;
-      font-size: 18px;
+      font-size: 16px;
     }
-    
+
     /* 반응형 디자인 */
     @media (max-width: 768px) {
       body {
         font-size: 12px;
       }
       .container {
-        padding: 10px;
+        padding: 8px;
         max-width: 100%;
       }
       h1 {
-        font-size: 24px;
+        font-size: 22px;
       }
       .year-header, .conference-header {
         font-size: 12px;
-        padding: 8px 10px;
+        padding: 6px 8px;
       }
       .card-title {
-        font-size: 13px;
-      }
-      .authors {
         font-size: 12px;
       }
-      table th, table td {
-        padding: 8px;
+      .authors {
+        font-size: 11px;
       }
     }
+
     /* Footer 스타일 */
     .footer {
       text-align: center;
       font-size: 12px;
-      margin-top: 20px;
-      padding: 10px 0;
-      /* 별도의 배경색이나 테두리 없이 깔끔하게 */
+      margin-top: 15px;
+      padding: 8px 0;
+      color: #666;
     }
-    /* footer 내부 컨테이너를 세로 정렬 */
     .footer-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
     }
     .footer-container p {
       margin: 0;
       font-weight: bold;
     }
-    /* 각 사용자 정보를 한 줄에 깔끔하게 정렬 */
     .user {
       display: flex;
       align-items: center;
       gap: 5px;
-      font-size: 13px;
+      font-size: 12px;
     }
-    /* 링크 기본 스타일 */
     .user a {
       text-decoration: none;
-      transition: color 0.3s;
+      color: #007bff;
     }
-    /* 호버 시 언더라인 */
     .user a:hover {
       text-decoration: underline;
     }
-    /* (선택사항) Contact: 텍스트를 span으로 감싸면 고정폭을 줄 수도 있음 */
-    .contact-label {
-      display: inline-block;
-      width: 60px;  /* 필요에 따라 조정 */
-      text-align: right;
-    }
-    /* 라이트 모드 색상 */
-    .footer {
-      color: #666;
-    }
-    .user a {
-      color: #007bff;
-    }
+
     /* 다크 모드 스타일 */
     @media (prefers-color-scheme: dark) {
       body {
@@ -223,13 +221,10 @@
         color: #e0e0e0;
       }
       .main-link a {
-        text-decoration: none;
         color: #ff88a2;
-        font-weight: bold;
-        font-size: 18px;
       }
       .paper-source-link {
-        color: #66ccff;  /* 변경된 다크모드 색상 */
+        color: #66ccff;
       }
       .container {
         background-color: #242424;
@@ -273,13 +268,7 @@
       .authors a,
       a.conference-link,
       a.author-link {
-        text-decoration: none;
-        color: #ff88a2;  /* 다크모드에서 빨간 계열로 변경 */
-      }
-      .authors a:hover,
-      a.conference-link:hover,
-      a.author-link:hover {
-        text-decoration: underline;
+        color: #ff88a2;
       }
       .user a {
         color: #4da6ff;
@@ -329,11 +318,11 @@
           <td><%= options.startyear %> ~ <%= options.endyear %></td>
         </tr>
         <tr>
-          <td class="option-label">한국인 판단 기준값</td>
+          <td class="option-label">한국인 판단 기준값(0.0-1.0)</td>
           <td><%= options.uncertainty %></td>
         </tr>
         <tr>
-          <td class="option-label">저자별 논문 Count</td>
+          <td class="option-label">저자별 총 논문 수</td>
           <td><%= options.CountOption %></td>
         </tr>
         <tr>
@@ -510,40 +499,57 @@
                       const conferenceContent = document.createElement("div");
                       conferenceContent.className = "conference-content";
                       
-                      // 논문 카드 생성
                       groupedPapers[author][year][conference].forEach(paper => {
                         const card = document.createElement("div");
                         card.className = "card";
-                        
+
+                        // 1) 메타 한 줄: "2025 – ISCA (DBLP)"
+                        const meta = document.createElement("div");
+                        meta.className = "paper-meta";
+
+                        // source 라벨을 도메인별로 보기 좋게
+                        let sourceLabel = "Source";
+                        try {
+                          const host = new URL(paper.source || "#").hostname;
+                          if (/dblp/i.test(host)) sourceLabel = "DBLP";
+                          else if (/arxiv/i.test(host)) sourceLabel = "arXiv";
+                        } catch (e) {}
+                        const srcA = document.createElement("a");
+                        srcA.href = paper.source || "#";
+                        srcA.target = "_blank";
+                        srcA.textContent = `(${sourceLabel})`;
+
+                        // "연도 – 학회" + (source)
+                        const metaText = document.createTextNode(`${paper.year} – ${conference} `);
+                        meta.appendChild(metaText);
+                        meta.appendChild(srcA);
+                        card.appendChild(meta);
+
+                        // 2) 제목
                         const titleEl = document.createElement("div");
                         titleEl.className = "card-title";
-                        titleEl.textContent = `${paper.title}`;
+                        titleEl.textContent = paper.title;
                         card.appendChild(titleEl);
-                        
+
+                        // 3) 저자 (콤팩트하게)
                         const authorsList = document.createElement("div");
                         authorsList.className = "authors";
                         paper.author_name.forEach((a, index) => {
-                            const link = document.createElement("a");
-                            link.href = paper.author_url[index] || "#";
-                            link.textContent = a;
-                            link.target = "_blank";
-                            authorsList.appendChild(link);
-                            if (index < paper.author_name.length - 1) {
-                                authorsList.appendChild(document.createTextNode(', '));
-                            }
+                          const link = document.createElement("a");
+                          link.href = paper.author_url[index] || "#";
+                          link.textContent = a;
+                          link.target = "_blank";
+                          authorsList.appendChild(link);
+                          if (index < paper.author_name.length - 1) {
+                            authorsList.appendChild(document.createTextNode(', '));
+                          }
                         });
                         card.appendChild(authorsList);
 
-                        // 추가: 논문의 source URL로 이동할 수 있는 링크 추가
-                        const sourceLink = document.createElement("a");
-                        sourceLink.href = paper.source || "#";
-                        sourceLink.textContent = "source";
-                        sourceLink.className = "paper-source-link"; // 필요에 따라 스타일링 가능
-                        sourceLink.target = "_blank";
-                        card.appendChild(sourceLink);
-
+                        // 최종 추가
                         conferenceContent.appendChild(card);
                       });
+
 
                       
                       conferenceSection.appendChild(conferenceHeader);

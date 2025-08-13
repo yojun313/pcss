@@ -25,7 +25,7 @@ def authorNumChecker(target_author, url):
         }
 
         res = requests.get(url)
-        soup = BeautifulSoup(res.text, "html.parser")
+        soup = BeautifulSoup(res.text, "lxml")
 
         while True:
             publ_lists = soup.find_all('ul', class_='publ-list')
@@ -35,13 +35,13 @@ def authorNumChecker(target_author, url):
 
         papers = []
         for publ_list in publ_lists:
-            publ_list = publ_list.find_all("li", class_="entry inproceedings toc")
-            ids = [li["id"] for li in publ_list if li.has_attr("id")]
-            
-            for index, paper in enumerate(publ_list):
-                conf = ids[index].split('/')[1]
-                if conf not in conf_list:
-                    continue  
+            publ_list = publ_list.find_all("li", class_=re.compile(r"entry"))  
+            for paper in publ_list:
+                if paper.has_attr('id') and paper['id'].split('/')[1] in conf_list:
+                    pass
+                else:
+                    continue
+                
                 title = paper.find('span', 'title')
                 if title is not None:
                     title = title.text
@@ -65,8 +65,8 @@ def authorNumChecker(target_author, url):
                         stats["first_or_second_author"] += 1
                     elif authors[-1] == target_author:
                         stats["last_author"] += 1
-                    else:
-                        stats["co_author"] += 1
+                    stats["co_author"] += 1
+                    
         print(f"({stats['first_author']},{stats['first_or_second_author']},{stats['last_author']},{stats['co_author']})")
         return f"({stats['first_author']},{stats['first_or_second_author']},{stats['last_author']},{stats['co_author']})"
     except Exception as e:
@@ -332,4 +332,5 @@ def kornametoeng(name, option=1):
 
 conf_list = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'conf.csv'))['param'].tolist()
 if __name__ == '__main__':
-    calculate_author()
+    #local_saver(2010, 2025, conf_list)
+    authorNumChecker("Jaehyuk Huh", "https://dblp.org/pid/83/5240.html")
