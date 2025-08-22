@@ -571,7 +571,7 @@ class PCSSEARCH:
             for publ_list in publ_lists:
                 publ_list = publ_list.find_all("li", class_=re.compile(r"entry"))  
                 for paper in publ_list:
-                    if paper.has_attr('id') and paper['id'].split('/')[1] in conf_list:
+                    if paper.has_attr('id') and paper['id'].split('/')[1] in self.conf_param_list:
                         pass
                     else:
                         continue
